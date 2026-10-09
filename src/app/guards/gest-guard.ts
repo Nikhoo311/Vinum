@@ -9,8 +9,8 @@ export class GuestGuard implements CanActivate {
   
   constructor(private auth: AuthService, private router: Router) {}
 
-  canActivate() {
-    if (this.auth.currentUser) {
+  async canActivate(): Promise<boolean> {
+    if (await this.auth.waitUntilReady()) {
       this.router.navigate(['/home']);
       return false;
     }

@@ -7,9 +7,9 @@ import {
   User as FirebaseUser, sendPasswordResetEmail,
   EmailAuthProvider, reauthenticateWithCredential,
   updatePassword as fbUpdatePassword, verifyBeforeUpdateEmail,
-  deleteUser
+  deleteUser, browserLocalPersistence, setPersistence
 } from '@angular/fire/auth';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, take } from 'rxjs';
 import { CaveView, User } from '../models/user.model';
 import { ERRORS_CODES } from '../types/ErrorsCode';
 import { doc, Firestore, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch } from '@angular/fire/firestore';
@@ -18,18 +18,10 @@ import { WineType } from '../types/WineType';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private authReadySubject = new BehaviorSubject(false);
 
   constructor(private auth: Auth, private router: Router, private firestore: Firestore) {
-    onAuthStateChanged(this.auth, (firebaseUser) => {
-      if (firebaseUser) {
-        this.syncUserFromFirestore(firebaseUser).catch((error) => {
-          console.error('Erreur de synchronisation utilisateur :', error);
-          this.currentUserSubject.next(null);
-        });
-      } else {
-        this.currentUserSubject.next(null);
-      }
-    });
+    void this.initializeAuthState();
   }
  
   get currentUser(): User | null {
@@ -38,6 +30,14 @@ export class AuthService {
 
   get currentUser$() {
     return this.currentUserSubject.asObservable();
+  }
+
+  async waitUntilReady(): Promise<User | null> {
+    if (!this.authReadySubject.value) {
+      await firstValueFrom(this.authReadySubject.pipe(filter(Boolean), take(1)));
+    }
+
+    return this.currentUser;
   }
  
   // ── Authentification ──────────────────────────────────────
@@ -208,6 +208,29 @@ export class AuthService {
       chunk.forEach((d) => batch.delete(d.ref));
       await batch.commit();
     }
+  }
+
+  private async initializeAuthState(): Promise<void> {
+    try {
+      await setPersistence(this.auth, browserLocalPersistence);
+    } catch (error) {
+      console.warn('Impossible de configurer la persistance locale Firebase.', error);
+    }
+
+    onAuthStateChanged(this.auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          await this.syncUserFromFirestore(firebaseUser);
+        } else {
+          this.currentUserSubject.next(null);
+        }
+      } catch (error) {
+        console.error('Erreur de synchronisation utilisateur :', error);
+        this.currentUserSubject.next(null);
+      } finally {
+        this.authReadySubject.next(true);
+      }
+    });
   }
  
   private handleAuthSuccess(firebaseUser: FirebaseUser): Promise<void> {
