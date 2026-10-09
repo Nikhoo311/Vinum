@@ -84,10 +84,10 @@
     }
   },
   "TABS": {
-    "HOME": "Accueil",
+    "HOME": "Dashboard",
     "CAVE": "Ma cave",
-    "STATS": "Stats",
-    "SETTINGS": "Réglages"
+    "STATS": "Catalogue",
+    "SETTINGS": "Paramètres"
   },
   "CAVE": {
     "VISUALIZATION": "Visualisation",
@@ -104,15 +104,21 @@
     "BOTTLES_SHORT": "btl"
   },
   "HOME": {
-    "TITLE": "Accueil",
+    "TITLE": "Dashboard",
     "WELCOME": "Bonjour",
     "STAR_WINE_TAG": "Vin star",
+    "STAR_WINE_INFO": {
+      "LABEL": "Comment est défini le vin star ?",
+      "TEXT": "Le vin star est le vin au prix unitaire le plus élevé de votre cave."
+    },
     "TOTAL_STOCK_LABEL": "Stock total",
     "BOTTLES": "{count, plural, =0 {aucune bouteille} =1 {bouteille} other {bouteilles}}",
     "EMPTY_CAVE": "Aucune bouteille dans votre cave.",
     "DISTRIBUTION_LABEL": "Répartition",
     "STATS_LABEL": "Statistiques",
-    "STATS_SUB": "cave remplie · voir détail",
+    "STATS_SUB": "cave remplie",
+    "AVERAGE_RATING_LABEL": "Note moyenne",
+    "AVERAGE_RATING_SUB": "des vins notés",
     "PAIRING_LABEL": "Accord mets-vins",
     "IN_DEVELOPMENT": "Fonctionnalité en développement.",
     "VALUE_LABEL": "Valeur de la cave",
@@ -131,9 +137,9 @@
     "REGION": "Région",
     "UNIT_PRICE": "Prix unitaire",
     "RATING": "Note",
-    "DESCRIPTION": "Description",
+    "DESCRIPTION": "Notes de saveur",
     "FOOD_PAIRING": "Accords mets-vins",
-    "NO_DESCRIPTION": "Aucune description disponible.",
+    "NO_DESCRIPTION": "Aucune note de saveur disponible.",
     "NO_FOOD_PAIRING": "Aucun accord disponible.",
     "REGION_NOT_SPECIFIED": "Région non spécifiée",
     "CLOSE": "Fermer",

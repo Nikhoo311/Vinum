@@ -28,6 +28,24 @@
     margin-bottom: 4px;
   }
 
+  &__tag-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__info-button {
+    --color: var(--mc-text-primary);
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+  }
+
   &__title {
     font-size: 1.25rem;
     font-weight: bold;
@@ -110,25 +128,60 @@
   white-space: nowrap;
 }
 
-.repart-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  margin-top: 8px;
-
-  .repart-left { 
-    display: flex; 
-    align-items: center;
-    text-transform: capitalize;
+.distribution-card {
+  &__stacked-bar {
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    background: var(--mc-border);
+    border-radius: var(--mc-radius-pill);
   }
-  
-  .dot {
-    width: 8px; 
-    height: 8px; 
+
+  &__segment {
+    height: 100%;
+    transition: width 0.5s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  &__legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  &__dot {
+    width: 0.625rem;
+    height: 0.625rem;
+    flex-shrink: 0;
     border-radius: 50%;
-    display: inline-block; 
-    margin-right: 8px;
+  }
+
+  &__name {
+    overflow: hidden;
+    font-size: 0.813rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+
+  &__percentage {
+    flex-shrink: 0;
+    color: var(--mc-text-secondary);
+    font-size: 0.75rem;
+  }
+
+  &__quantity {
+    margin-left: auto;
+    font-size: 0.813rem;
+    font-weight: 700;
   }
 }
 
@@ -156,4 +209,22 @@
 
 ion-grid {
   padding: 0;
+}
+
+.star-wine-popover {
+  max-width: 16rem;
+  color: var(--mc-text-primary);
+  font-size: 0.813rem;
+  line-height: 1.4;
+}
+
+.average-rating-kpi {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  ion-icon {
+    color: var(--ion-color-warning);
+    font-size: 1.25rem;
+  }
 }

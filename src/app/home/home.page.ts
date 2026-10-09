@@ -45,6 +45,18 @@ export class HomePage implements OnInit {
     return this.caveService.totalValue;
   }
 
+  get averageRating(): number {
+    return this.caveService.averageRating;
+  }
+
+  get formattedTotalValue(): string {
+    return new Intl.NumberFormat('fr-FR', {
+      notation: 'compact',
+      compactDisplay: 'short',
+      maximumFractionDigits: 2,
+    }).format(this.totalValue).replace(/\s/g, '');
+  }
+
   get starWine(): UserWine {
     return this.caveService.starWine;
   }
@@ -63,6 +75,15 @@ export class HomePage implements OnInit {
   distributionEntries(): [WineType, number][] {
     return Object.entries(this.distributionByType) as [WineType, number][];
   }
+
+  distributionPercentage(count: number): number {
+    return this.totalBottles > 0 ? (count / this.totalBottles) * 100 : 0;
+  }
+
+  wineTypeColor(type: WineType): string {
+    const colorSuffix = this.WINE_TYPE_CONFIG[type].gradientColor === 'accent' ? '-accent' : '';
+    return `var(--wine-${type}${colorSuffix})`;
+  }
   
   async logout() {
     await this.authService.logout();
@@ -71,10 +92,6 @@ export class HomePage implements OnInit {
 
   openSheet(): void {
     this.isSheetOpen = !this.isSheetOpen;
-  }
-
-  goToStats(): void {
-    this.router.navigate(['/stats']);
   }
 
   goToCave(): void {

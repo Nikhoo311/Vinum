@@ -3,7 +3,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@ang
 import { GestureController, Gesture, IonicModule, IonTabs } from '@ionic/angular';
 import { TranslocoModule } from '@jsverse/transloco';
 
-const TAB_ORDER = ['home', 'cave', 'stats', 'settings'];
+const TAB_ORDER = ['home', 'cave', 'catalogue', 'settings'];
 
 @Component({
   selector: 'app-tabs',

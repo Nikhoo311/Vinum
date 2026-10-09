@@ -17,6 +17,10 @@ export class CellarCellComponent {
 
   @Input() wineType: WineType | null = null;
 
+  @Input() wineName: string | null = null;
+
+  @Input() wineVintage: number | null = null;
+
   @Output() cellTap = new EventEmitter<void>();
 
   isDarkMode$!: Observable<boolean>;

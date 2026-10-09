@@ -1,14 +1,10 @@
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div class="header">
-    <p class="header__small-text">{{ 'CAVE.VISUALIZATION' | transloco }}</p>
-    <h1 class="header__title">{{ 'CAVE.TITLE' | transloco }}</h1>
-  </div>
+  <header class="header"></header>
 
-  <div class="cellar-info">
+  <section class="cellar-info" aria-labelledby="cellar-capacity">
     <div class="cellar-info__total">{{ occupiedCount }} / {{ totalCapacity }}</div>
-    <div class="cellar-info__sub">{{ 'CAVE.OCCUPIED_SLOTS' | transloco }}</div>
-  </div>
-
+    <div id="cellar-capacity" class="cellar-info__sub">{{ 'CAVE.OCCUPIED_SLOTS' | transloco }}</div>
+  </section>
   <app-search-bar
     [items]="searchableItems"
     (matchedIds)="onSearchMatch($event)">
@@ -18,25 +14,34 @@
     @if (caveConfig) {
       @if (caveConfig.viewMode === 'grid') {
         <ion-grid class="cellar-grid">
-          <ion-row>
-            @for (slot of grid; track slot.row + '-' + slot.col) {
-              @if (!matchedIds.size || matchedIds.has(slot.wine?.id || '')) {
-                <ion-col [size]="12 / caveConfig.cols">
-                  <app-cellar-cell
-                    [positionLabel]="formatCoords(slot)"
-                    [wineType]="slot.wine?.type ?? null"
-                    (cellTap)="onCellTap(slot)">
-                  </app-cellar-cell>
-                </ion-col>
-              }
+          @if (gridRows$ | async; as gridRows) {
+            @for (row of gridRows; track $index) {
+              <ion-row class="cellar-grid__row">
+                @for (slot of row; track slot.row + '-' + slot.col) {
+                  @if (!matchedIds.size || matchedIds.has(slot.wine?.id || '')) {
+                    <ion-col size="4">
+                      <app-cellar-cell
+                        [positionLabel]="formatCoords(slot)"
+                        [wineType]="slot.wine?.type ?? null"
+                        [wineName]="slot.wine?.name ?? null"
+                        [wineVintage]="slot.wine?.vintage ?? null"
+                        (cellTap)="onCellTap(slot)">
+                      </app-cellar-cell>
+                    </ion-col>
+                  }
+                }
+              </ion-row>
             }
-          </ion-row>
+          }
         </ion-grid>
       } @else {
         <ion-list class="cellar-list">
-          @for (slot of grid; track slot.row + '-' + slot.col) {
-            @if (!matchedIds.size || matchedIds.has(slot.wine?.id || '')) {
-              @if (slot.wine) {
+          @if (gridRows$ | async; as gridRows) {
+            @for (row of gridRows; track $index) {
+              <div class="cellar-list__row" role="group">
+                @for (slot of row; track slot.row + '-' + slot.col) {
+                  @if (!matchedIds.size || matchedIds.has(slot.wine?.id || '')) {
+                    @if (slot.wine) {
                 <ion-item [button]="true" (click)="onCellTap(slot)" class="wine-item" [detail]="true">
                   <ion-thumbnail slot="start">
                     <img [src]="'assets/bottle_' + slot.wine.type + '.svg'" />
@@ -50,11 +55,16 @@
                     <span class="wine-qty">{{ slot.wine.placements.length }} {{ 'COMMON.BOTTLES_SHORT' | transloco }}</span>
                   </div>
                 </ion-item>
-              } @else {
+                    } @else {
                 <ion-item [button]="true" (click)="onCellTap(slot)" class="wine-empty">
-                  <span class="wine-empty-loc">{{ formatCoords(slot) }}</span> {{ 'CAVE.EMPTY_LOCATION' | transloco }}
+                  <span class="wine-empty-loc">{{ formatCoords(slot) }}</span>
+                  {{ 'CAVE.EMPTY_LOCATION' | transloco }}
+                  <ion-icon slot="end" name="add-circle-outline" aria-hidden="true"></ion-icon>
                 </ion-item>
-              }
+                    }
+                  }
+                }
+              </div>
             }
           }
         </ion-list>

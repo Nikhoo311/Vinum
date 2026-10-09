@@ -46,6 +46,21 @@
   height: auto;
   object-fit: contain;
 }
+
+.cellar-cell__wine-summary {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.5rem;
+  left: 0.5rem;
+  overflow: hidden;
+  color: var(--mc-text-primary);
+  font-size: 0.563rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
  
 .cellar-cell__pos {
   position: absolute;

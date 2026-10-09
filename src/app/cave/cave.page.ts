@@ -28,6 +28,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 })
 export class CavePage implements OnInit, OnDestroy {
   grid$!: Observable<CaveSlot[]>;
+  gridRows$!: Observable<CaveSlot[][]>;
   isSheetOpen = false;
   wine: UserWine | null = null;
   coords: { row: number; col: number } | null = null;
@@ -40,6 +41,7 @@ export class CavePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.grid$ = this.caveService.grid$;
+    this.gridRows$ = this.caveService.grid$.pipe(map((slots) => this.groupSlotsByRow(slots)));
     this.updateSearchableItems();
     this.caveSubscription = this.caveService.grid$.subscribe(() => {
       this.updateSearchableItems();
@@ -94,6 +96,13 @@ export class CavePage implements OnInit, OnDestroy {
 
   formatCoords(slot: CaveSlot): string {
     return this.caveService.formatPlacementCoords({ row: slot.row, col: slot.col })
+  }
+
+  private groupSlotsByRow(slots: CaveSlot[]): CaveSlot[][] {
+    return slots.reduce<CaveSlot[][]>((rows, slot) => {
+      (rows[slot.row] ??= []).push(slot);
+      return rows;
+    }, []);
   }
 
   addWine(x: number, y: number) {

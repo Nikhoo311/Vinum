@@ -23,12 +23,20 @@
 }
 
 .cellar-grid ion-col {
-  padding: 0.25rem;
+  padding: 0.35rem 0.25rem;
+}
+
+.cellar-grid__row:not(:last-child) {
+  margin-bottom: 1.5rem;
 }
 
 .cellar-list {
   margin-top: 1.25rem;
   background: none;
+}
+
+.cellar-list__row:not(:last-child) {
+  margin-bottom: 2rem;
 }
 
 .wine-item {
@@ -41,7 +49,7 @@
   --border-width: 0.09375rem;
   --border-style: solid;
   --border-color: transparent;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
   transition: border-color 0.15s;
   ion-label {
     margin-left: 0.5rem;
@@ -110,9 +118,14 @@
   --padding-end: 1rem;
   --min-height: 4.5rem;
   --inner-border-width: 0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
   color: var(--mc-text-secondary);
   font-size: 0.75rem;
   font-weight: bold;
   transition: border-color 0.15s;
+
+  ion-icon {
+    color: var(--mc-text-secondary);
+    font-size: 1.25rem;
+  }
 }

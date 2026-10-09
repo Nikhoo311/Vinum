@@ -8,6 +8,7 @@
   @if (isEmpty) {
     <span class="cellar-cell__add">+</span>
   } @else {
+    <span class="cellar-cell__wine-summary">{{ wineVintage }} · {{ wineName }}</span>
     <img class="cellar-cell__bottle" [src]="WINE_TYPE_CONFIG[wineType || 'red'].icon"/>
   }
 

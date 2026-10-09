@@ -1,7 +1,6 @@
 <ion-content [fullscreen]="true" class="ion-padding">
   <div class="header">
-    <p class="header__small-text">{{ 'HOME.WELCOME' | transloco }} {{ user?.firstName || '' }} 👋</p>
-    <h1 class="header__title">{{ 'HOME.TITLE' | transloco }}</h1>
+    <p class="header__small-text">{{ 'HOME.WELCOME' | transloco }} {{ user?.firstName || '' }} !</p>
   </div>
 
   <ion-grid>
@@ -11,13 +10,24 @@
           <ion-card class="bento-card star-card ion-activatable ripple-parent"
             (click)="openSheet()"
             [style.background]="WINE_TYPE_CONFIG[starWine.type].gradientColor == 'accent'
-              ? 'linear-gradient(200deg, var(--wine-' + starWine.type + '-accent) 15%, color-mix(in srgb, var(--wine-' + starWine.type + '-accent) 30%, var(--mc-bg-card)) 100%)'
-              : 'linear-gradient(200deg, var(--wine-' + starWine.type + ') 15%, color-mix(in srgb, var(--wine-' + starWine.type + ') 30%, var(--mc-bg-card)) 100%)'">
+              ? 'color-mix(in srgb, var(--wine-' + starWine.type + '-accent) 30%, var(--mc-bg-card))'
+              : 'color-mix(in srgb, var(--wine-' + starWine.type + ') 30%, var(--mc-bg-card))'">
             <ion-ripple-effect></ion-ripple-effect>
             <img [src]="WINE_TYPE_CONFIG[starWine.type].icon"/>
   
             <div class="star-card__info">
-              <ion-chip class="star-card__tag">{{ 'HOME.STAR_WINE_TAG' | transloco }}</ion-chip>
+              <div class="star-card__tag-row">
+                <ion-chip class="star-card__tag">{{ 'HOME.STAR_WINE_TAG' | transloco }}</ion-chip>
+                <ion-button
+                  id="star-wine-info"
+                  class="star-card__info-button"
+                  fill="clear"
+                  shape="round"
+                  aria-label="{{ 'HOME.STAR_WINE_INFO.LABEL' | transloco }}"
+                  (click)="$event.stopPropagation()">
+                  <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+                </ion-button>
+              </div>
               <h2 class="star-card__title">{{ starWine.name }}</h2>
               <p class="star-card__meta">
                 {{ starWine.vintage }} · 
@@ -26,8 +36,23 @@
               </p>
             </div>
           </ion-card>
+          <ion-popover trigger="star-wine-info" triggerAction="click" side="bottom" alignment="end">
+            <ng-template>
+              <div class="star-wine-popover ion-padding">
+                {{ 'HOME.STAR_WINE_INFO.TEXT' | transloco }}
+              </div>
+            </ng-template>
+          </ion-popover>
         </ion-col>
       }
+
+      <ion-col size="6">
+        <ion-card class="bento-card">
+          <ion-card-title class="bento-label">{{ 'HOME.VALUE_LABEL' | transloco }}</ion-card-title>
+          <div class="bento-kpi">{{ formattedTotalValue }} €</div>
+          <div class="bento-sub-text">{{ 'HOME.VALUE_SUB' | transloco }}</div>
+        </ion-card>
+      </ion-col>
 
       <ion-col size="6">
         <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCave()">
@@ -42,31 +67,43 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="6">
-        <ion-card class="bento-card">
-          <ion-card-title class="bento-label">{{ 'HOME.DISTRIBUTION_LABEL' | transloco }}</ion-card-title>
-          @for (wineDistribution of distributionEntries(); track wineDistribution[0]) {
-            <div class="repart-row">
-              <span class="repart-left">
-                <span
-                  class="dot"
-                  [style.background]="WINE_TYPE_CONFIG[wineDistribution[0]].gradientColor === 'accent'
-                    ? 'var(--wine-' + wineDistribution[0] + '-accent)'
-                    : 'var(--wine-' + wineDistribution[0] + ')'">
-                </span>
+      <ion-col size="12">
+        <ion-card class="bento-card distribution-card">
+          <div
+            class="distribution-card__stacked-bar"
+            role="img"
+            [attr.aria-label]="'HOME.DISTRIBUTION_LABEL' | transloco">
+            @for (wineDistribution of distributionEntries(); track wineDistribution[0]) {
+              <span
+                class="distribution-card__segment"
+                [style.width.%]="distributionPercentage(wineDistribution[1])"
+                [style.background]="wineTypeColor(wineDistribution[0])">
+              </span>
+            }
+          </div>
 
+          <div class="distribution-card__legend">
+          @for (wineDistribution of distributionEntries(); track wineDistribution[0]) {
+            <div class="distribution-card__legend-item">
+              <span
+                class="distribution-card__dot"
+                [style.background]="wineTypeColor(wineDistribution[0])">
+              </span>
+              <span class="distribution-card__name">
                 {{ WINE_TYPE_CONFIG[wineDistribution[0]].label | transloco }}
               </span>
-
-              <span>{{ wineDistribution[1] }}</span>
+              <span class="distribution-card__percentage">
+                {{ distributionPercentage(wineDistribution[1]) | number:'1.0-0' }} %
+              </span>
+              <span class="distribution-card__quantity">{{ wineDistribution[1] }}</span>
             </div>
           }
+          </div>
         </ion-card>
       </ion-col>
 
       <ion-col size="6">
-        <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToStats()">
-          <ion-ripple-effect></ion-ripple-effect>
+        <ion-card class="bento-card">
           <ion-card-title class="bento-label">{{ 'HOME.STATS_LABEL' | transloco }}</ion-card-title>
           <div class="bento-kpi">{{ wineCaveFillPercentage }} %</div>
           <div class="bento-sub-text">{{ 'HOME.STATS_SUB' | transloco }}</div>
@@ -75,16 +112,12 @@
 
       <ion-col size="6">
         <ion-card class="bento-card">
-          <ion-card-title class="bento-label">{{ 'HOME.PAIRING_LABEL' | transloco }}</ion-card-title>
-          <div class="bento-sub-text" style="margin-top: 10px;">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-card class="bento-card">
-          <ion-card-title class="bento-label">{{ 'HOME.VALUE_LABEL' | transloco }}</ion-card-title>
-          <div class="bento-kpi">{{ totalValue | number }} €</div>
-          <div class="bento-sub-text">{{ 'HOME.VALUE_SUB' | transloco }}</div>
+          <ion-card-title class="bento-label">{{ 'HOME.AVERAGE_RATING_LABEL' | transloco }}</ion-card-title>
+          <div class="bento-kpi average-rating-kpi">
+            {{ averageRating ? (averageRating | number:'1.1-1') : '—' }}
+            <ion-icon name="star" aria-hidden="true"></ion-icon>
+          </div>
+          <div class="bento-sub-text">{{ 'HOME.AVERAGE_RATING_SUB' | transloco }}</div>
         </ion-card>
       </ion-col>
 

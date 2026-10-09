@@ -20,7 +20,7 @@ const routes: Routes = [
         loadChildren: () => import("../cave/cave.module").then(m => m.CavePageModule),
       },
       {
-        path: 'stats',
+        path: 'catalogue',
         canActivate: [AuthGuard],
         loadChildren: () => import("../home/home.module").then(m => m.HomePageModule),
       },
