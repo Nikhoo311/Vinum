@@ -7,7 +7,14 @@
 }
 
 <ng-template #inputTemplate>
-  <label class="input-label">{{ label }}</label>
+  <label class="input-label">
+    {{ label }}
+    @if (showRequirement) {
+      @if (required) {
+        <span class="input-label__required" aria-label="obligatoire">*</span>
+      }
+    }
+  </label>
 
   <ion-item class="input-form">
     <ion-input [type]="inputType" [formControl]="$any(control)" [placeholder]="placeholder">

@@ -29,6 +29,20 @@ export class FormErrorComponent  implements OnInit {
     };
 
     const firstErrorKey = Object.keys(this.control.errors)[0];
+    const error = this.control.errors[firstErrorKey] as { min?: number; max?: number; requiredLength?: number };
+
+    if (firstErrorKey === 'min') {
+      return this.transloco.translate('FORM_ERRORS.MIN', { min: error.min });
+    }
+
+    if (firstErrorKey === 'max') {
+      return this.transloco.translate('FORM_ERRORS.MAX', { max: error.max });
+    }
+
+    if (firstErrorKey === 'maxlength') {
+      return this.transloco.translate('FORM_ERRORS.MAX_LENGTH', { max: error.requiredLength });
+    }
+
     return errorsMap[firstErrorKey] || null;
   }
 }

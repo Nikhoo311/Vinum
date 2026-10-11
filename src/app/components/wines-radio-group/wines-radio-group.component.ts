@@ -28,6 +28,7 @@ export class RadioGroupComponent implements OnInit {
 
   @Input({ required: true }) control!: AbstractControl | null;
   @Input() defaultValue!: WineType | null;
+  @Input() row = false;
 
   readonly options: RadioOption[] = Object.entries(WINE_TYPE_CONFIG).map(
     ([value, config]) => ({

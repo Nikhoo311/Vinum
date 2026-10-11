@@ -10,6 +10,12 @@ import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
 import { UserWine } from '../core/models/wine.model';
 import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
 
+interface RegionDistribution {
+  name: string;
+  bottles: number;
+  types: [WineType, number][];
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -49,6 +55,10 @@ export class HomePage implements OnInit {
     return this.caveService.averageRating;
   }
 
+  get ratedWinesCount(): number {
+    return this.caveService.cave.filter((wine) => wine.rating !== undefined && wine.rating !== null).length;
+  }
+
   get formattedTotalValue(): string {
     return new Intl.NumberFormat('fr-FR', {
       notation: 'compact',
@@ -64,7 +74,7 @@ export class HomePage implements OnInit {
   get wineCaveFillPercentage(): string {
     const totalSlots = this.caveService.totalCapacity;
     const percentage = totalSlots > 0 ? (this.totalBottles / totalSlots) * 100 : 0;
-    return percentage.toFixed(2)
+    return percentage.toFixed(2).replace('.', ',');
   }
 
   get distributionByType(): Record<WineType, number> {
@@ -84,7 +94,37 @@ export class HomePage implements OnInit {
     const colorSuffix = this.WINE_TYPE_CONFIG[type].gradientColor === 'accent' ? '-accent' : '';
     return `var(--wine-${type}${colorSuffix})`;
   }
-  
+
+  get regionEntries(): RegionDistribution[] {
+    const wineTypeOrder = Object.keys(this.WINE_TYPE_CONFIG) as WineType[];
+    const regions = new Map<string, { bottles: number; types: Map<WineType, number> }>();
+
+    for (const wine of this.caveService.cave) {
+      const regionName = wine.region?.trim();
+      const bottles = wine.placements?.length ?? 0;
+      if (!regionName || bottles === 0) continue;
+
+      const region = regions.get(regionName) ?? { bottles: 0, types: new Map<WineType, number>() };
+      region.bottles += bottles;
+      region.types.set(wine.type, (region.types.get(wine.type) ?? 0) + bottles);
+      regions.set(regionName, region);
+    }
+
+    return [...regions.entries()]
+      .map(([name, region]) => ({
+        name,
+        bottles: region.bottles,
+        types: [...region.types.entries()].sort(
+          ([typeA], [typeB]) => wineTypeOrder.indexOf(typeA) - wineTypeOrder.indexOf(typeB)
+        ),
+      }))
+      .sort((regionA, regionB) => regionB.bottles - regionA.bottles);
+  }
+
+  regionTypePercentage(regionBottles: number, typeBottles: number): number {
+    return regionBottles > 0 ? (typeBottles / regionBottles) * 100 : 0;
+  }
+
   async logout() {
     await this.authService.logout();
     this.router.navigate(['/auth']);
@@ -96,5 +136,9 @@ export class HomePage implements OnInit {
 
   goToCave(): void {
     this.router.navigate(['/cave']);
+  }
+
+  goToCatalogue(): void {
+    this.router.navigate(['/catalogue']);
   }
 }

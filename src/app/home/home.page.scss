@@ -129,6 +129,10 @@
 }
 
 .distribution-card {
+  &__title {
+    margin-bottom: 1rem;
+  }
+
   &__stacked-bar {
     display: flex;
     height: 1rem;
@@ -185,6 +189,53 @@
   }
 }
 
+.region-card {
+  &__title {
+    margin-bottom: 1rem;
+  }
+
+  &__row {
+    margin-bottom: 0.688rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.313rem;
+    font-size: 0.813rem;
+    font-weight: 600;
+  }
+
+  &__count {
+    flex-shrink: 0;
+    color: var(--mc-text-secondary);
+    font-weight: 500;
+  }
+
+  &__track {
+    display: flex;
+    height: 0.625rem;
+    overflow: hidden;
+    background: var(--mc-border);
+    border-radius: var(--mc-radius-pill);
+  }
+
+  &__fill {
+    height: 100%;
+    transition: width 0.5s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  &__empty {
+    color: var(--mc-text-secondary);
+    font-size: 0.813rem;
+  }
+}
+
 .relative-card {
   position: relative;
   overflow: visible;
@@ -227,4 +278,34 @@ ion-grid {
     color: var(--ion-color-warning);
     font-size: 1.25rem;
   }
+}
+
+.average-rating-card {
+  .bento-kpi {
+    margin-top: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__info-button {
+    --color: var(--mc-text-secondary);
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+  }
+}
+
+.average-rating-popover {
+  max-width: 16rem;
+  color: var(--mc-text-primary);
+  font-size: 0.813rem;
+  line-height: 1.4;
 }

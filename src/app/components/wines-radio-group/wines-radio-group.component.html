@@ -1,24 +1,34 @@
 <ion-radio-group
-  class="chip-list"
+  class="wine-type-group"
   [value]="control?.value"
   mode="md">
 
+  @if (row) {
+    <div class="wine-type-options">
+      <ng-container *ngTemplateOutlet="wineTypeOptions"></ng-container>
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="wineTypeOptions"></ng-container>
+  }
+
+  <ng-template #wineTypeOptions>
   <ion-item
     *ngFor="let option of options"
     lines="none"
     button
-    class="chip"
+    class="chip wine-type-option"
+    [class.wine-type-option--row]="row"
     [class.selected]="isSelected(option.value)"
     (click)="select(option.value)">
 
     @if (option.icon) {
       <div
         class="chip-swatch"
-        slot="start"
+        [attr.slot]="row ? null : 'start'"
         [style.background]="option.backgroundColor">
         <img
           [src]="option.icon"
-          [alt]="option.label"/>
+          [alt]="option.label | transloco"/>
       </div>
     }
 
@@ -27,10 +37,11 @@
     </ion-label>
 
     <ion-radio
-      slot="end"
+      [attr.slot]="row ? null : 'end'"
       [value]="option.value">
     </ion-radio>
 
   </ion-item>
+  </ng-template>
 
 </ion-radio-group>

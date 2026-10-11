@@ -26,3 +26,8 @@
 .eye-toggle-button, .edit-button {
   margin-left: 10px;
 }
+.input-label__required {
+  margin-left: 0.125rem;
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+}

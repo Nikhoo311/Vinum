@@ -63,17 +63,14 @@ export class CaveService {
     );
 
     if (existingWine && existingWine.id) {
-      const updatedPlacements = [...(existingWine.placements || []), wine.placements![0]];
+      const updatedPlacements = [...(existingWine.placements || []), ...(wine.placements || [])];
       const wineRef = doc(this.firestore, 'users', user.id, 'wine', existingWine.id);
       await updateDoc(wineRef, { placements: updatedPlacements });
       this.caveSubject.next(this.cave.map(w => w.id === existingWine.id ? { ...w, placements: updatedPlacements } : w));
     } else {
       const wineCollectionRef = collection(this.firestore, 'users', user.id, 'wine');
       const newDocRef = doc(wineCollectionRef);
-      const wineWithId: UserWine = {
-        ...wine,
-        id: newDocRef.id
-      } as UserWine;
+      const wineWithId = this.removeUndefinedFields<UserWine>({ ...wine, id: newDocRef.id });
       await setDoc(newDocRef, wineWithId);
       this.caveSubject.next([...this.cave, wineWithId]);
     }
@@ -156,6 +153,12 @@ export class CaveService {
 
   get caveConfig() {
     return this.authService.currentUser?.caveConfig || { rows: 0, cols: 0, viewMode: 'grid' };
+  }
+
+  private removeUndefinedFields<T extends object>(data: T): T {
+    return Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined)
+    ) as T;
   }
 
   private computeGrid(caveConfig: { rows: number; cols: number }, wines: UserWine[]): CaveSlot[] {

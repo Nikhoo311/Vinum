@@ -23,6 +23,8 @@ export class InputComponent implements OnInit {
   @Input() showEye = false;
   @Input() canEdit = false;
   @Input() grouped = true;
+  @Input() showRequirement = false;
+  @Input() required = false;
 
   passwordVisible: boolean = false;
   isEditing: boolean = false;

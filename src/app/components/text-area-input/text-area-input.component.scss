@@ -1,0 +1,41 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.text-area-field {
+  width: 100%;
+  margin-bottom: 0.3125rem;
+}
+
+.text-area-form {
+  display: block;
+  --background: transparent;
+  --color: var(--mc-text-primary);
+  --placeholder-color: var(--mc-text-secondary);
+  --placeholder-opacity: 1;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  --padding-top: 0.75rem;
+  --padding-bottom: 0.75rem;
+  --border-width: 1.5px;
+  --border-color: var(--mc-border);
+  --border-radius: var(--mc-radius-input);
+  --highlight-color: var(--ion-color-primary);
+  --highlight-color-focused: var(--ion-color-primary);
+  --highlight-color-valid: var(--ion-color-primary);
+  --highlight-height: 1.5px;
+  width: 100%;
+  font-family: var(--ion-font-family);
+  font-size: 0.9rem;
+
+  &.has-focus {
+    --border-color: var(--ion-color-primary);
+  }
+}
+
+.input-label__required {
+  margin-left: 0.125rem;
+  color: var(--ion-color-danger);
+  font-size: 0.875rem;
+}

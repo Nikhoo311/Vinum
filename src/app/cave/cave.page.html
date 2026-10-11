@@ -78,4 +78,124 @@
     [coords]="coords"
     [canRemoveBottle]="true">
   </app-wine-sheet-modal>
+
+  <app-custom-modal
+    [isOpen]="isAddWineSheetOpen"
+    [initialBreakpoint]="1"
+    [breakpoints]="[0, 0.7, 1]"
+    (didDismiss)="closeAddWineSheet()">
+    <header class="add-wine-header">
+      <h2>{{ 'CAVE.ADD_WINE.TITLE' | transloco }}</h2>
+      <ion-button fill="clear" shape="round" (click)="closeAddWineSheet()" [attr.aria-label]="'CAVE.ADD_WINE.CLOSE' | transloco">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </header>
+
+    <form class="add-wine-form" [formGroup]="wineForm" (ngSubmit)="submitNewWine()">
+      <section
+        class="add-wine-preview"
+        [style.background]="WINE_TYPE_CONFIG[previewWineType].gradientColor === 'accent'
+          ? 'color-mix(in srgb, var(--wine-' + previewWineType + '-accent) 30%, var(--mc-bg-card))'
+          : 'color-mix(in srgb, var(--wine-' + previewWineType + ') 30%, var(--mc-bg-card))'">
+        <img [src]="WINE_TYPE_CONFIG[previewWineType].icon" [alt]="WINE_TYPE_CONFIG[previewWineType].label | transloco">
+        <div class="add-wine-preview__information">
+          <strong>{{ previewWineName }}</strong>
+          <span>{{ previewWineVintage }} · {{ previewWineDomain }}</span>
+        </div>
+        <div class="add-wine-preview__quantity">
+          <strong>{{ wineForm.controls.quantity.value }}</strong>
+          <span>{{ 'COMMON.BOTTLES_SHORT' | transloco }}</span>
+        </div>
+      </section>
+
+      <app-wines-radio-group [control]="wineForm.controls.type" [row]="true"></app-wines-radio-group>
+
+      <app-input
+        [label]="'CAVE.ADD_WINE.NAME' | transloco"
+        [control]="wineForm.controls.name"
+        [showRequirement]="true"
+        [required]="true"
+        [placeholder]="'CAVE.ADD_WINE.NAME_PLACEHOLDER' | transloco">
+      </app-input>
+
+      <app-input
+        [label]="'CAVE.ADD_WINE.DOMAIN' | transloco"
+        [control]="wineForm.controls.domain"
+        [showRequirement]="true"
+        [required]="true"
+        [placeholder]="'CAVE.ADD_WINE.DOMAIN_PLACEHOLDER' | transloco">
+      </app-input>
+
+      <div class="add-wine-form__row">
+        <app-input
+          [label]="'CAVE.ADD_WINE.VINTAGE' | transloco"
+          [control]="wineForm.controls.vintage"
+          [showRequirement]="true"
+          [required]="true"
+          type="number"
+          placeholder="2020">
+        </app-input>
+        <app-input
+          [label]="'CAVE.ADD_WINE.REGION' | transloco"
+          [control]="wineForm.controls.region"
+          [showRequirement]="true"
+          [required]="true"
+          [placeholder]="'CAVE.ADD_WINE.REGION_PLACEHOLDER' | transloco">
+        </app-input>
+      </div>
+
+      <app-input
+        [label]="'CAVE.ADD_WINE.GRAPE_VARIETY' | transloco"
+        [control]="wineForm.controls.grapeVariety"
+        [showRequirement]="true"
+        [required]="true"
+        [placeholder]="'CAVE.ADD_WINE.GRAPE_VARIETY_PLACEHOLDER' | transloco">
+      </app-input>
+
+      <div class="add-wine-form__row">
+        <app-input
+          [label]="'CAVE.ADD_WINE.UNIT_PRICE' | transloco"
+          [control]="wineForm.controls.unitPrice"
+          [showRequirement]="true"
+          [required]="true"
+          type="number"
+          placeholder="0">
+        </app-input>
+        <app-input
+          [label]="'CAVE.ADD_WINE.RATING' | transloco"
+          [control]="wineForm.controls.rating"
+          [showRequirement]="true"
+          type="number"
+          placeholder="5">
+        </app-input>
+      </div>
+
+      <app-text-area-input
+        [label]="'CAVE.ADD_WINE.FLAVOR_NOTES' | transloco"
+        [control]="wineForm.controls.description"
+        [placeholder]="'CAVE.ADD_WINE.FLAVOR_NOTES_PLACEHOLDER' | transloco">
+      </app-text-area-input>
+
+      <app-input
+        [label]="'CAVE.ADD_WINE.FOOD_PAIRING' | transloco"
+        [control]="wineForm.controls.foodPairing"
+        [showRequirement]="true"
+        [placeholder]="'CAVE.ADD_WINE.FOOD_PAIRING_PLACEHOLDER' | transloco">
+      </app-input>
+
+      <app-stepper
+        [control]="wineForm.controls.quantity"
+        [label]="'CAVE.ADD_WINE.QUANTITY' | transloco"
+        [min]="1"
+        [max]="maxNewWineQuantity">
+      </app-stepper>
+      <p class="add-wine-form__availability">
+        {{ remainingSlotsAfterQuantity }} {{ (remainingSlotsAfterQuantity > 1 ? 'CAVE.ADD_WINE.AVAILABLE_SLOTS' : 'CAVE.ADD_WINE.AVAILABLE_SLOT') | transloco }}
+      </p>
+
+      <ion-button type="submit" expand="block" shape="round" color="primary" [disabled]="isSubmittingWine">
+        {{ 'CAVE.ADD_WINE.SUBMIT' | transloco }}
+      </ion-button>
+    </form>
+  </app-custom-modal>
 </ion-content>

@@ -1,6 +1,11 @@
 {
   "APP_TITLE": "Vinum",
   "APP_SLOGAN": "Votre cave à portée de main",
+  "FORM_ERRORS": {
+    "MIN": "La valeur doit être supérieure ou égale à {{min}}.",
+    "MAX": "La valeur doit être inférieure ou égale à {{max}}.",
+    "MAX_LENGTH": "La valeur ne doit pas dépasser {{max}} caractères."
+  },
   "AUTH": {
     "LOGIN": "Connexion",
     "REGISTER": "Créer un compte",
@@ -81,6 +86,31 @@
       "WHITE": "blanc",
       "ROSE": "rosé",
       "CHAMPAGNE": "champagne"
+    },
+    "FOOD_PAIRINGS": {
+      "RED": {
+        "RED_MEAT": "Viandes rouges",
+        "SAUCE_DISHES": "Plats en sauce",
+        "AGED_CHEESES": "Fromages affinés"
+      },
+      "WHITE": {
+        "FISH_AND_SEAFOOD": "Poissons et fruits de mer",
+        "CREAMY_POULTRY": "Volailles à la crème",
+        "GOAT_CHEESE": "Fromages de chèvre",
+        "LIGHT_VEGETABLES": "Légumes légers"
+      },
+      "ROSE": {
+        "APERITIF_AND_TAPAS": "Apéritif et tapas",
+        "SALADS_AND_RAW_VEGETABLES": "Salades et crudités",
+        "GRILLED_DISHES": "Grillades",
+        "SPICY_CUISINE": "Cuisine épicée"
+      },
+      "CHAMPAGNE": {
+        "APERITIF": "Apéritif",
+        "SEAFOOD": "Fruits de mer",
+        "SUSHI": "Sushis",
+        "POULTRY": "Volaille rôtie"
+      }
     }
   },
   "TABS": {
@@ -94,6 +124,38 @@
     "TITLE": "Votre cave",
     "OCCUPIED_SLOTS": "emplacements occupés",
     "EMPTY_LOCATION": "Emplacement vide",
+    "ADD_WINE": {
+      "TITLE": "Ajouter une bouteille",
+      "CLOSE": "Fermer",
+      "INFORMATION": "Informations sur le vin",
+      "NAME": "Nom du vin",
+      "NAME_PLACEHOLDER": "Ex. Château Margaux",
+      "DOMAIN": "Domaine",
+      "DOMAIN_PLACEHOLDER": "Ex. Domaine de la Romanée-Conti",
+      "VINTAGE": "Millésime",
+      "REGION": "Région",
+      "REGION_PLACEHOLDER": "Ex. Bordeaux",
+      "GRAPE_VARIETY": "Cépage(s)",
+      "GRAPE_VARIETY_PLACEHOLDER": "Ex. Merlot, Cabernet Sauvignon",
+      "APPELLATION": "Appellation",
+      "APPELLATION_PLACEHOLDER": "Ex. Pauillac",
+      "UNIT_PRICE": "Prix unitaire (€)",
+      "RATING": "Note / 5",
+      "FLAVOR_NOTES": "Notes de saveur",
+      "FLAVOR_NOTES_PLACEHOLDER": "Arômes, robe, notes de dégustation…",
+      "FOOD_PAIRING": "Accords mets-vins",
+      "FOOD_PAIRING_PLACEHOLDER": "Ex. Bœuf, fromage affiné",
+      "QUANTITY": "Quantité",
+      "AVAILABLE_SLOT": "emplacement disponible",
+      "AVAILABLE_SLOTS": "emplacements disponibles",
+      "ERRORS": {
+        "DEFAULT": "Votre bouteille n’a pas pu être ajoutée. Vérifiez votre connexion puis réessayez.",
+        "INVALID_DATA": "Certaines informations du vin sont invalides. Vérifiez les champs puis réessayez.",
+        "PERMISSION_DENIED": "Vous n’avez pas les droits nécessaires pour ajouter cette bouteille.",
+        "UNAVAILABLE": "Le service est momentanément indisponible. Réessayez dans un instant."
+      },
+      "SUBMIT": "Ajouter à ma cave"
+    },
     "SEARCH": {
       "PLACEHOLDER": "Rechercher un vin…",
       "NO_RESULTS": "Aucun résultat pour « {{query}} »",
@@ -115,15 +177,23 @@
     "BOTTLES": "{count, plural, =0 {aucune bouteille} =1 {bouteille} other {bouteilles}}",
     "EMPTY_CAVE": "Aucune bouteille dans votre cave.",
     "DISTRIBUTION_LABEL": "Répartition",
-    "STATS_LABEL": "Statistiques",
-    "STATS_SUB": "cave remplie",
+    "DISTRIBUTION_BY_TYPE_LABEL": "Répartition par type",
+    "DISTRIBUTION_BY_REGION_LABEL": "Répartition par région",
+    "REGION_BOTTLES": "{count, plural, =0 {0 btl} =1 {1 btl} other {{{count}} btl}}",
+    "NO_REGIONS": "Aucune région renseignée.",
+    "STATS_LABEL": "Taux de remplissage",
+    "STATS_SUB": "de votre cave",
     "AVERAGE_RATING_LABEL": "Note moyenne",
     "AVERAGE_RATING_SUB": "des vins notés",
+    "AVERAGE_RATING_INFO": {
+      "LABEL": "Comment est calculée la note moyenne ?",
+      "TEXT": "{count, plural, =0 {Aucune note n’est encore prise en compte.} =1 {Calculée à partir de 1 note.} other {Calculée à partir de {{count}} notes.}}"
+    },
     "PAIRING_LABEL": "Accord mets-vins",
     "IN_DEVELOPMENT": "Fonctionnalité en développement.",
     "VALUE_LABEL": "Valeur de la cave",
     "VALUE_SUB": "estimation (prix d'achat)",
-    "WISHLIST_LABEL": "Wishlist",
+    "WISHLIST_LABEL": "Liste de souhaits",
     "WINES": "{count, plural, =0 {0 vin} =1 {1 vin} other {{{count}} vins}}",
     "DLC": {
       "LABEL": "DLC proche",

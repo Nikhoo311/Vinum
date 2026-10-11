@@ -69,6 +69,9 @@
 
       <ion-col size="12">
         <ion-card class="bento-card distribution-card">
+          <ion-card-title class="distribution-card__title">
+            {{ 'HOME.DISTRIBUTION_BY_TYPE_LABEL' | transloco }}
+          </ion-card-title>
           <div
             class="distribution-card__stacked-bar"
             role="img"
@@ -111,22 +114,76 @@
       </ion-col>
 
       <ion-col size="6">
-        <ion-card class="bento-card">
-          <ion-card-title class="bento-label">{{ 'HOME.AVERAGE_RATING_LABEL' | transloco }}</ion-card-title>
+        <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCatalogue()">
+          <ion-ripple-effect></ion-ripple-effect>
+          <ion-card-title class="bento-label">{{ 'HOME.WISHLIST_LABEL' | transloco }}</ion-card-title>
+          <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: 0 } }}</div>
+          <div class="bento-sub-text">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12">
+        <ion-card class="bento-card region-card">
+          <ion-card-title class="region-card__title">
+            {{ 'HOME.DISTRIBUTION_BY_REGION_LABEL' | transloco }}
+          </ion-card-title>
+          @if (regionEntries.length) {
+            <div role="list">
+              @for (region of regionEntries; track region.name) {
+                <div class="region-card__row" role="listitem">
+                  <div class="region-card__top">
+                    <span>{{ region.name }}</span>
+                    <span class="region-card__count">
+                      {{ 'HOME.REGION_BOTTLES' | transloco: { count: region.bottles } }}
+                    </span>
+                  </div>
+                  <div
+                    class="region-card__track"
+                    role="img"
+                    [attr.aria-label]="region.name + ': ' + region.bottles">
+                    @for (wineDistribution of region.types; track wineDistribution[0]) {
+                      <span
+                        class="region-card__fill"
+                        [style.width.%]="regionTypePercentage(region.bottles, wineDistribution[1])"
+                        [style.background]="wineTypeColor(wineDistribution[0])">
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="region-card__empty">{{ 'HOME.NO_REGIONS' | transloco }}</p>
+          }
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6">
+        <ion-card class="bento-card average-rating-card">
+          <div class="average-rating-card__header">
+            <ion-card-title class="bento-label">{{ 'HOME.AVERAGE_RATING_LABEL' | transloco }}</ion-card-title>
+            <ion-button
+              id="average-rating-info"
+              class="average-rating-card__info-button"
+              fill="clear"
+              shape="round"
+              [attr.aria-label]="'HOME.AVERAGE_RATING_INFO.LABEL' | transloco">
+              <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+            </ion-button>
+          </div>
           <div class="bento-kpi average-rating-kpi">
             {{ averageRating ? (averageRating | number:'1.1-1') : '—' }}
             <ion-icon name="star" aria-hidden="true"></ion-icon>
           </div>
           <div class="bento-sub-text">{{ 'HOME.AVERAGE_RATING_SUB' | transloco }}</div>
         </ion-card>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-card class="bento-card relative-card">
-          <ion-card-title class="bento-label">{{ 'HOME.WISHLIST_LABEL' | transloco }}</ion-card-title>
-          <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: 0 } }}</div>
-          <div class="bento-sub-text">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
-        </ion-card>
+        <ion-popover trigger="average-rating-info" triggerAction="click" side="bottom" alignment="end">
+          <ng-template>
+            <div class="average-rating-popover ion-padding">
+              {{ 'HOME.AVERAGE_RATING_INFO.TEXT' | transloco: { count: ratedWinesCount } }}
+            </div>
+          </ng-template>
+        </ion-popover>
       </ion-col>
 
     </ion-row>
