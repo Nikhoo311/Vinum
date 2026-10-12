@@ -238,33 +238,6 @@ ion-content.onboarding-content {
   }
 }
 
-.summary-card {
-  background: var(--mc-bg-card);
-  border: 1px solid var(--mc-border);
-  border-radius: 18px;
-  padding: 16px;
-  width: 100%;
-  margin: 20px 0 28px;
-  text-align: left;
-  opacity: 0;
-  animation: none;
-
-  .is-active & {
-    animation: fadeUp 0.55s ease 0.95s forwards; // délai après les autres éléments
-  }
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  padding: 8px 0;
-  color: var(--mc-text-secondary);
-
-  &:not(:last-child) { border-bottom: 1px solid var(--mc-border); }
-  strong { color: var(--mc-text-primary); }
-}
-
 .step-footer {
   margin-top: auto;
   display: flex;
@@ -272,26 +245,33 @@ ion-content.onboarding-content {
 }
 
 .back-link {
+  margin-top: 0.875rem;
   text-align: center;
-  font-size: 0.7rem;
-  color: var(--mc-text-secondary);
+  font-size: 0.813rem;
   cursor: pointer;
-  --border: none;
-  --background: none;
+  --background: color-mix(in srgb, var(--ion-color-primary) 12%, transparent);
   --box-shadow: none;
-  font-weight: lighter;
+  --color: var(--ion-color-primary);
+  --padding-start: 0.875rem;
+  --padding-end: 0.875rem;
+  font-weight: 600;
   width: max-content;
-  height: max-content;
+  height: 2.25rem;
   align-self: center;
-  --ripple-color: transparent;
-  --background-activated: transparent;
-  --background-focused: transparent;
-  --background-hover: transparent;
-  --color-activated: var(--mc-text-secondary);
-  --color-focused: var(--mc-text-secondary);
-  --color-hover: var(--mc-text-secondary);
+  --ripple-color: var(--ion-color-primary);
+  --background-activated: color-mix(in srgb, var(--ion-color-primary) 20%, transparent);
+  --background-focused: color-mix(in srgb, var(--ion-color-primary) 16%, transparent);
+  --background-hover: color-mix(in srgb, var(--ion-color-primary) 16%, transparent);
 }
 
-.summary-row__wine-type {
-  text-transform: capitalize;
+.confirm-action {
+  margin-top: 1.5rem;
+}
+
+.step-confirm .back-link {
+  --background: color-mix(in srgb, var(--mc-bg-card) 72%, transparent);
+  --background-activated: color-mix(in srgb, var(--mc-bg-card) 88%, transparent);
+  --background-focused: color-mix(in srgb, var(--mc-bg-card) 82%, transparent);
+  --background-hover: color-mix(in srgb, var(--mc-bg-card) 82%, transparent);
+  --color: var(--mc-text-primary);
 }

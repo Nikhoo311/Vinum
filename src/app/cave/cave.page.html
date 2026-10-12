@@ -136,13 +136,20 @@
           placeholder="2020">
         </app-input>
         <app-input
-          [label]="'CAVE.ADD_WINE.REGION' | transloco"
-          [control]="wineForm.controls.region"
-          [showRequirement]="true"
-          [required]="true"
-          [placeholder]="'CAVE.ADD_WINE.REGION_PLACEHOLDER' | transloco">
+          [label]="'CAVE.ADD_WINE.PEAK_MATURITY_YEAR' | transloco"
+          [control]="wineForm.controls.peakMaturityYear"
+          type="number"
+          placeholder="2030">
         </app-input>
       </div>
+
+      <app-input
+        [label]="'CAVE.ADD_WINE.REGION' | transloco"
+        [control]="wineForm.controls.region"
+        [showRequirement]="true"
+        [required]="true"
+        [placeholder]="'CAVE.ADD_WINE.REGION_PLACEHOLDER' | transloco">
+      </app-input>
 
       <app-input
         [label]="'CAVE.ADD_WINE.GRAPE_VARIETY' | transloco"

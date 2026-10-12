@@ -43,6 +43,14 @@ export class FormErrorComponent  implements OnInit {
       return this.transloco.translate('FORM_ERRORS.MAX_LENGTH', { max: error.requiredLength });
     }
 
+    if (firstErrorKey === 'pattern') {
+      return this.transloco.translate('FORM_ERRORS.YEAR');
+    }
+
+    if (firstErrorKey === 'peakMaturityYearBeforeVintage') {
+      return this.transloco.translate('FORM_ERRORS.PEAK_MATURITY_YEAR');
+    }
+
     return errorsMap[firstErrorKey] || null;
   }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 
 import { InputComponent } from '../components/input/input.component';
 import { StepperComponent } from '../components/stepper/stepper.component';
@@ -30,8 +30,7 @@ export class PreferencePage {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService,
-    private transloco: TranslocoService
+    private authService: AuthService
   ) {
     this.identityForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(1)]],
@@ -53,13 +52,6 @@ export class PreferencePage {
   get rowsMax() { return Math.floor(this.CAVE_MAX / Math.max(this.cols, 1)); }
   get colsMax() { return Math.floor(this.CAVE_MAX / Math.max(this.rows, 1)); }
 
-  get selectedTypeLabel(): string {
-    const type = this.wineForm.get('selectedType')?.value;
-    if (!type) return '-';
-
-    return this.transloco.translate(`WINE.TYPE.${type.toUpperCase()}`);
-  }
-
   goToStep(step: number): void { this.currentStep = step; }
 
   async finishOnboarding(): Promise<void> {
@@ -74,7 +66,8 @@ export class PreferencePage {
       favoriteWineType: this.wineForm.get("selectedType")?.value,
       caveConfig: {
         rows: this.rows,
-        cols: this.cols
+        cols: this.cols,
+        viewMode: 'grid' as const,
       }
     };
 

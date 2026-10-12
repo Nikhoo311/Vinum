@@ -106,7 +106,8 @@
       </ion-col>
 
       <ion-col size="6">
-        <ion-card class="bento-card">
+        <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCave()">
+          <ion-ripple-effect></ion-ripple-effect>
           <ion-card-title class="bento-label">{{ 'HOME.STATS_LABEL' | transloco }}</ion-card-title>
           <div class="bento-kpi">{{ wineCaveFillPercentage }} %</div>
           <div class="bento-sub-text">{{ 'HOME.STATS_SUB' | transloco }}</div>

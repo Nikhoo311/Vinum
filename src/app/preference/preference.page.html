@@ -224,35 +224,7 @@
         {{ 'PREFERENCES.CONFIRM.SUBTITLE' | transloco }}
       </div>
 
-      <div class="summary-card">
-
-        <div class="summary-row">
-          <span>
-            {{ 'PREFERENCES.CONFIRM.FULL_NAME_LABEL' | transloco }}
-          </span>
-          <strong>
-            {{ identityForm.value.firstName }}
-            {{ identityForm.value.lastName }}
-          </strong>
-        </div>
-
-        <div class="summary-row">
-          <span>
-            {{ 'PREFERENCES.CONFIRM.FAVORITE_WINE_LABEL' | transloco }}
-          </span>
-          <strong class="summary-row__wine-type">
-            {{ selectedTypeLabel }}
-          </strong>
-        </div>
-
-        <div class="summary-row">
-          <span>{{ 'PREFERENCES.CONFIRM.LAYOUT_LABEL' | transloco }}</span>
-          <strong>{{ 'PREFERENCES.CONFIRM.LAYOUT_VALUE' | transloco : { total: rows * cols, rows: rows, cols: cols } }}</strong>
-        </div>
-
-      </div>
- 
-      <ion-button color="secondary" expand="block" shape="round" (click)="finishOnboarding()">
+      <ion-button class="confirm-action" color="secondary" expand="block" shape="round" (click)="finishOnboarding()">
         {{ 'PREFERENCES.CONFIRM.CTA' | transloco }}
       </ion-button>
       <ion-button class="back-link" (click)="goToStep(3)">

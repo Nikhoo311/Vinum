@@ -4,7 +4,9 @@
   "FORM_ERRORS": {
     "MIN": "La valeur doit être supérieure ou égale à {{min}}.",
     "MAX": "La valeur doit être inférieure ou égale à {{max}}.",
-    "MAX_LENGTH": "La valeur ne doit pas dépasser {{max}} caractères."
+    "MAX_LENGTH": "La valeur ne doit pas dépasser {{max}} caractères.",
+    "YEAR": "Saisissez une année à quatre chiffres.",
+    "PEAK_MATURITY_YEAR": "L’année d’apogée doit être postérieure au millésime."
   },
   "AUTH": {
     "LOGIN": "Connexion",
@@ -22,7 +24,6 @@
     "NO_ACCOUNT": "Aucun compte n'est associé à cet utilisateur.",
     "TOO_MANY_ATTEMPTS": "Trop de tentatives. Réessayez plus tard.",
     "INVALID_CREDENTIAL": "L'adresse e-mail ou le mot de passe est incorrect.",
-    "ALREADY_ACCOUNT": "Vous avez déjà un compte ? Connectez-vous",
     "RULES": {
       "REQUIRED": "Ce champ est obligatoire.",
       "EMAIL": "Veuillez entrer une adresse e-mail valide.",
@@ -73,10 +74,6 @@
     "CONFIRM": {
       "TITLE": "C'est prêt, {{prenom}} !",
       "SUBTITLE": "Votre cave est configurée. Vous pouvez commencer à ranger vos premières bouteilles.",
-      "FULL_NAME_LABEL": "Nom complet",
-      "FAVORITE_WINE_LABEL": "Vin préféré",
-      "LAYOUT_LABEL": "Disposition",
-      "LAYOUT_VALUE": "{{total}} emplacements ({{rows}} x {{cols}})",
       "CTA": "Découvrir ma cave"
     }
   },
@@ -96,20 +93,17 @@
       "WHITE": {
         "FISH_AND_SEAFOOD": "Poissons et fruits de mer",
         "CREAMY_POULTRY": "Volailles à la crème",
-        "GOAT_CHEESE": "Fromages de chèvre",
-        "LIGHT_VEGETABLES": "Légumes légers"
+        "GOAT_CHEESE": "Fromages de chèvre"
       },
       "ROSE": {
         "APERITIF_AND_TAPAS": "Apéritif et tapas",
         "SALADS_AND_RAW_VEGETABLES": "Salades et crudités",
-        "GRILLED_DISHES": "Grillades",
-        "SPICY_CUISINE": "Cuisine épicée"
+        "GRILLED_DISHES": "Grillades"
       },
       "CHAMPAGNE": {
         "APERITIF": "Apéritif",
         "SEAFOOD": "Fruits de mer",
-        "SUSHI": "Sushis",
-        "POULTRY": "Volaille rôtie"
+        "SUSHI": "Sushis"
       }
     }
   },
@@ -120,25 +114,21 @@
     "SETTINGS": "Paramètres"
   },
   "CAVE": {
-    "VISUALIZATION": "Visualisation",
-    "TITLE": "Votre cave",
     "OCCUPIED_SLOTS": "emplacements occupés",
     "EMPTY_LOCATION": "Emplacement vide",
     "ADD_WINE": {
       "TITLE": "Ajouter une bouteille",
       "CLOSE": "Fermer",
-      "INFORMATION": "Informations sur le vin",
       "NAME": "Nom du vin",
       "NAME_PLACEHOLDER": "Ex. Château Margaux",
       "DOMAIN": "Domaine",
       "DOMAIN_PLACEHOLDER": "Ex. Domaine de la Romanée-Conti",
       "VINTAGE": "Millésime",
+      "PEAK_MATURITY_YEAR": "Année d’apogée",
       "REGION": "Région",
       "REGION_PLACEHOLDER": "Ex. Bordeaux",
       "GRAPE_VARIETY": "Cépage(s)",
       "GRAPE_VARIETY_PLACEHOLDER": "Ex. Merlot, Cabernet Sauvignon",
-      "APPELLATION": "Appellation",
-      "APPELLATION_PLACEHOLDER": "Ex. Pauillac",
       "UNIT_PRICE": "Prix unitaire (€)",
       "RATING": "Note / 5",
       "FLAVOR_NOTES": "Notes de saveur",
@@ -166,7 +156,6 @@
     "BOTTLES_SHORT": "btl"
   },
   "HOME": {
-    "TITLE": "Dashboard",
     "WELCOME": "Bonjour",
     "STAR_WINE_TAG": "Vin star",
     "STAR_WINE_INFO": {
@@ -189,16 +178,11 @@
       "LABEL": "Comment est calculée la note moyenne ?",
       "TEXT": "{count, plural, =0 {Aucune note n’est encore prise en compte.} =1 {Calculée à partir de 1 note.} other {Calculée à partir de {{count}} notes.}}"
     },
-    "PAIRING_LABEL": "Accord mets-vins",
     "IN_DEVELOPMENT": "Fonctionnalité en développement.",
     "VALUE_LABEL": "Valeur de la cave",
     "VALUE_SUB": "estimation (prix d'achat)",
     "WISHLIST_LABEL": "Liste de souhaits",
-    "WINES": "{count, plural, =0 {0 vin} =1 {1 vin} other {{{count}} vins}}",
-    "DLC": {
-      "LABEL": "DLC proche",
-      "DAYS": "{count, plural, =1 {1 jour} other {{{count}} jours}}"
-    }
+    "WINES": "{count, plural, =0 {0 vin} =1 {1 vin} other {{{count}} vins}}"
   },
   "WINE_SHEET_MODAL": {
     "LOCATION": "Emplacement",
@@ -227,8 +211,6 @@
       "DARK_MODE": "Mode sombre",
       "LANGUAGE": {
         "TITLE": "Langue",
-        "SUBTITLE": "Choisissez la langue de l'application.",
-        "SEARCH_PLACEHOLDER": "Rechercher une langue...",
         "AVAILABLE": "Langues disponibles",
         "NO_RESULTS": "Aucune langue trouvée",
         "HINT": "La langue choisie s'applique à l'ensemble de l'application. Le redémarrage n'est pas nécessaire."

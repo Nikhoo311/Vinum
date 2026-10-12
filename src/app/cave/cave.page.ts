@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Observable, map, Subscription } from 'rxjs';
 import { CaveService, CaveSlot } from '../core/services/cave.service';
 import { CellarCellComponent } from '../components/cellar-cell/cellar-cell.component';
@@ -17,6 +17,17 @@ import { CustomModalComponent } from '../components/custom-modal/custom-modal.co
 import { ToastService } from '../core/services/toast.service';
 import { StepperComponent } from '../components/stepper/stepper.component';
 import { TextAreaInputComponent } from '../components/text-area-input/text-area-input.component';
+
+function peakMaturityYearAfterVintage(control: AbstractControl): ValidationErrors | null {
+  const peakMaturityYear = control.value;
+  const vintage = control.parent?.get('vintage')?.value;
+
+  if (peakMaturityYear === null || peakMaturityYear === '' || vintage === null || vintage === '') {
+    return null;
+  }
+
+  return Number(peakMaturityYear) > Number(vintage) ? null : { peakMaturityYearBeforeVintage: true };
+}
 
 @Component({
   selector: 'app-cave',
@@ -52,12 +63,14 @@ export class CavePage implements OnInit, OnDestroy {
   matchedIds = new Set<string>();
   private caveSubscription?: Subscription;
   private wineTypeSubscription?: Subscription;
+  private vintageSubscription?: Subscription;
 
   readonly wineForm = this.fb.group({
     type: [WineType.RED, Validators.required],
     name: ['', [Validators.required, Validators.maxLength(100)]],
     domain: ['', [Validators.required, Validators.maxLength(100)]],
     vintage: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]],
+    peakMaturityYear: [null as number | null, [Validators.pattern(/^\d{4}$/), peakMaturityYearAfterVintage]],
     region: ['', [Validators.required, Validators.maxLength(100)]],
     grapeVariety: ['', [Validators.required, Validators.maxLength(100)]],
     unitPrice: [null as number | null, [Validators.required, Validators.min(0)]],
@@ -87,11 +100,15 @@ export class CavePage implements OnInit, OnDestroy {
         this.setDefaultFoodPairing(type as WineType);
       }
     });
+    this.vintageSubscription = this.wineForm.controls.vintage.valueChanges.subscribe(() => {
+      this.wineForm.controls.peakMaturityYear.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   ngOnDestroy() {
     this.caveSubscription?.unsubscribe();
     this.wineTypeSubscription?.unsubscribe();
+    this.vintageSubscription?.unsubscribe();
   }
 
   updateSearchableItems() {
@@ -179,6 +196,7 @@ export class CavePage implements OnInit, OnDestroy {
       name: '',
       domain: '',
       vintage: new Date().getFullYear(),
+      peakMaturityYear: null,
       region: '',
       grapeVariety: '',
       unitPrice: null,
@@ -232,6 +250,10 @@ export class CavePage implements OnInit, OnDestroy {
 
       if (value.rating !== null) {
         wineToAdd.rating = Number(value.rating);
+      }
+
+      if (value.peakMaturityYear !== null) {
+        wineToAdd.peakMaturityYear = Number(value.peakMaturityYear);
       }
 
       await this.caveService.addWine(wineToAdd);

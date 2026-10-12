@@ -1,6 +1,5 @@
 :host {
   display: block;
-  margin-bottom: 1rem;
 }
 
 .text-area-field {
@@ -10,7 +9,7 @@
 
 .text-area-form {
   display: block;
-  --background: transparent;
+  --background: var(--mc-bg-card);
   --color: var(--mc-text-primary);
   --placeholder-color: var(--mc-text-secondary);
   --placeholder-opacity: 1;
@@ -31,6 +30,7 @@
 
   &.has-focus {
     --border-color: var(--ion-color-primary);
+    --background: var(--mc-bg-main);
   }
 }
 

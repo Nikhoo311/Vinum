@@ -281,14 +281,10 @@ ion-grid {
 }
 
 .average-rating-card {
-  .bento-kpi {
-    margin-top: 0;
-  }
+  position: relative;
 
   &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: block;
   }
 
   &__info-button {
@@ -297,6 +293,9 @@ ion-grid {
     --padding-end: 0;
     --padding-top: 0;
     --padding-bottom: 0;
+    position: absolute;
+    top: 0.25rem;
+    right: 0.75rem;
     width: 1.5rem;
     height: 1.5rem;
     margin: 0;

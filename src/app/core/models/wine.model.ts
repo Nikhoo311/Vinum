@@ -33,6 +33,7 @@ export interface UserWine extends BaseWine {
   isCustom: boolean;
   unitPrice: number;
   rating?: number;
+  peakMaturityYear?: number;
   
   description: string;     
   foodPairing: string[];   
