@@ -1,9 +1,9 @@
-<app-custom-modal
-  [isOpen]="isOpen"
-  [background]="wine ? ('linear-gradient(to top, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 55%, transparent) 0%, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 18%, transparent) 35%, transparent 75%), var(--mc-bg-main, var(--bg))') : null"
-  (didDismiss)="closeModal()">
-
-  @if (wine) {
+@if (wine) {
+  <app-custom-modal
+    [isOpen]="isOpen"
+    [background]="'linear-gradient(to top, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 55%, transparent) 0%, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 18%, transparent) 35%, transparent 75%), var(--mc-bg-main, var(--bg))'"
+    [footerHasBackground]="false"
+    (didDismiss)="closeModal()">
     <div class="sheet-hero">
       <img
         [src]="WINE_TYPE_CONFIG[wine.type].icon"
@@ -102,18 +102,39 @@
         </ion-col>
 
         <ion-col size="6">
-          <ion-card class="bento-card">
+          <ion-card class="bento-card rating-card" button (click)="openRatingModal()">
             <ion-card-title>
               {{ 'WINE_SHEET_MODAL.RATING' | transloco }}
             </ion-card-title>
 
-            <div class="bento-kpi">
-              {{ (wine.rating | number) || '—' }}
-              <ion-icon name="star"></ion-icon>
+            <div class="bento-kpi rating-card__value">
+              @if (wine.rating != null) {
+                {{ wine.rating | number }}
+                <ion-icon name="star"></ion-icon>
+              } @else {
+                {{ 'WINE_SHEET_MODAL.NOT_RATED' | transloco }}
+              }
+              <ion-icon class="rating-card__edit" name="create-outline"></ion-icon>
             </div>
           </ion-card>
         </ion-col>
       </ion-row>
+
+      @if (wine.peakMaturityYear) {
+        <ion-row>
+          <ion-col size="12">
+            <ion-card class="bento-card">
+              <ion-card-title>
+                {{ 'WINE_SHEET_MODAL.PEAK_MATURITY_YEAR' | transloco }}
+              </ion-card-title>
+
+              <div class="bento-kpi">
+                {{ wine.peakMaturityYear }}
+              </div>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      }
     </ion-grid>
 
     <div class="sheet-section">
@@ -136,16 +157,90 @@
       }
     </div>
 
-    <div class="sheet-actions">
-      <ion-button (click)="closeModal()" expand="block" shape="round" color="primary">
-        {{ 'WINE_SHEET_MODAL.CLOSE' | transloco }}
-      </ion-button>
-
+    <div modal-footer class="sheet-actions">
       @if (canRemoveBottle && coords) {
         <ion-button (click)="removeBottle(coords!)" expand="block" shape="round" color="secondary">
           {{ 'WINE_SHEET_MODAL.REMOVE_BOTTLE' | transloco }}
         </ion-button>
       }
+      <ion-button (click)="openEditWineModal()" expand="block" shape="round" color="primary">
+        {{ 'WINE_SHEET_MODAL.EDIT' | transloco }}
+      </ion-button>
     </div>
-  }
-</app-custom-modal>
+  </app-custom-modal>
+}
+
+@if (wine) {
+  <app-custom-modal [isOpen]="isEditWineModalOpen" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" (didDismiss)="closeEditWineModal()">
+    <header class="edit-wine-header">
+      <h2>{{ 'WINE_SHEET_MODAL.EDIT_MODAL.TITLE' | transloco }}</h2>
+    </header>
+    <app-add-wine-form [form]="editWineForm" formId="edit-wine-form" [showQuantity]="false" (formSubmit)="saveWineEdition()"></app-add-wine-form>
+    <div modal-footer class="rating-modal__actions">
+      <ion-button shape="round" color="primary" type="submit" form="edit-wine-form" [disabled]="isSavingWine">
+        {{ 'WINE_SHEET_MODAL.EDIT_MODAL.SAVE' | transloco }}
+      </ion-button>
+    </div>
+  </app-custom-modal>
+}
+
+@if (wine) {
+  <app-custom-modal
+    [isOpen]="isRatingModalOpen"
+    [initialBreakpoint]="0.75"
+    [breakpoints]="[0, 0.75]"
+    [footerHasBackground]="true"
+    (didDismiss)="closeRatingModal()">
+    <div class="rating-modal">
+      <div class="rating-modal__header">
+        <h2>{{ 'WINE_SHEET_MODAL.RATING_MODAL.TITLE' | transloco }}</h2>
+        @if (isRemovingBottle) {
+          <div class="rating-modal__header-actions">
+            <ion-button class="rating-modal__skip" fill="clear" color="medium" size="small" (click)="skipRating()" [disabled]="isSavingRating">
+              {{ 'WINE_SHEET_MODAL.RATING_MODAL.SKIP' | transloco }}
+            </ion-button>
+          </div>
+        }
+      </div>
+
+      <section class="rating-modal__content">
+        <ion-icon name="wine-outline" aria-hidden="true"></ion-icon>
+        <h3>{{ 'WINE_SHEET_MODAL.RATING_MODAL.QUESTION' | transloco }}</h3>
+        <p>{{ 'WINE_SHEET_MODAL.RATING_MODAL.DESCRIPTION' | transloco }}</p>
+
+        <div class="rating-stars" role="radiogroup" [attr.aria-label]="'WINE_SHEET_MODAL.RATING' | transloco">
+          @for (rating of ratingValues; track rating) {
+            <ion-button
+              class="rating-stars__button"
+              fill="clear"
+              [class.rating-stars__button--selected]="selectedRating !== null && selectedRating >= rating - 0.5"
+              (click)="selectRating(rating, $event)"
+              role="radio"
+              [attr.aria-checked]="selectedRating === rating || selectedRating === rating - 0.5"
+              [attr.aria-label]="rating + ' / 5'">
+              <ion-icon slot="icon-only" [name]="getRatingIcon(rating)"></ion-icon>
+            </ion-button>
+          }
+        </div>
+        <p class="rating-modal__hint">{{ 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE_INSTRUCTION' | transloco }}</p>
+
+        <p class="rating-modal__label">
+          @if (selectedRating !== null) {
+            {{ ratingLabelKey | transloco }}
+          } @else if (wine.rating != null) {
+            {{ 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE_HINT' | transloco }}
+          }
+        </p>
+      </section>
+
+    </div>
+    <div modal-footer class="rating-modal__actions">
+      <ion-button fill="outline" color="medium" shape="round" (click)="closeRatingModal()">
+        {{ 'WINE_SHEET_MODAL.RATING_MODAL.CANCEL' | transloco }}
+      </ion-button>
+      <ion-button shape="round" color="primary" (click)="saveRating()" [disabled]="!canSaveRating || isSavingRating">
+        {{ (selectedRating === null && wine.rating != null ? 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE' : 'WINE_SHEET_MODAL.RATING_MODAL.SAVE') | transloco }}
+      </ion-button>
+    </div>
+  </app-custom-modal>
+}

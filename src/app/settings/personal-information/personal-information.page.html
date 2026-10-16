@@ -177,6 +177,7 @@
   [isOpen]="isPasswordModalOpen"
   [breakpoints]="[0, 0.6, 0.9]"
   [initialBreakpoint]="0.9"
+  [footerHasBackground]="false"
   (didDismiss)="closePasswordModal()">
   
   <form [formGroup]="passwordForm" class="password-modal-form">
@@ -203,8 +204,10 @@
       type="password"
       [showEye]="true">
     </app-input>
+  </form>
+  <div modal-footer class="password-modal-actions">
     <ion-button expand="block" shape="round" color="secondary" (click)="submitPasswordChange()">
       {{ 'SETTINGS.CHANGE_PASSWORD.SUBMIT' | transloco }}
     </ion-button>
-  </form>
+  </div>
 </app-custom-modal>

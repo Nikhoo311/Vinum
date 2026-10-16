@@ -11,12 +11,9 @@ import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-she
 import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
 import { SearchBarComponent, SearchableItem } from '../components/search-bar/search-bar.component';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { InputComponent } from '../components/input/input.component';
-import { RadioGroupComponent } from '../components/wines-radio-group/wines-radio-group.component';
 import { CustomModalComponent } from '../components/custom-modal/custom-modal.component';
 import { ToastService } from '../core/services/toast.service';
-import { StepperComponent } from '../components/stepper/stepper.component';
-import { TextAreaInputComponent } from '../components/text-area-input/text-area-input.component';
+import { AddWineFormComponent } from '../components/add-wine-form/add-wine-form.component';
 
 function peakMaturityYearAfterVintage(control: AbstractControl): ValidationErrors | null {
   const peakMaturityYear = control.value;
@@ -27,6 +24,14 @@ function peakMaturityYearAfterVintage(control: AbstractControl): ValidationError
   }
 
   return Number(peakMaturityYear) > Number(vintage) ? null : { peakMaturityYearBeforeVintage: true };
+}
+
+function halfStepRating(control: AbstractControl): ValidationErrors | null {
+  const rating = control.value;
+
+  if (rating === null || rating === '') return null;
+
+  return Number(rating) * 2 % 1 === 0 ? null : { halfStepRating: true };
 }
 
 @Component({
@@ -42,11 +47,8 @@ function peakMaturityYearAfterVintage(control: AbstractControl): ValidationError
     SearchBarComponent,
     TranslocoPipe,
     ReactiveFormsModule,
-    InputComponent,
-    RadioGroupComponent,
     CustomModalComponent,
-    StepperComponent,
-    TextAreaInputComponent,
+    AddWineFormComponent,
   ],
 })
 export class CavePage implements OnInit, OnDestroy {
@@ -58,7 +60,6 @@ export class CavePage implements OnInit, OnDestroy {
   wine: UserWine | null = null;
   coords: { row: number; col: number } | null = null;
   newWineCoords: { row: number; col: number } | null = null;
-  readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
   searchableItems: SearchableItem[] = [];
   matchedIds = new Set<string>();
   private caveSubscription?: Subscription;
@@ -74,7 +75,7 @@ export class CavePage implements OnInit, OnDestroy {
     region: ['', [Validators.required, Validators.maxLength(100)]],
     grapeVariety: ['', [Validators.required, Validators.maxLength(100)]],
     unitPrice: [null as number | null, [Validators.required, Validators.min(0)]],
-    rating: [null as number | null, [Validators.min(0), Validators.max(5)]],
+    rating: [null as number | null, [Validators.min(0), Validators.max(5), halfStepRating]],
     description: ['', Validators.maxLength(1000)],
     foodPairing: ['', Validators.maxLength(500)],
     quantity: [1, [Validators.required, Validators.min(1)]],
@@ -166,27 +167,6 @@ export class CavePage implements OnInit, OnDestroy {
 
   get maxNewWineQuantity(): number {
     return Math.max(1, this.caveService.totalCapacity - this.caveService.occupiedCount);
-  }
-
-  get remainingSlotsAfterQuantity(): number {
-    const quantity = Number(this.wineForm.controls.quantity.value) || 1;
-    return Math.max(0, this.maxNewWineQuantity - quantity);
-  }
-
-  get previewWineType(): WineType {
-    return this.wineForm.controls.type.value as WineType;
-  }
-
-  get previewWineName(): string {
-    return this.wineForm.controls.name.value?.trim() || 'Nom du vin';
-  }
-
-  get previewWineVintage(): number | string {
-    return this.wineForm.controls.vintage.value || '—';
-  }
-
-  get previewWineDomain(): string {
-    return this.wineForm.controls.domain.value?.trim() || 'Domaine';
   }
 
   openAddWineSheet(row: number, col: number): void {

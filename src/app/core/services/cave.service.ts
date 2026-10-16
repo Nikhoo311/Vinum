@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { UserWine } from '../models/wine.model';
-import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, doc, setDoc, updateDoc, deleteDoc, deleteField, collectionData } from '@angular/fire/firestore';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { BehaviorSubject, Observable, Subscription, of, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -84,6 +84,18 @@ export class CaveService {
     const wineRef = doc(this.firestore, 'users', user.id, 'wine', wine.id);
     await updateDoc(wineRef, { ...wine });
     this.caveSubject.next(this.cave.map(w => w.id === wine.id ? wine : w));
+  }
+
+  async updateWineRating(wineId: string, rating: number | null): Promise<void> {
+    const user = this.authService.currentUser;
+    if (!user || !user.id) throw new Error("Utilisateur non connecté.");
+    if (!wineId) throw new Error("L'ID du vin est manquant pour la mise à jour.");
+
+    const wineRef = doc(this.firestore, 'users', user.id, 'wine', wineId);
+    await updateDoc(wineRef, rating === null ? { rating: deleteField() } : { rating });
+    this.caveSubject.next(this.cave.map(wine =>
+      wine.id === wineId ? { ...wine, rating: rating ?? undefined } : wine
+    ));
   }
 
   async deleteWine(wineId: string): Promise<void> {

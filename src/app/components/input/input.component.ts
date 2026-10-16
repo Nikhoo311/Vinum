@@ -18,6 +18,9 @@ export class InputComponent implements OnInit {
 
   @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' = 'text';
   @Input() placeholder = '';
+  @Input() min?: number;
+  @Input() max?: number;
+  @Input() step?: number;
   @Input() iconName = '';
   @Input() showIcon = false;
   @Input() showEye = false;

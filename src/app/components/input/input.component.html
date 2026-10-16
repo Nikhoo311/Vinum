@@ -17,7 +17,13 @@
   </label>
 
   <ion-item class="input-form">
-    <ion-input [type]="inputType" [formControl]="$any(control)" [placeholder]="placeholder">
+    <ion-input
+      [type]="inputType"
+      [formControl]="$any(control)"
+      [placeholder]="placeholder"
+      [min]="min"
+      [max]="max"
+      [step]="step">
       @if (iconName) {
         <ion-icon slot="start" [name]="iconName"></ion-icon>
       }

@@ -1,23 +1,36 @@
 // custom-modal.component.ts
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { IonModal, IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-custom-modal',
   standalone: true,
   templateUrl: './custom-modal.component.html',
   styleUrls: ['./custom-modal.component.scss'],
-  imports: [CommonModule, IonicModule],
+  imports: [IonicModule],
 })
 export class CustomModalComponent {
+  @ViewChild(IonModal) private modal?: IonModal;
+
   @Input() isOpen = false;
   @Input() initialBreakpoint: number = 0.95;
   @Input() breakpoints: number[] = [0, 0.5, 0.7, 0.95];
   @Input() background: string | null = null;
+  @Input() footerHasBackground = true;
   @Input() showCloseButton = true;
-
   @Output() didDismiss = new EventEmitter<void>();
+
+  get maxBreakpoint(): number {
+    return this.breakpoints.length ? Math.max(...this.breakpoints) : 1;
+  }
+
+  get footerOffset(): string {
+    return `${Math.max(0, 1 - this.maxBreakpoint) * 100}%`;
+  }
+
+  dismiss(): void {
+    void this.modal?.dismiss();
+  }
 
   handleDidDismiss(): void {
     this.isOpen = false;

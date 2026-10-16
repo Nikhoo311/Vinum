@@ -176,7 +176,7 @@
     "AVERAGE_RATING_SUB": "des vins notés",
     "AVERAGE_RATING_INFO": {
       "LABEL": "Comment est calculée la note moyenne ?",
-      "TEXT": "{count, plural, =0 {Aucune note n’est encore prise en compte.} =1 {Calculée à partir de 1 note.} other {Calculée à partir de {{count}} notes.}}"
+      "TEXT": "{count, plural, =0 {Aucune bouteille notée de votre cave n’est encore prise en compte.} =1 {Calculée à partir de 1 bouteille notée de votre cave.} other {Calculée à partir de {{count}} bouteilles notées de votre cave.}}"
     },
     "IN_DEVELOPMENT": "Fonctionnalité en développement.",
     "VALUE_LABEL": "Valeur de la cave",
@@ -189,15 +189,49 @@
     "QUANTITY": "Quantité",
     "GRAPE_VARIETY": "Cépage",
     "REGION": "Région",
+    "PEAK_MATURITY_YEAR": "Année d’apogée",
     "UNIT_PRICE": "Prix unitaire",
     "RATING": "Note",
+    "NOT_RATED": "Non notée",
     "DESCRIPTION": "Notes de saveur",
     "FOOD_PAIRING": "Accords mets-vins",
     "NO_DESCRIPTION": "Aucune note de saveur disponible.",
     "NO_FOOD_PAIRING": "Aucun accord disponible.",
     "REGION_NOT_SPECIFIED": "Région non spécifiée",
     "CLOSE": "Fermer",
-    "REMOVE_BOTTLE": "Retirer une bouteille"
+    "REMOVE_BOTTLE": "Retirer une bouteille",
+    "EDIT": "Modifier",
+    "EDIT_MODAL": {
+      "TITLE": "Modifier la bouteille",
+      "SAVE": "Enregistrer",
+      "SUCCESS": "« {{name}} » modifié avec succès.",
+      "ERROR": "Impossible de modifier ce vin. Réessayez."
+    },
+    "RATING_MODAL": {
+      "TITLE": "Notation de la bouteille",
+      "QUESTION": "Comment était ce vin ?",
+      "DESCRIPTION": "Votre note met à jour la fiche de ce vin.",
+      "LABEL_1": "Décevant",
+      "LABEL_1_5": "Plutôt décevant",
+      "LABEL_2": "Moyen",
+      "LABEL_2_5": "Passable",
+      "LABEL_3": "Correct",
+      "LABEL_3_5": "Bien",
+      "LABEL_4": "Très bon",
+      "LABEL_4_5": "Très bien",
+      "LABEL_5": "Excellent !",
+      "LABEL_0_5": "Très décevant",
+      "REMOVE_INSTRUCTION": "Recliquez sur l’étoile sélectionnée pour retirer la note.",
+      "SKIP": "Passer",
+      "CANCEL": "Annuler",
+      "SAVE": "Enregistrer la note",
+      "REMOVE": "Retirer la note",
+      "REMOVE_HINT": "La note sera retirée.",
+      "SAVED": "Note enregistrée : {{rating}}/5",
+      "REMOVED": "Note retirée.",
+      "SAVE_ERROR": "Impossible d’enregistrer la note. Réessayez.",
+      "REMOVE_ERROR": "Impossible de retirer cette bouteille. Réessayez."
+    }
   },
   "SETTINGS": {
     "TITLE": "Paramètres",

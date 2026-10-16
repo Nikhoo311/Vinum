@@ -7,8 +7,9 @@ import {
   User as FirebaseUser, sendPasswordResetEmail,
   EmailAuthProvider, reauthenticateWithCredential,
   updatePassword as fbUpdatePassword, verifyBeforeUpdateEmail,
-  deleteUser, browserLocalPersistence, setPersistence
+  deleteUser
 } from '@angular/fire/auth';
+import { browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { BehaviorSubject, filter, firstValueFrom, take } from 'rxjs';
 import { CaveView, User } from '../models/user.model';
 import { ERRORS_CODES } from '../types/ErrorsCode';

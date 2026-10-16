@@ -40,6 +40,10 @@
 
 // @import './theme/bubbles.scss';
 
+:root {
+  --mc-rating-star: #f4c542;
+}
+
 html,
 body,
 ion-app {

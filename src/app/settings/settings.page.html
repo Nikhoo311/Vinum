@@ -87,6 +87,7 @@
   [isOpen]="isDispositionModalOpen"
   [initialBreakpoint]="0.6"
   [breakpoints]="[0, 0.6]"
+  [footerHasBackground]="false"
   (didDismiss)="closeDispositionModal()">
 
   <h2 class="modal-title">{{ 'SETTINGS.CAVE.DISPOSITION.TITLE' | transloco }}</h2>
@@ -114,7 +115,9 @@
     {{ 'SETTINGS.CAVE.DISPOSITION.SLOTS' | transloco: { count: dispositionTotal } }}
   </p>
 
-  <ion-button type="submit" expand="block" shape="round" [color]="isDarkMode ? 'primary' : 'secondary'" (click)="saveDisposition()">
-    {{ 'SETTINGS.CAVE.DISPOSITION.MODAL.SAVE' | transloco }}
-  </ion-button>
+  <div modal-footer class="modal-actions">
+    <ion-button type="submit" expand="block" shape="round" [color]="isDarkMode ? 'primary' : 'secondary'" (click)="saveDisposition()">
+      {{ 'SETTINGS.CAVE.DISPOSITION.MODAL.SAVE' | transloco }}
+    </ion-button>
+  </div>
 </app-custom-modal>

@@ -127,3 +127,9 @@ form {
   gap: 10px;
   margin-bottom: 18px;
 }
+.modal-actions {
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  ion-button {
+    margin: 0;
+  }
+}

@@ -1,15 +1,34 @@
 <!-- custom-modal.component.html -->
 <ion-modal
+  #modal
   [isOpen]="isOpen"
   (didDismiss)="handleDidDismiss()"
   [initialBreakpoint]="initialBreakpoint"
   [breakpoints]="breakpoints"
   mode="ios">
   <ng-template>
-    <ion-content
-      class="ion-padding sheet-content"
-      [style.--background]="background ?? 'var(--mc-bg-main, var(--bg))'">
-      <ng-content></ng-content>
-    </ion-content>
+    <div
+      class="sheet-layout"
+      [style.--sheet-visible]="maxBreakpoint"
+      [style.--sheet-footer-offset]="footerOffset">
+      <div class="sheet-footer" [class.sheet-footer--transparent]="!footerHasBackground">
+        <ng-content select="[modal-footer]"></ng-content>
+      </div>
+      @if (showCloseButton) {
+        <ion-button
+          class="sheet-close"
+          fill="clear"
+          shape="round"
+          (click)="dismiss()"
+          aria-label="Fermer">
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+      }
+      <ion-content
+        class="ion-padding sheet-content"
+        [style.--background]="background ?? 'var(--mc-bg-main, var(--bg))'">
+        <ng-content></ng-content>
+      </ion-content>
+    </div>
   </ng-template>
 </ion-modal>

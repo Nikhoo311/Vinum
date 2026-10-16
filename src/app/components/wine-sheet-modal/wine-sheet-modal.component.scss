@@ -61,12 +61,154 @@ ion-chip {
 .sheet-actions {
   display: flex;
   gap: 10px;
-  margin-top: 24px;
-
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
   ion-button {
     flex: 1;
+    min-width: 0;
+    margin: 0;
     font-size: 0.8rem;
     --padding-start: 0;
     --padding-end: 0;
+  }
+}
+
+.rating-card {
+  cursor: pointer;
+
+  &__value {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__edit {
+    margin-left: auto;
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    transform: translateY(-0.125rem);
+  }
+}
+
+.edit-wine-header {
+  margin-bottom: 1rem;
+
+  h2 { margin: 0; color: var(--text); font-size: 1.1rem; }
+  p { margin: 0.25rem 0 0; color: var(--text-soft); font-size: 0.8rem; }
+}
+
+.rating-modal {
+  padding: 0.25rem 0.25rem 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-right: 2.25rem;
+    }
+
+    ion-button {
+      --padding-start: 0;
+      --padding-end: 0;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      width: 2rem;
+      min-height: 2rem;
+      margin: 0;
+
+      ion-icon {
+        font-size: 1.45rem;
+      }
+    }
+  }
+
+  &__header &__skip {
+    --padding-start: 0.35rem;
+    --padding-end: 0.35rem;
+    width: auto;
+    min-height: 2rem;
+    font-size: 0.8rem;
+  }
+
+  &__content {
+    padding: clamp(1rem, 4vh, 2rem) 0.75rem clamp(1rem, 3vh, 1.5rem);
+    text-align: center;
+
+    > ion-icon {
+      color: var(--ion-color-primary);
+      font-size: 2rem;
+    }
+
+    h3 {
+      margin: 0.75rem 0 0.4rem;
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    > p {
+      margin: 0;
+      color: var(--text-soft, #8B8680);
+      font-size: 0.85rem;
+    }
+  }
+
+  &__content &__label {
+    min-height: 1.25rem;
+    margin-top: 0.75rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  &__content &__hint {
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    ion-button {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      font-size: clamp(0.7rem, 3.3vw, 0.8rem);
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+    }
+  }
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 1.5rem;
+
+  &__button {
+    --padding-start: 0.25rem;
+    --padding-end: 0.25rem;
+    --color: var(--mc-border);
+    margin: 0;
+
+    ion-icon {
+      font-size: clamp(1.75rem, 9vw, 2.25rem);
+    }
+
+    &--selected {
+      --color: var(--mc-rating-star);
+    }
   }
 }
