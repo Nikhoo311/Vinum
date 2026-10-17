@@ -11,7 +11,7 @@
     {{ label }}
     @if (showRequirement) {
       @if (required) {
-        <span class="input-label__required" aria-label="obligatoire">*</span>
+        <span class="input-label__required" [attr.aria-label]="'COMMON.REQUIRED' | transloco">*</span>
       }
     }
   </label>
@@ -56,5 +56,5 @@
     }
   </ion-item>
 
-  <form-error [control]="control"></form-error>
+  <app-form-error [control]="control"></app-form-error>
 </ng-template>

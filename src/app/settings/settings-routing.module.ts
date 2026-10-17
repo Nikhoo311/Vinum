@@ -5,6 +5,7 @@ import { SettingsPage } from './settings.page';
 import { FavoriteWinePage } from './favorite-wine/favorite-wine.page';
 import { PersonalInformationPage } from './personal-information/personal-information.page';
 import { LanguagePage } from './language/language.page';
+import { StarWinePage } from './star-wine/star-wine.page';
 
 const routes: Routes = [
   {
@@ -22,6 +23,10 @@ const routes: Routes = [
   {
     path: 'language',
     component: LanguagePage
+  },
+  {
+    path: 'star-wine',
+    component: StarWinePage
   }
 
 

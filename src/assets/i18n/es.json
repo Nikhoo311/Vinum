@@ -1,0 +1,485 @@
+{
+  "APP_TITLE": "Vinum",
+  "APP_SLOGAN": "Tu bodega al alcance de la mano",
+  "ERRORS": {
+    "GENERIC": "Se ha producido un error. Inténtalo de nuevo.",
+    "NETWORK": "No se puede conectar. Comprueba tu conexión a internet e inténtalo de nuevo.",
+    "NOT_AUTHENTICATED": "Tu sesión ha caducado. Vuelve a iniciar sesión.",
+    "PERMISSION_DENIED": "No tienes permiso para realizar esta acción."
+  },
+  "NOTIFICATIONS": {
+    "MATURITY": {
+      "TITLE": "Un vino está en su apogeo",
+      "BODY": "«{{name}}» ({{vintage}}) ha alcanzado su año de apogeo ({{year}}). Es el momento de disfrutarlo."
+    }
+  },
+  "FORM_ERRORS": {
+    "MIN": "El valor debe ser mayor o igual que {{min}}.",
+    "MAX": "El valor debe ser menor o igual que {{max}}.",
+    "MAX_LENGTH": "El valor no debe superar los {{max}} caracteres.",
+    "YEAR": "Introduce un año de cuatro cifras.",
+    "PEAK_MATURITY_YEAR": "El año de apogeo debe ser posterior a la añada.",
+    "HALF_STEP": "La nota debe ser un múltiplo de 0,5.",
+    "INVALID": "Este valor no es válido."
+  },
+  "AUTH": {
+    "LOGIN": "Iniciar sesión",
+    "REGISTER": "Crear una cuenta",
+    "EMAIL": "Correo electrónico",
+    "EMAIL_PLACEHOLDER": "tu@ejemplo.com",
+    "PASSWORD": "Contraseña",
+    "CONFIRM_PASSWORD": "Confirmar contraseña",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "FORGOT_PASSWORD_EMAIL_REQUIRED": "Introduce tu correo electrónico para restablecer la contraseña.",
+    "FORGOT_PASSWORD_SUCCESS": "Se ha enviado un enlace de restablecimiento ✓",
+    "FORGOT_PASSWORD_ERROR": "Dirección no encontrada o error de red.",
+    "LOGIN_BUTTON": "Iniciar sesión",
+    "REGISTER_BUTTON": "Registrarse",
+    "NO_ACCOUNT": "No hay ninguna cuenta asociada a este usuario.",
+    "TOO_MANY_ATTEMPTS": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+    "INVALID_CREDENTIAL": "El correo electrónico o la contraseña son incorrectos.",
+    "USER_DISABLED": "Esta cuenta ha sido desactivada.",
+    "REQUIRES_RECENT_LOGIN": "Por motivos de seguridad, vuelve a iniciar sesión e inténtalo de nuevo.",
+    "RULES": {
+      "REQUIRED": "Este campo es obligatorio.",
+      "EMAIL": "Introduce un correo electrónico válido.",
+      "EMAIL_ALREADY_TAKEN": "Este correo electrónico ya está en uso.",
+      "PASSWORD": "La contraseña debe tener al menos 6 caracteres.",
+      "SAME_PASSWORD": "Las contraseñas no coinciden.",
+      "FILL_ALL_FIELDS": "Completa todos los campos correctamente.",
+      "REGISTER_ERROR": "Se ha producido un error durante el registro: {{error}}"
+    },
+    "OR_CONNEXION_WITH": "O continuar con",
+    "GOOGLE_LOGIN": "Continuar con Google",
+    "GOOGLE_REGISTER": "Registrarse con Google",
+    "GOOGLE_ERROR": "Error al iniciar sesión con Google."
+  },
+  "PREFERENCES": {
+    "WELCOME_TO": "Te damos la bienvenida a",
+    "WELCOME_SUB_TEXT": "Crea tu perfil y configura tu bodega en unos instantes para empezar a organizar tus botellas.",
+    "START": "Empezar",
+    "CONTINUE": "Continuar",
+    "BACK": "Atrás",
+    "SAVE_ERROR": "No se ha podido guardar tu perfil. Inténtalo de nuevo.",
+    "STEPS": {
+      "STEP_ONE": {
+        "AMOUNT_TITLE": "Paso 1 de 3",
+        "QUESTION": "¿Cómo te llamas?",
+        "PRECISION": "Lo usamos para personalizar tu espacio.",
+        "FIRSTNAME_LABEL": "Nombre",
+        "FIRSTNAME_PLACEHOLDER": "Ej. Camille",
+        "LASTNAME_LABEL": "Apellido",
+        "LASTNAME_PLACEHOLDER": "Ej. Dubois"
+      },
+      "STEP_TWO": {
+        "AMOUNT_TITLE": "Paso 2 de 3",
+        "QUESTION": "Tu tipo de vino favorito",
+        "PRECISION": "Elige el tipo que bebes con más frecuencia. Nos ayudará a destacar las botellas adecuadas."
+      },
+      "STEP_THREE": {
+        "AMOUNT_TITLE": "Paso 3 de 3",
+        "QUESTION": "Tamaño de tu bodega",
+        "PRECISION": "Indica el número de filas y columnas para que coincida con tu bodega real.",
+        "ROWS_LABEL": "Filas",
+        "COLS_LABEL": "Columnas",
+        "TOTAL_CAPACITY": "Capacidad total:",
+        "LOCATION": "huecos",
+        "CAPACITY_CAP": "{{max}} huecos como máximo",
+        "CREATE_BUTTON": "Crear mi bodega"
+      }
+    },
+    "CONFIRM": {
+      "TITLE": "¡Todo listo, {{prenom}}!",
+      "SUBTITLE": "Tu bodega está configurada. Ya puedes empezar a guardar tus primeras botellas.",
+      "CTA": "Descubrir mi bodega"
+    }
+  },
+  "WINE": {
+    "TYPE": {
+      "RED": "tinto",
+      "WHITE": "blanco",
+      "ROSE": "rosado",
+      "CHAMPAGNE": "champán"
+    },
+    "FOOD_PAIRINGS": {
+      "RED": {
+        "RED_MEAT": "Carnes rojas",
+        "SAUCE_DISHES": "Platos con salsa",
+        "AGED_CHEESES": "Quesos curados"
+      },
+      "WHITE": {
+        "FISH_AND_SEAFOOD": "Pescados y mariscos",
+        "CREAMY_POULTRY": "Aves a la crema",
+        "GOAT_CHEESE": "Quesos de cabra"
+      },
+      "ROSE": {
+        "APERITIF_AND_TAPAS": "Aperitivo y tapas",
+        "SALADS_AND_RAW_VEGETABLES": "Ensaladas y crudités",
+        "GRILLED_DISHES": "Parrilladas"
+      },
+      "CHAMPAGNE": {
+        "APERITIF": "Aperitivo",
+        "SEAFOOD": "Mariscos",
+        "SUSHI": "Sushi"
+      }
+    }
+  },
+  "TABS": {
+    "HOME": "Panel",
+    "CAVE": "Mi bodega",
+    "CATALOGUE": "Catálogo",
+    "SETTINGS": "Ajustes"
+  },
+  "CAVE": {
+    "OCCUPIED_SLOTS": "huecos ocupados",
+    "EMPTY_LOCATION": "Hueco vacío",
+    "ADD_WINE": {
+      "TITLE": "Añadir una botella",
+      "NAME": "Nombre del vino",
+      "NAME_PLACEHOLDER": "Ej. Château Margaux",
+      "DOMAIN": "Bodega productora",
+      "DOMAIN_PLACEHOLDER": "Ej. Domaine de la Romanée-Conti",
+      "VINTAGE": "Añada",
+      "PEAK_MATURITY_YEAR": "Año de apogeo",
+      "REGION": "Región",
+      "REGION_PLACEHOLDER": "Ej. Burdeos",
+      "GRAPE_VARIETY": "Uva(s)",
+      "GRAPE_VARIETY_PLACEHOLDER": "Ej. Merlot, Cabernet Sauvignon",
+      "UNIT_PRICE": "Precio unitario (€)",
+      "RATING": "Nota / 5",
+      "FLAVOR_NOTES": "Notas de cata",
+      "FLAVOR_NOTES_PLACEHOLDER": "Aromas, color, notas de cata…",
+      "FOOD_PAIRING": "Maridajes",
+      "FOOD_PAIRING_PLACEHOLDER": "Ej. Ternera, queso curado",
+      "QUANTITY": "Cantidad",
+      "AVAILABLE_SLOT": "hueco disponible",
+      "AVAILABLE_SLOTS": "huecos disponibles",
+      "ERRORS": {
+        "DEFAULT": "No se ha podido añadir la botella. Comprueba tu conexión e inténtalo de nuevo.",
+        "INVALID_DATA": "Algunos datos del vino no son válidos. Revisa los campos e inténtalo de nuevo.",
+        "PERMISSION_DENIED": "No tienes los permisos necesarios para añadir esta botella.",
+        "UNAVAILABLE": "El servicio no está disponible en este momento. Inténtalo de nuevo en unos instantes."
+      },
+      "SUBMIT": "Añadir a mi bodega",
+      "PREVIEW_NAME": "Nombre del vino",
+      "PREVIEW_DOMAIN": "Bodega productora",
+      "SUCCESS": "Botella añadida a tu bodega.",
+      "NOT_ENOUGH_SLOTS": "No hay suficientes huecos libres para esta cantidad."
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Buscar un vino…",
+      "NO_RESULTS": "Sin resultados para «{{query}}»",
+      "BOTTLES_FOUND": "{count, plural, =0 {0 botellas encontradas} =1 {1 botella encontrada} other {{{count}} botellas encontradas}}"
+    }
+  },
+  "COMMON": {
+    "BOTTLES_SHORT": "bot.",
+    "BACK": "Atrás",
+    "CANCEL": "Cancelar",
+    "CLOSE": "Cerrar",
+    "REQUIRED": "Obligatorio",
+    "DECREASE": "Disminuir",
+    "INCREASE": "Aumentar"
+  },
+  "HOME": {
+    "WELCOME": "Hola",
+    "STAR_WINE_TAG": "Vino estrella",
+    "STAR_WINE_INFO": {
+      "LABEL": "¿Cómo se define el vino estrella?",
+      "TEXT": "El vino estrella se elige según el criterio «{{criterion}}».",
+      "CHANGE": "Cambiar el criterio"
+    },
+    "TOTAL_STOCK_LABEL": "Existencias totales",
+    "BOTTLES": "{count, plural, =0 {ninguna botella} =1 {botella} other {botellas}}",
+    "EMPTY_CAVE": "No hay ninguna botella en tu bodega.",
+    "DISTRIBUTION_LABEL": "Distribución",
+    "DISTRIBUTION_BY_TYPE_LABEL": "Distribución por tipo",
+    "DISTRIBUTION_BY_REGION_LABEL": "Distribución por región",
+    "REGION_BOTTLES": "{count, plural, =0 {0 bot.} =1 {1 bot.} other {{{count}} bot.}}",
+    "NO_REGIONS": "Ninguna región indicada.",
+    "STATS_LABEL": "Nivel de ocupación",
+    "STATS_SUB": "de tu bodega",
+    "AVERAGE_RATING_LABEL": "Nota media",
+    "AVERAGE_RATING_SUB": "de los vinos puntuados",
+    "AVERAGE_RATING_INFO": {
+      "LABEL": "¿Cómo se calcula la nota media?",
+      "TEXT": "{count, plural, =0 {Aún no se tiene en cuenta ninguna botella puntuada de tu bodega.} =1 {Calculada a partir de 1 botella puntuada de tu bodega.} other {Calculada a partir de {{count}} botellas puntuadas de tu bodega.}}"
+    },
+    "VALUE_LABEL": "Valor de la bodega",
+    "VALUE_SUB": "estimación (precio de compra)",
+    "WISHLIST_LABEL": "Lista de deseos",
+    "WINES": "{count, plural, =0 {0 vinos} =1 {1 vino} other {{{count}} vinos}}"
+  },
+  "WINE_SHEET_MODAL": {
+    "LOCATION": "Ubicación",
+    "QUANTITY": "Cantidad",
+    "GRAPE_VARIETY": "Uva",
+    "REGION": "Región",
+    "PEAK_MATURITY_YEAR": "Año de apogeo",
+    "UNIT_PRICE": "Precio unitario",
+    "RATING": "Nota",
+    "NOT_RATED": "Sin puntuar",
+    "DESCRIPTION": "Notas de cata",
+    "FOOD_PAIRING": "Maridajes",
+    "NO_DESCRIPTION": "No hay notas de cata disponibles.",
+    "NO_FOOD_PAIRING": "No hay maridajes disponibles.",
+    "REGION_NOT_SPECIFIED": "Región no especificada",
+    "REMOVE_BOTTLE": "Retirar una botella",
+    "EDIT": "Editar",
+    "EDIT_MODAL": {
+      "TITLE": "Editar la botella",
+      "SAVE": "Guardar",
+      "SUCCESS": "«{{name}}» se ha modificado correctamente.",
+      "ERROR": "No se ha podido modificar este vino. Inténtalo de nuevo."
+    },
+    "RATING_MODAL": {
+      "TITLE": "Puntuación de la botella",
+      "QUESTION": "¿Qué tal estaba este vino?",
+      "DESCRIPTION": "Tu nota actualiza la ficha de este vino.",
+      "LABEL_1": "Decepcionante",
+      "LABEL_1_5": "Bastante decepcionante",
+      "LABEL_2": "Regular",
+      "LABEL_2_5": "Pasable",
+      "LABEL_3": "Correcto",
+      "LABEL_3_5": "Bueno",
+      "LABEL_4": "Muy bueno",
+      "LABEL_4_5": "Notable",
+      "LABEL_5": "¡Excelente!",
+      "LABEL_0_5": "Muy decepcionante",
+      "REMOVE_INSTRUCTION": "Pulsa de nuevo la estrella seleccionada para quitar la nota.",
+      "SKIP": "Omitir",
+      "CANCEL": "Cancelar",
+      "SAVE": "Guardar la nota",
+      "REMOVE": "Quitar la nota",
+      "REMOVE_HINT": "Se quitará la nota.",
+      "SAVED": "Nota guardada: {{rating}}/5",
+      "REMOVED": "Nota eliminada.",
+      "SAVE_ERROR": "No se ha podido guardar la nota. Inténtalo de nuevo.",
+      "REMOVE_ERROR": "No se ha podido retirar esta botella. Inténtalo de nuevo."
+    }
+  },
+  "SETTINGS": {
+    "TITLE": "Ajustes",
+    "SUBTITLE": "Cuenta y preferencias",
+    "SECTIONS": {
+      "ACCOUNT": "Cuenta",
+      "CAVE": "Bodega",
+      "APPEARANCE": "Apariencia"
+    },
+    "APPEARANCE": {
+      "DARK_MODE": "Modo oscuro",
+      "LANGUAGE": {
+        "TITLE": "Idioma",
+        "AVAILABLE": "Idiomas disponibles",
+        "NO_RESULTS": "No se ha encontrado ningún idioma",
+        "HINT": "El idioma elegido se aplica a toda la aplicación. No es necesario reiniciarla."
+      }
+    },
+    "INFO_PERSONAL": {
+      "TITLE": "Información personal",
+      "UPDATE_SUCCESS": "Tu información personal se ha actualizado correctamente.",
+      "UPDATE_ERROR": "Se ha producido un error durante la actualización.\n{{error}}",
+      "REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR": "Se necesita la contraseña para cambiar el correo electrónico.",
+      "REQUIRED_PASSWORD_DELETE_ERROR": "Se necesita la contraseña para confirmar la eliminación.",
+      "EMAIL_CONFIRMATION_SENT": "Se ha enviado un correo de confirmación a tu nueva dirección."
+    },
+    "FAVORITE_WINE": {
+      "TITLE": "Tipo de vino favorito",
+      "SUBTITLE": "Elige el tipo de vino que prefieres.",
+      "UPDATE_BUTTON": "Guardar",
+      "UPDATE_SUCCESS": "Tu tipo de vino favorito se ha actualizado correctamente.",
+      "UPDATE_ERROR": "Se ha producido un error durante la actualización.",
+      "NOT_SPECIFIED": "Sin especificar"
+    },
+    "ACCOUNT_PAGE": {
+      "SECTIONS": {
+        "PERSONAL_INFO": "Información personal",
+        "IDENTIFIER": "Identificador",
+        "SECURITY": "Seguridad"
+      },
+      "FIRSTNAME": "Nombre",
+      "LASTNAME": "Apellido",
+      "EMAIL": "Correo electrónico",
+      "PASSWORD": "Contraseña",
+      "GOOGLE_MANAGED": "Gestionado por Google",
+      "EMAIL_CHANGED_NOTICE": "Vuelve a iniciar sesión para ver tu nuevo correo electrónico.",
+      "SAVE": "Guardar",
+      "LOGOUT": "Cerrar sesión",
+      "DELETE_ACCOUNT": {
+        "BUTTON": "Eliminar mi cuenta",
+        "HINT": "La eliminación es definitiva y supone la pérdida de todos tus datos.",
+        "CONFIRM_HEADER": "Eliminar mi cuenta",
+        "CONFIRM_MESSAGE": "La eliminación es definitiva y supone la pérdida de todos tus datos.",
+        "PASSWORD_PLACEHOLDER": "Contraseña actual",
+        "CANCEL": "Cancelar",
+        "CONFIRM": "Eliminar",
+        "ERROR": "No se ha podido eliminar la cuenta"
+      },
+      "EMAIL_CHANGE_CONFIRM": {
+        "HEADER": "Confirmar el cambio de correo electrónico",
+        "MESSAGE": "Por motivos de seguridad, introduce tu contraseña actual.",
+        "PASSWORD_PLACEHOLDER": "Contraseña actual",
+        "CANCEL": "Cancelar",
+        "CONFIRM": "Confirmar"
+      }
+    },
+    "CHANGE_PASSWORD": {
+      "TITLE": "Cambiar la contraseña",
+      "SUBTITLE": "Elige una contraseña de al menos 6 caracteres.",
+      "CURRENT_LABEL": "Contraseña actual",
+      "NEW_LABEL": "Nueva contraseña",
+      "CONFIRM_LABEL": "Confirmar la nueva contraseña",
+      "SUBMIT": "Cambiar la contraseña",
+      "MISMATCH": "Las contraseñas no coinciden",
+      "SUCCESS": "Contraseña cambiada correctamente",
+      "ERROR": "No se ha podido cambiar la contraseña"
+    },
+    "CAVE": {
+      "DISPOSITION": {
+        "TITLE": "Distribución de la bodega",
+        "SLOTS": "{count, plural, =0 {hueco} =1 {hueco} other {huecos}}",
+        "ROWS": "{count, plural, =0 {fila} =1 {fila} other {filas}}",
+        "COLS": "{count, plural, =0 {columna} =1 {columna} other {columnas}}",
+        "MODAL": {
+          "HINT": "Ajusta el número de filas y columnas para que coincida con tu bodega real (máximo {{max}} huecos).",
+          "TOTAL_LABEL": "Capacidad total:",
+          "SAVE": "Guardar",
+          "SAVE_SUCCESS": "La distribución de tu bodega se ha guardado.",
+          "SAVE_ERROR": "Se ha producido un error al guardar la distribución.\n{{error}}"
+        },
+        "CONFIRM": {
+          "TITLE": "¿Retirar botellas?",
+          "MESSAGE": "{count, plural, =1 {1 botella ya no tiene hueco en la nueva distribución y se retirará de tu bodega.} other {{{count}} botellas ya no tienen hueco en la nueva distribución y se retirarán de tu bodega.}} Esta acción no se puede deshacer.",
+          "CONFIRM": "Confirmar"
+        }
+      },
+      "DISPLAY": {
+        "TITLE": "Visualización del inventario",
+        "SUBTITLE": "Vista predeterminada",
+        "GRID": "Cuadrícula",
+        "LIST": "Lista",
+        "UPDATE_SUCCESS": "Vista predeterminada modificada: {{view}}",
+        "UPDATE_ERROR": "Se ha producido un error al cambiar la vista."
+      },
+      "NOTIFICATIONS": {
+        "TITLE": "Alertas de madurez",
+        "ENABLED": "Activadas",
+        "DISABLED": "Desactivadas",
+        "PERMISSION_DENIED": "Notificaciones denegadas. Permítelas en los ajustes de tu dispositivo para activar las alertas."
+      }
+    }
+  },
+  "CATALOGUE": {
+    "WISHLIST": "Lista de deseos",
+    "IN_WISHLIST": "En la lista",
+    "TO_BUY": "Por comprar",
+    "NOTHING_YET": "Nada por ahora",
+    "WINE_COUNT": "{count, plural, one {# vino} other {# vinos}}",
+    "SHOW_WINES": "{count, plural, one {Ver # vino} other {Ver # vinos}}",
+    "CHOOSE_SCOPE": "Elegir el catálogo",
+    "COMMUNITY": "Catálogo",
+    "PERSONAL": "Mis fichas",
+    "SEARCH": "Buscar un vino, una uva…",
+    "SEARCH_PERSONAL": "Buscar en mis fichas…",
+    "UNIT": "botella",
+    "FILTERS": "Filtros",
+    "ACTIVE_FILTERS": "Filtros activos",
+    "TYPE": "Tipo",
+    "STATUS": "Estado",
+    "STATUS_ALL": "Todos",
+    "IN_CELLAR": "En bodega",
+    "ALREADY_IN_CELLAR": "Ya en mi bodega",
+    "SORT_ACTIVE": "Orden activo",
+    "REGION": "Región",
+    "SORT": "Ordenar por",
+    "ALL_REGIONS": "Todas las regiones",
+    "SORT_NAME": "Nombre: A a Z",
+    "SORT_PRICE_ASC": "Precio ascendente",
+    "SORT_PRICE_DESC": "Precio descendente",
+    "SORT_VINTAGE_DESC": "Añada más reciente",
+    "RESET_FILTERS": "Restablecer filtros",
+    "RESET": "Restablecer",
+    "VIEW_WINE": "Ver",
+    "ADD_WISH": "Añadir a la lista de deseos",
+    "REMOVE_WISH": "Quitar de la lista de deseos",
+    "ADD_TO_CELLAR": "Poner en bodega",
+    "NO_RESULTS": "Ningún vino coincide con estos criterios.",
+    "NO_PERSONAL": "Todavía no tiene ninguna ficha.",
+    "CREATE": "Crear una ficha",
+    "CREATE_DESCRIPTION": "Añada una referencia a su catálogo personal.",
+    "SAVE_CARD": "Guardar la ficha",
+    "PROPOSE_CHECK": "Proponer al catálogo común",
+    "PROPOSE_CHECK_HINT": "La propuesta se revisará antes de publicarse.",
+    "MISSING": "¿No encuentra su vino?",
+    "MISSING_HINT": "Propóngalo: se añadirá al catálogo tras su revisión.",
+    "MAKE_PROPOSAL": "Hacer una propuesta",
+    "GO_PERSONAL": "o crear una ficha personal",
+    "PROPOSE_TITLE": "Proponer un vino",
+    "SEND_PROPOSAL": "Enviar la propuesta",
+    "LOADING": "Cargando vinos…",
+    "WISHLIST_EMPTY": "Su lista de deseos está vacía.",
+    "WISHLIST_EMPTY_HINT": "Toque la estrella de un vino del catálogo para encontrarlo aquí.",
+    "FIRST_SLOT": "Primer hueco",
+    "SLOT_HINT": "Las botellas siguientes ocupan los siguientes huecos libres.",
+    "NO_SLOTS": "No hay ningún hueco libre en su bodega.",
+    "ADD_SUCCESS": "Vino añadido a la bodega.",
+    "ADD_ERROR": "No se ha podido añadir este vino a la bodega.",
+    "CREATE_SUCCESS": "Ficha guardada.",
+    "CREATE_ERROR": "No se ha podido guardar la ficha.",
+    "PROPOSAL_SUCCESS": "Su propuesta ha sido enviada.",
+    "PROPOSAL_ERROR": "No se ha podido enviar su propuesta.",
+    "WISHLIST_SAVE_ERROR": "No se ha podido guardar la lista de deseos en este dispositivo."
+  },
+  "STAR_WINE": {
+    "TITLE": "Cálculo del vino estrella",
+    "SUBTITLE": "Elija cómo se designa el vino destacado en el inicio.",
+    "NEW": "Nuevo",
+    "GROUPS": {
+      "VALUE": "Valor",
+      "CHARACTER": "Carácter",
+      "OTHER": "Otros"
+    },
+    "CRITERIA": {
+      "PRICE": {
+        "TITLE": "Precio unitario más alto",
+        "DESCRIPTION": "La botella más cara de su bodega."
+      },
+      "CELLAR_VALUE": {
+        "TITLE": "Mayor valor en bodega",
+        "DESCRIPTION": "Cantidad × precio unitario: el vino que más pesa."
+      },
+      "OLDEST_VINTAGE": {
+        "TITLE": "Añada más antigua",
+        "DESCRIPTION": "El vino que más ha envejecido (sin contar los sin añada)."
+      },
+      "BEST_RATED": {
+        "TITLE": "Mejor valorado",
+        "DESCRIPTION": "El vino al que usted dio la mejor nota."
+      },
+      "BEST_VALUE": {
+        "TITLE": "Mejor relación calidad / precio",
+        "DESCRIPTION": "Nota dividida por el precio: su mejor hallazgo."
+      },
+      "LONGEST_IN_CELLAR": {
+        "TITLE": "El que más tiempo lleva en bodega",
+        "DESCRIPTION": "El que duerme en su bodega desde hace más tiempo."
+      },
+      "BIGGEST_STOCK": {
+        "TITLE": "Mayor stock",
+        "DESCRIPTION": "El que tiene más botellas."
+      }
+    },
+    "METRIC": {
+      "PRICE": "{{price}} / botella",
+      "CELLAR_VALUE": "{{value}} en bodega",
+      "OLDEST_VINTAGE": "Añada {{vintage}}",
+      "BEST_RATED": "★ {{rating}} / 5",
+      "BEST_VALUE": "★ {{rating}} / 5 · {{price}}",
+      "LONGEST_IN_CELLAR": "En bodega desde el {{date}}",
+      "BIGGEST_STOCK": "{count, plural, =0 {0 botellas} =1 {1 botella} other {{{count}} botellas}}"
+    },
+    "FOOTNOTE": "En caso de empate, decide el precio unitario. El vino estrella se recalcula automáticamente cuando cambia su bodega.",
+    "EMPTY": "Añada vinos a su bodega para ver su vino estrella.",
+    "FALLBACK": "Ningún vino cumple todavía este criterio (falta la nota, la fecha de alta…): mientras tanto se muestra el vino más caro."
+  }
+}

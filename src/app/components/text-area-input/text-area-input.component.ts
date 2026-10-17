@@ -1,12 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { TranslocoModule } from '@jsverse/transloco';
 import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
   selector: 'app-text-area-input',
   standalone: true,
-  imports: [ReactiveFormsModule, IonicModule, FormErrorComponent],
+  imports: [ReactiveFormsModule, IonicModule, TranslocoModule, FormErrorComponent],
   templateUrl: './text-area-input.component.html',
   styleUrls: ['./text-area-input.component.scss'],
 })

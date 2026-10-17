@@ -1,38 +1,32 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Observable, map, Subscription } from 'rxjs';
-import { CaveService, CaveSlot } from '../core/services/cave.service';
-import { CellarCellComponent } from '../components/cellar-cell/cellar-cell.component';
-import { UserWine } from '../core/models/wine.model';
-import { AuthService } from '../core/services/auth.service';
-import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
-import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
-import { SearchBarComponent, SearchableItem } from '../components/search-bar/search-bar.component';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { CustomModalComponent } from '../components/custom-modal/custom-modal.component';
-import { ToastService } from '../core/services/toast.service';
+import { Observable, map } from 'rxjs';
+
 import { AddWineFormComponent } from '../components/add-wine-form/add-wine-form.component';
+import { CellarCellComponent } from '../components/cellar-cell/cellar-cell.component';
+import { CustomModalComponent } from '../components/custom-modal/custom-modal.component';
+import { SearchBarComponent, SearchableItem } from '../components/search-bar/search-bar.component';
+import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
+import { createWineForm, emptyWineFormValue, wineDetailsFromForm } from '../core/forms/wine-form';
+import { CaveSlot, CellPlacement, UserWine } from '../core/models/wine.model';
+import { AuthService } from '../core/services/auth.service';
+import { CaveService } from '../core/services/cave.service';
+import { ToastService } from '../core/services/toast.service';
+import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
+import { errorCodeOf } from '../core/utils/error.util';
+import { findFreePlacements, formatPlacement } from '../core/utils/placement.util';
+import { searchItems } from '../core/utils/search.util';
 
-function peakMaturityYearAfterVintage(control: AbstractControl): ValidationErrors | null {
-  const peakMaturityYear = control.value;
-  const vintage = control.parent?.get('vintage')?.value;
-
-  if (peakMaturityYear === null || peakMaturityYear === '' || vintage === null || vintage === '') {
-    return null;
-  }
-
-  return Number(peakMaturityYear) > Number(vintage) ? null : { peakMaturityYearBeforeVintage: true };
-}
-
-function halfStepRating(control: AbstractControl): ValidationErrors | null {
-  const rating = control.value;
-
-  if (rating === null || rating === '') return null;
-
-  return Number(rating) * 2 % 1 === 0 ? null : { halfStepRating: true };
-}
+/** Clés de traduction des erreurs d'ajout, selon le code d'erreur Firestore. */
+const ADD_WINE_ERROR_KEYS: Readonly<Record<string, string>> = {
+  'permission-denied': 'CAVE.ADD_WINE.ERRORS.PERMISSION_DENIED',
+  unavailable: 'CAVE.ADD_WINE.ERRORS.UNAVAILABLE',
+  'invalid-argument': 'CAVE.ADD_WINE.ERRORS.INVALID_DATA',
+};
 
 @Component({
   selector: 'app-cave',
@@ -51,88 +45,51 @@ function halfStepRating(control: AbstractControl): ValidationErrors | null {
     AddWineFormComponent,
   ],
 })
-export class CavePage implements OnInit, OnDestroy {
-  grid$!: Observable<CaveSlot[]>;
+export class CavePage implements OnInit {
+  readonly caveService = inject(CaveService);
+  private readonly auth = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Grille de la cave, regroupée par rangée. */
   gridRows$!: Observable<CaveSlot[][]>;
+
   isSheetOpen = false;
   isAddWineSheetOpen = false;
   isSubmittingWine = false;
   wine: UserWine | null = null;
-  coords: { row: number; col: number } | null = null;
-  newWineCoords: { row: number; col: number } | null = null;
+  coords: CellPlacement | null = null;
+  newWineCoords: CellPlacement | null = null;
+
   searchableItems: SearchableItem[] = [];
   matchedIds = new Set<string>();
-  private caveSubscription?: Subscription;
-  private wineTypeSubscription?: Subscription;
-  private vintageSubscription?: Subscription;
+  searchActive = false;
+  private searchQuery = '';
 
-  readonly wineForm = this.fb.group({
-    type: [WineType.RED, Validators.required],
-    name: ['', [Validators.required, Validators.maxLength(100)]],
-    domain: ['', [Validators.required, Validators.maxLength(100)]],
-    vintage: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]],
-    peakMaturityYear: [null as number | null, [Validators.pattern(/^\d{4}$/), peakMaturityYearAfterVintage]],
-    region: ['', [Validators.required, Validators.maxLength(100)]],
-    grapeVariety: ['', [Validators.required, Validators.maxLength(100)]],
-    unitPrice: [null as number | null, [Validators.required, Validators.min(0)]],
-    rating: [null as number | null, [Validators.min(0), Validators.max(5), halfStepRating]],
-    description: ['', Validators.maxLength(1000)],
-    foodPairing: ['', Validators.maxLength(500)],
-    quantity: [1, [Validators.required, Validators.min(1)]],
-  });
+  readonly wineForm = createWineForm(this.fb);
 
-  constructor(
-    public caveService: CaveService,
-    private auth: AuthService,
-    private fb: FormBuilder,
-    private toastService: ToastService,
-    private transloco: TranslocoService,
-  ) {}
-
-  ngOnInit() {
-    this.grid$ = this.caveService.grid$;
+  ngOnInit(): void {
     this.gridRows$ = this.caveService.grid$.pipe(map((slots) => this.groupSlotsByRow(slots)));
-    this.updateSearchableItems();
-    this.caveSubscription = this.caveService.grid$.subscribe(() => {
-      this.updateSearchableItems();
-    });
-    this.wineTypeSubscription = this.wineForm.controls.type.valueChanges.subscribe((type) => {
-      if (type) {
-        this.setDefaultFoodPairing(type as WineType);
-      }
-    });
-    this.vintageSubscription = this.wineForm.controls.vintage.valueChanges.subscribe(() => {
-      this.wineForm.controls.peakMaturityYear.updateValueAndValidity({ emitEvent: false });
-    });
+
+    this.caveService.wines$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((wines) => {
+        this.searchableItems = this.toSearchableItems(wines);
+        this.refreshSearch();
+      });
+
+    this.wineForm.controls.vintage.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.wineForm.controls.peakMaturityYear.updateValueAndValidity({ emitEvent: false }));
   }
 
-  ngOnDestroy() {
-    this.caveSubscription?.unsubscribe();
-    this.wineTypeSubscription?.unsubscribe();
-    this.vintageSubscription?.unsubscribe();
-  }
-
-  updateSearchableItems() {
-    const wines = this.caveService.cave;
-    this.searchableItems = wines.map(wine => ({
-      id: wine.id || '',
-      label: wine.name,
-      subtitle: `${wine.domain} · ${wine.vintage}`,
-      tag: wine.placements?.map(p => this.caveService.formatPlacementCoords(p)).join(', '),
-      keywords: [wine.name, wine.domain, wine.region, wine.appellation, wine.grapeVariety],
-      placementCount: wine.placements?.length || 1
-    }));
-  }
-
-  onSearchMatch(matchedIds: Set<string>) {
-    this.matchedIds = matchedIds;
-  }
-
-  get occupiedCount() {
+  get occupiedCount(): number {
     return this.caveService.occupiedCount;
   }
 
-  get totalCapacity() {
+  get totalCapacity(): number {
     return this.caveService.totalCapacity;
   }
 
@@ -143,6 +100,29 @@ export class CavePage implements OnInit, OnDestroy {
   get caveConfig() {
     return this.caveService.caveConfig;
   }
+
+  get maxNewWineQuantity(): number {
+    return Math.max(1, this.totalCapacity - this.occupiedCount);
+  }
+
+  // ── Recherche ─────────────────────────────────────────────
+
+  onSearchQuery(query: string): void {
+    this.searchQuery = query;
+    this.refreshSearch();
+  }
+
+  private refreshSearch(): void {
+    this.searchActive = this.searchQuery.trim().length > 0;
+    this.matchedIds = new Set(searchItems(this.searchableItems, this.searchQuery).map((item) => item.id));
+  }
+
+  /** Une case est affichée si aucune recherche n'est active, ou si son vin correspond. */
+  isSlotVisible(slot: CaveSlot): boolean {
+    return !this.searchActive || (!!slot.wine?.id && this.matchedIds.has(slot.wine.id));
+  }
+
+  // ── Grille ────────────────────────────────────────────────
 
   onCellTap(slot: CaveSlot): void {
     if (slot.wine) {
@@ -155,37 +135,17 @@ export class CavePage implements OnInit, OnDestroy {
   }
 
   formatCoords(slot: CaveSlot): string {
-    return this.caveService.formatPlacementCoords({ row: slot.row, col: slot.col })
+    return formatPlacement(slot);
   }
 
-  private groupSlotsByRow(slots: CaveSlot[]): CaveSlot[][] {
-    return slots.reduce<CaveSlot[][]>((rows, slot) => {
-      (rows[slot.row] ??= []).push(slot);
-      return rows;
-    }, []);
-  }
-
-  get maxNewWineQuantity(): number {
-    return Math.max(1, this.caveService.totalCapacity - this.caveService.occupiedCount);
-  }
+  // ── Ajout d'un vin ────────────────────────────────────────
 
   openAddWineSheet(row: number, col: number): void {
+    const defaultFoodPairing = this.getDefaultFoodPairing(WineType.RED);
+
     this.newWineCoords = { row, col };
-    this.wineForm.reset({
-      type: WineType.RED,
-      name: '',
-      domain: '',
-      vintage: new Date().getFullYear(),
-      peakMaturityYear: null,
-      region: '',
-      grapeVariety: '',
-      unitPrice: null,
-      rating: null,
-      description: '',
-      foodPairing: this.getDefaultFoodPairing(WineType.RED),
-      quantity: 1,
-    });
-    this.wineForm.controls.quantity.setValidators([Validators.required, Validators.min(1), Validators.max(this.maxNewWineQuantity)]);
+    this.wineForm.reset(emptyWineFormValue(defaultFoodPairing));
+    this.wineForm.controls.quantity.setValidators(this.quantityValidators());
     this.wineForm.controls.quantity.updateValueAndValidity();
     this.isAddWineSheetOpen = true;
   }
@@ -196,107 +156,71 @@ export class CavePage implements OnInit, OnDestroy {
   }
 
   async submitNewWine(): Promise<void> {
-    if (this.wineForm.invalid || !this.newWineCoords || !this.user?.id) {
+    const ownerId = this.user?.id;
+    if (this.isSubmittingWine) return;
+    if (this.wineForm.invalid || !this.newWineCoords || !ownerId) {
       this.wineForm.markAllAsTouched();
       return;
     }
 
     const value = this.wineForm.getRawValue();
-    const placements = this.getAvailablePlacements(Number(value.quantity));
-    if (placements.length !== Number(value.quantity)) {
-      this.toastService.error('Le nombre d’emplacements disponibles est insuffisant.');
+    const quantity = Number(value.quantity);
+    const { rows, cols } = this.caveService.caveConfig;
+    const placements = findFreePlacements(rows, cols, this.caveService.cave, this.newWineCoords, quantity);
+
+    if (placements.length !== quantity) {
+      void this.toastService.error(this.transloco.translate('CAVE.ADD_WINE.NOT_ENOUGH_SLOTS'));
       return;
     }
+
     this.isSubmittingWine = true;
-
     try {
-      const wineToAdd: Omit<UserWine, 'id'> = {
-        ownerId: this.user.id,
+      await this.caveService.addWine({
+        ownerId,
         isCustom: true,
-        name: value.name!.trim(),
-        domain: value.domain!.trim(),
-        region: value.region!.trim(),
-        vintage: Number(value.vintage),
-        type: value.type as WineType,
-        grapeVariety: value.grapeVariety!.trim(),
-        unitPrice: Number(value.unitPrice),
-        description: value.description?.trim() || '',
-        foodPairing: (value.foodPairing ?? '')
-          .split(',')
-          .map((pairing) => pairing.trim())
-          .filter(Boolean),
+        ...wineDetailsFromForm(value),
         placements,
-      };
-
-      if (value.rating !== null) {
-        wineToAdd.rating = Number(value.rating);
-      }
-
-      if (value.peakMaturityYear !== null) {
-        wineToAdd.peakMaturityYear = Number(value.peakMaturityYear);
-      }
-
-      await this.caveService.addWine(wineToAdd);
-      this.updateSearchableItems();
-      this.toastService.success('Vin ajouté à la cave.');
+      });
+      void this.toastService.success(this.transloco.translate('CAVE.ADD_WINE.SUCCESS'));
       this.closeAddWineSheet();
     } catch (error) {
-      console.error('Erreur lors de l\'ajout du vin :', error);
-      this.toastService.error(this.getAddWineErrorMessage(error));
+      console.error("Erreur lors de l'ajout du vin :", error);
+      void this.toastService.error(this.transloco.translate(this.addWineErrorKey(error)));
     } finally {
       this.isSubmittingWine = false;
     }
   }
 
-  private getAvailablePlacements(quantity: number): { row: number; col: number }[] {
-    if (!this.newWineCoords) return [];
+  // ── Internes ──────────────────────────────────────────────
 
-    const { rows, cols } = this.caveService.caveConfig;
-    const allSlots = Array.from({ length: rows * cols }, (_, index) => ({
-      row: Math.floor(index / cols),
-      col: index % cols,
+  private toSearchableItems(wines: readonly UserWine[]): SearchableItem[] {
+    return wines.map((wine) => ({
+      id: wine.id ?? '',
+      label: wine.name,
+      subtitle: `${wine.domain} · ${wine.vintage}`,
+      tag: wine.placements.map((placement) => formatPlacement(placement)).join(', '),
+      keywords: [wine.name, wine.domain, wine.region, wine.appellation, wine.grapeVariety],
+      placementCount: wine.placements.length || 1,
     }));
-    const startIndex = allSlots.findIndex((slot) =>
-      slot.row === this.newWineCoords!.row && slot.col === this.newWineCoords!.col
-    );
-    const occupiedSlots = new Set(
-      this.caveService.cave.flatMap((wine) => (wine.placements ?? []).map((placement) => `${placement.row}-${placement.col}`))
-    );
-    const orderedSlots = [...allSlots.slice(startIndex), ...allSlots.slice(0, startIndex)];
-
-    return orderedSlots
-      .filter((slot) => !occupiedSlots.has(`${slot.row}-${slot.col}`))
-      .slice(0, quantity);
   }
 
-  private setDefaultFoodPairing(type: WineType): void {
-    this.wineForm.controls.foodPairing.setValue(this.getDefaultFoodPairing(type));
+  private groupSlotsByRow(slots: CaveSlot[]): CaveSlot[][] {
+    return slots.reduce<CaveSlot[][]>((rows, slot) => {
+      (rows[slot.row] ??= []).push(slot);
+      return rows;
+    }, []);
+  }
+
+  private quantityValidators() {
+    return [Validators.required, Validators.min(1), Validators.max(this.maxNewWineQuantity)];
   }
 
   private getDefaultFoodPairing(type: WineType): string {
-    return WINE_TYPE_CONFIG[type].defaultFoodPairing
-      .map((key) => this.transloco.translate(key))
-      .join(', ');
+    return WINE_TYPE_CONFIG[type].defaultFoodPairing.map((key) => this.transloco.translate(key)).join(', ');
   }
 
-  private getAddWineErrorMessage(error: unknown): string {
-    const code = typeof error === 'object' && error !== null && 'code' in error
-      ? (error as { code?: string }).code
-      : undefined;
-
-    if (code === 'permission-denied') {
-      return this.transloco.translate('CAVE.ADD_WINE.ERRORS.PERMISSION_DENIED');
-    }
-
-    if (code === 'unavailable') {
-      return this.transloco.translate('CAVE.ADD_WINE.ERRORS.UNAVAILABLE');
-    }
-
-    if (code === 'invalid-argument') {
-      return this.transloco.translate('CAVE.ADD_WINE.ERRORS.INVALID_DATA');
-    }
-
-    return this.transloco.translate('CAVE.ADD_WINE.ERRORS.DEFAULT');
+  private addWineErrorKey(error: unknown): string {
+    const code = errorCodeOf(error);
+    return (code && ADD_WINE_ERROR_KEYS[code]) || 'CAVE.ADD_WINE.ERRORS.DEFAULT';
   }
-
 }

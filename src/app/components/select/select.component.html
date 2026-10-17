@@ -1,12 +1,38 @@
 @if (label) {
-  <label class="select__label">{{ label }}</label>
+  <label class="select__label" [id]="id + '-label'" (click)="toggle()">{{ label }}</label>
 }
-<ion-select
-  interface="popover"
-  [value]="value"
-  [placeholder]="placeholder"
-  (ionChange)="select($event.detail.value)">
-  @for (option of options; track option.value) {
-    <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+<div class="select" [class.select--open]="isOpen">
+  <button
+    type="button"
+    class="select__trigger"
+    role="combobox"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="isOpen"
+    [attr.aria-controls]="listId"
+    [attr.aria-labelledby]="label ? id + '-label' : null"
+    (click)="toggle()"
+    (keydown)="onKeydown($event)">
+    <span class="select__value" [class.select__value--placeholder]="!selectedLabel">{{ selectedLabel || placeholder }}</span>
+    <ion-icon class="select__chevron" name="chevron-down-outline" aria-hidden="true"></ion-icon>
+  </button>
+
+  @if (isOpen) {
+    <ul class="select__list" role="listbox" [id]="listId" [attr.aria-labelledby]="label ? id + '-label' : null">
+      @for (option of options; track option.value; let i = $index) {
+        <li
+          class="select__option"
+          role="option"
+          [class.select__option--selected]="option.value === value"
+          [class.select__option--active]="i === activeIndex"
+          [attr.aria-selected]="option.value === value"
+          (click)="choose(option)"
+          (pointerenter)="activeIndex = i">
+          <span>{{ option.label }}</span>
+          @if (option.value === value) {
+            <ion-icon name="checkmark-outline" aria-hidden="true"></ion-icon>
+          }
+        </li>
+      }
+    </ul>
   }
-</ion-select>
+</div>

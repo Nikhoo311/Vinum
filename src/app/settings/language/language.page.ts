@@ -1,9 +1,10 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { PreferencesService } from 'src/app/core/services/preferences.service';
-import { LANGUAGE_CONFIG, LanguageInfo } from 'src/app/core/types/LanguageConfig';
+import { TranslocoModule } from '@jsverse/transloco';
+
+import { PreferencesService } from '../../core/services/preferences.service';
+import { LANGUAGE_CONFIG, LanguageInfo } from '../../core/types/LanguageConfig';
 
 @Component({
   selector: 'app-language',
@@ -16,27 +17,24 @@ export class LanguagePage implements OnInit {
   languages: LanguageInfo[] = [];
   selectedLanguage = '';
 
-  constructor(
-    private transloco: TranslocoService,
-    private prefs: PreferencesService,
-    private location: Location,
-  ) {}
+  private readonly prefs = inject(PreferencesService);
+  private readonly location = inject(Location);
 
-  ngOnInit() {
-    const availableLangs = this.transloco.getAvailableLangs() as string[];
-    this.languages = availableLangs
+  ngOnInit(): void {
+    this.languages = this.prefs.availableLangs
       .map((code) => LANGUAGE_CONFIG[code])
       .filter((lang): lang is LanguageInfo => !!lang);
 
     this.selectedLanguage = this.prefs.current.language;
   }
 
-  async selectLanguage(code: string) {
+  async selectLanguage(code: string): Promise<void> {
+    if (code === this.selectedLanguage) return;
     this.selectedLanguage = code;
     await this.prefs.setLanguage(code);
   }
 
-  goBack() {
+  goBack(): void {
     this.location.back();
   }
 }

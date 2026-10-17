@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
+/** Case à cocher dont toute la ligne (libellé compris) est cliquable. */
 @Component({
   selector: 'app-checkbox',
   standalone: true,
@@ -18,5 +19,4 @@ export class CheckboxComponent {
   toggle(checked: boolean): void {
     this.checkedChange.emit(checked);
   }
-
 }

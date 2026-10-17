@@ -20,7 +20,7 @@ ion-searchbar {
   }
 
   &::part(input) {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--ion-font-family);
     font-size: 0.875rem;
     padding-inline-start: 0.5rem;
   }

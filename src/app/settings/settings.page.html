@@ -38,15 +38,26 @@
           <p>{{ 'SETTINGS.CAVE.DISPLAY.SUBTITLE' | transloco }} : {{ ('SETTINGS.CAVE.DISPLAY.' + selectedView.toUpperCase()) | transloco }}</p>
         </ion-label>
         <ion-segment slot="end" [value]="selectedView" (ionChange)="onViewChange($event)">
-          <ion-segment-button [disabled]="isViewChangePending" value="grid">
-            <ion-icon name="grid-outline"></ion-icon>
+          <ion-segment-button [disabled]="isViewChangePending" value="grid" [attr.aria-label]="'SETTINGS.CAVE.DISPLAY.GRID' | transloco">
+            <ion-icon name="grid-outline" aria-hidden="true"></ion-icon>
           </ion-segment-button>
-          <ion-segment-button [disabled]="isViewChangePending" value="list">
-            <ion-icon name="list-outline"></ion-icon>
+          <ion-segment-button [disabled]="isViewChangePending" value="list" [attr.aria-label]="'SETTINGS.CAVE.DISPLAY.LIST' | transloco">
+            <ion-icon name="list-outline" aria-hidden="true"></ion-icon>
           </ion-segment-button>
         </ion-segment>
       </ion-item>
 
+      <ion-item [button]="true" [detail]="true" (click)="goToStarWine()">
+        <ion-label>
+          <h2>
+            {{ 'STAR_WINE.TITLE' | transloco }}
+            @if (isStarWineNew) { <span class="new-badge">{{ 'STAR_WINE.NEW' | transloco }}</span> }
+          </h2>
+          <p>{{ starWineCriterionLabel }}</p>
+        </ion-label>
+      </ion-item>
+
+      @if (features.maturityAlerts) {
       <ion-item [button]="true">
         <ion-toggle
           mode="ios"
@@ -59,6 +70,7 @@
           </ion-label>
         </ion-toggle>
       </ion-item>
+      }
     </ion-list>
   </div>
 
@@ -77,7 +89,7 @@
 
       <ion-item [button]="true" [detail]="true" (click)="goToLanguage()">
         <ion-label>{{ 'SETTINGS.APPEARANCE.LANGUAGE.TITLE' | transloco }}</ion-label>
-        <ion-note slot="end">{{ selectedLangague }}</ion-note>
+        <ion-note slot="end">{{ selectedLanguage }}</ion-note>
       </ion-item>
     </ion-list>
   </div>
@@ -95,14 +107,14 @@
 
   <form [formGroup]="dispositionForm">
     <app-stepper
-      [control]="dispositionForm.get('rows')"
+      [control]="dispositionForm.controls.rows"
       [label]="'PREFERENCES.STEPS.STEP_THREE.ROWS_LABEL' | transloco"
       [min]="1"
       [max]="maxRows">
     </app-stepper>
 
     <app-stepper
-      [control]="dispositionForm.get('cols')"
+      [control]="dispositionForm.controls.cols"
       [label]="'PREFERENCES.STEPS.STEP_THREE.COLS_LABEL' | transloco"
       [min]="1"
       [max]="maxCols">
@@ -116,7 +128,7 @@
   </p>
 
   <div modal-footer class="modal-actions">
-    <ion-button type="submit" expand="block" shape="round" [color]="isDarkMode ? 'primary' : 'secondary'" (click)="saveDisposition()">
+    <ion-button type="button" expand="block" shape="round" [color]="isDarkMode ? 'primary' : 'secondary'" [disabled]="isSavingDisposition" (click)="saveDisposition()">
       {{ 'SETTINGS.CAVE.DISPOSITION.MODAL.SAVE' | transloco }}
     </ion-button>
   </div>

@@ -1,284 +1,457 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, InfiniteScrollCustomEvent, IonContent } from '@ionic/angular';
-import { Subscription } from 'rxjs';
+import { FormBuilder, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { InfiniteScrollCustomEvent, IonContent, IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { CaveService } from '../core/services/cave.service';
-import { UserWine } from '../core/models/wine.model';
-import { WineType, WINE_TYPE_CONFIG } from '../core/types/WineType';
+import { combineLatest } from 'rxjs';
+
+import { AddWineFormComponent } from '../components/add-wine-form/add-wine-form.component';
 import { CheckboxComponent } from '../components/checkbox/checkbox.component';
-import { SelectComponent, SelectOption } from '../components/select/select.component';
-import { FormsModule } from '@angular/forms';
 import { CustomModalComponent } from '../components/custom-modal/custom-modal.component';
-import { ToastService } from '../core/services/toast.service';
+import { SelectComponent, SelectOption } from '../components/select/select.component';
+import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
+import { createWineForm, emptyWineFormValue, wineDetailsFromForm } from '../core/forms/wine-form';
+import {
+  CatalogueScope,
+  CatalogueSort,
+  CatalogueStatus,
+  CatalogueWine,
+  CatalogueWineData,
+} from '../core/models/catalogue-wine.model';
+import { UserWine } from '../core/models/wine.model';
 import { AuthService } from '../core/services/auth.service';
 import { CatalogueService } from '../core/services/catalogue.service';
-import { CatalogueWine, CatalogueWineData, CatalogueSort } from '../core/models/catalogue-wine.model';
-import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
-import { AddWineFormComponent } from '../components/add-wine-form/add-wine-form.component';
-import { FormBuilder, Validators } from '@angular/forms';
+import { CaveService } from '../core/services/cave.service';
+import { ToastService } from '../core/services/toast.service';
+import { WINE_TYPES, WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
+import {
+  ALL_REGIONS,
+  CatalogueCriteria,
+  FreeSlot,
+  countActiveFilters,
+  filterCatalogue,
+  listRegions,
+  pickWishlisted,
+  withCellarFlag,
+  wishlistTotal,
+} from '../core/utils/catalogue.util';
+import { formatFoodPairing } from '../core/utils/wine.util';
+import { COMMUNITY_WINES } from './community-wines';
 
-type CatalogueScope = 'community' | 'personal';
-type SortValue = CatalogueSort;
+/** Nombre de vins ajoutés à chaque défilement. */
+const PAGE_SIZE = 6;
 
-const COMMUNITY_WINES: CatalogueWine[] = [
-  ['lacave', 'Château Lacave', 'Château Lacave', 'Bordeaux', 2018, WineType.RED, 'Merlot, Cabernet Sauvignon', 28],
-  ['sancerre', 'Sancerre Blanc', 'Domaine Vacheron', 'Loire', 2021, WineType.WHITE, 'Sauvignon Blanc', 18],
-  ['tavel', 'Tavel Rosé', 'Domaine de la Mordorée', 'Rhône', 2022, WineType.ROSE, 'Grenache, Cinsault, Syrah', 15],
-  ['champagne', 'Champagne Brut Réserve', 'Maison Charles', 'Champagne', 'NV', WineType.CHAMPAGNE, 'Chardonnay, Pinot Noir', 32],
-  ['bourgogne', 'Bourgogne Pinot Noir', 'Domaine des Cèdres', 'Bourgogne', 2019, WineType.RED, 'Pinot Noir', 24],
-  ['cahors', 'Cahors Malbec', 'Clos des Vignes', 'Sud-Ouest', 2017, WineType.RED, 'Malbec', 16],
-  ['roussette', 'Roussette de Savoie', 'Domaine de la Pierre', 'Savoie', 2022, WineType.WHITE, 'Altesse', 14],
-  ['provence', 'Côtes de Provence Rosé', 'Domaine des Pins', 'Provence', 2023, WineType.ROSE, 'Grenache, Cinsault', 11],
-  ['rhone', 'Côtes du Rhône', 'Domaine Saint-Roch', 'Rhône', 2020, WineType.RED, 'Grenache, Syrah', 12],
-  ['cremant', 'Crémant de Bourgogne', 'Maison Delaunay', 'Bourgogne', 'NV', WineType.CHAMPAGNE, 'Pinot Noir, Chardonnay', 15],
-  ['chablis', 'Chablis Premier Cru', 'Domaine Laroche', 'Bourgogne', 2021, WineType.WHITE, 'Chardonnay', 26],
-  ['gigondas', 'Gigondas', 'Domaine des Dentelles', 'Rhône', 2020, WineType.RED, 'Grenache, Syrah', 21],
-].map(([id, name, domain, region, vintage, type, grapeVariety, unitPrice]) => ({
-  id: id as string,
-  name: name as string,
-  domain: domain as string,
-  region: region as string,
-  vintage: vintage as number | string,
-  type: type as WineType,
-  grapeVariety: grapeVariety as string,
-  unitPrice: unitPrice as number,
-}));
+const SORT_OPTIONS: readonly { value: CatalogueSort; labelKey: string }[] = [
+  { value: 'name', labelKey: 'CATALOGUE.SORT_NAME' },
+  { value: 'price-asc', labelKey: 'CATALOGUE.SORT_PRICE_ASC' },
+  { value: 'price-desc', labelKey: 'CATALOGUE.SORT_PRICE_DESC' },
+  { value: 'vintage-desc', labelKey: 'CATALOGUE.SORT_VINTAGE_DESC' },
+];
 
+const STATUS_OPTIONS: readonly { value: CatalogueStatus; labelKey: string }[] = [
+  { value: 'all', labelKey: 'CATALOGUE.STATUS_ALL' },
+  { value: 'wishlist', labelKey: 'CATALOGUE.WISHLIST' },
+  { value: 'cellar', labelKey: 'CATALOGUE.ALREADY_IN_CELLAR' },
+];
+
+/**
+ * Catalogue de vins : recherche et filtres, liste de souhaits, mise en cave et création de fiches.
+ * La liste affichée est recalculée à chaque changement d'un critère (voir {@link refresh}),
+ * pas à chaque cycle de détection de changements.
+ */
 @Component({
   selector: 'app-catalogue',
   standalone: true,
   templateUrl: './catalogue.page.html',
   styleUrls: ['./catalogue.page.scss'],
-  imports: [CommonModule, IonicModule, TranslocoModule, CheckboxComponent, SelectComponent, FormsModule, CustomModalComponent, WineSheetModalComponent, AddWineFormComponent],
+  imports: [
+    CommonModule,
+    IonicModule,
+    TranslocoModule,
+    AddWineFormComponent,
+    CheckboxComponent,
+    CustomModalComponent,
+    SelectComponent,
+    WineSheetModalComponent,
+  ],
 })
-export class CataloguePage implements OnInit, OnDestroy {
-  @ViewChild(IonContent) private content?: IonContent;
-  readonly WineType = WineType;
-  readonly currentYear = new Date().getFullYear();
-  readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
-  readonly communityWines = COMMUNITY_WINES;
-  get sortOptions(): SelectOption[] { return ['name', 'price-asc', 'price-desc', 'vintage-desc'].map(value => ({ value, label: this.transloco.translate(`CATALOGUE.SORT_${value.replace(/-/g, '_').toUpperCase()}`) })); }
+export class CataloguePage implements OnInit {
+  private readonly caveService = inject(CaveService);
+  private readonly auth = inject(AuthService);
+  private readonly catalogueService = inject(CatalogueService);
+  private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
+  @ViewChild(IonContent) private content?: IonContent;
+
+  readonly WINE_TYPES = WINE_TYPES;
+  readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
+  readonly communityCount = COMMUNITY_WINES.length;
+
+  /** Formulaire partagé par la mise en cave, la création de fiche et la proposition. */
+  readonly wineForm = createWineForm(inject(FormBuilder));
+
+  // Critères
   scope: CatalogueScope = 'community';
   query = '';
-  selectedTypes = new Set<WineType>();
-  sort: SortValue = 'name';
-  selectedRegion = 'all';
-  onlyWishlist = false;
-  onlyInCave = false;
-  filtersOpen = false;
-  visibleCount = 6;
-  readonly pageSize = 6;
-  wishlist = new Set<string>();
+  readonly selectedTypes = new Set<WineType>();
+  region = ALL_REGIONS;
+  status: CatalogueStatus = 'all';
+  sort: CatalogueSort = 'name';
+
+  // Données et résultats calculés
   personalWines: CatalogueWine[] = [];
-  private winesSubscription?: Subscription;
-  private userSubscription?: Subscription;
-  private personalSubscription?: Subscription;
-  private userId = '';
-  caveWines: UserWine[] = [];
+  wishlist = new Set<string>();
+  filteredWines: CatalogueWine[] = [];
+  displayedWines: CatalogueWine[] = [];
+  wishlistWines: CatalogueWine[] = [];
+  wishlistSum = 0;
+  regionOptions: SelectOption[] = [];
+  activeFilterCount = 0;
+  visibleCount = PAGE_SIZE;
+
+  // Modales
+  filtersOpen = false;
   wishlistOpen = false;
-  detailsWine: CatalogueWine | null = null;
-  addWine: CatalogueWine | null = null;
   createOpen = false;
   proposalOpen = false;
-  proposeToCommunity = false;
+  detailsWine: UserWine | null = null;
+  addWine: CatalogueWine | null = null;
+  freeSlots: FreeSlot[] = [];
   selectedSlot = '';
+  proposeToCommunity = false;
   saving = false;
-  readonly createWineForm = this.fb.group({
-    type: [WineType.RED as WineType, Validators.required], name: ['', [Validators.required, Validators.maxLength(100)]],
-    domain: ['', [Validators.required, Validators.maxLength(100)]], vintage: [new Date().getFullYear(), [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]],
-    peakMaturityYear: [null as number | null], region: ['', [Validators.required, Validators.maxLength(100)]], grapeVariety: ['', [Validators.required, Validators.maxLength(100)]],
-    unitPrice: [null as number | null, [Validators.required, Validators.min(0)]], rating: [null as number | null], description: ['', Validators.maxLength(1000)], foodPairing: ['', Validators.maxLength(500)], quantity: [1],
-  });
 
-  constructor(public caveService: CaveService, private auth: AuthService, private catalogueService: CatalogueService, private toast: ToastService, private fb: FormBuilder, private transloco: TranslocoService) {}
+  private userId = '';
+  private caveWines: UserWine[] = [];
 
   ngOnInit(): void {
-    this.winesSubscription = this.caveService.grid$.subscribe(() => {
-      this.caveWines = this.caveService.cave;
-      this.resetVisibleWines();
-    });
-    this.userSubscription = this.auth.currentUser$.subscribe(user => {
-      this.userId = user?.id ?? '';
-      this.wishlist = this.userId ? this.catalogueService.loadWishlist() : new Set();
-    });
-    this.personalSubscription = this.catalogueService.getPersonalWines().subscribe(wines => { this.personalWines = wines; });
+    combineLatest([this.caveService.wines$, this.catalogueService.personalWines$, this.auth.currentUser$])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([cave, personal, user]) => {
+        if ((user?.id ?? '') !== this.userId) {
+          this.userId = user?.id ?? '';
+          this.wishlist = this.catalogueService.loadWishlist();
+        }
+        this.caveWines = cave;
+        this.personalWines = personal;
+        this.refresh();
+      });
+
+    // Les libellés calculés (« Toutes les régions »…) dépendent de la langue.
+    this.transloco.langChanges$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
   }
 
-  ngOnDestroy(): void {
-    this.winesSubscription?.unsubscribe();
-    this.userSubscription?.unsubscribe();
-    this.personalSubscription?.unsubscribe();
+  // ── Libellés et listes pour le gabarit ────────────────────
+
+  get sortOptions(): SelectOption[] {
+    return SORT_OPTIONS.map(({ value, labelKey }) => ({ value, label: this.transloco.translate(labelKey) }));
   }
 
-  get currentWines(): CatalogueWine[] {
-    return (this.scope === 'community' ? COMMUNITY_WINES : this.personalWines).map(wine => ({ ...wine, inCave: this.caveCount(wine) > 0 }));
+  get statusOptions(): SelectOption[] {
+    return STATUS_OPTIONS.map(({ value, labelKey }) => ({ value, label: this.transloco.translate(labelKey) }));
   }
 
-  get filteredWines(): CatalogueWine[] {
-    return this.catalogueService.filterWines(this.scope === 'community' ? COMMUNITY_WINES : this.personalWines, this.query, this.selectedTypes, this.selectedRegion, this.wishlist, this.onlyWishlist, this.onlyInCave, this.sort);
+  get slotOptions(): SelectOption[] {
+    return this.freeSlots.map(({ label }) => ({ value: label, label }));
   }
 
-  get displayedWines(): CatalogueWine[] {
-    return this.filteredWines.slice(0, this.visibleCount);
+  get hasActiveCriteria(): boolean {
+    return this.query.trim() !== '' || this.activeFilterCount > 0;
   }
 
   get hasMoreWines(): boolean {
     return this.visibleCount < this.filteredWines.length;
   }
 
-  get regions(): SelectOption[] {
-    return [
-      { value: 'all', label: this.transloco.translate('CATALOGUE.ALL_REGIONS') },
-      ...Array.from(new Set(this.currentWines.map(wine => wine.region)))
-        .sort((a, b) => a.localeCompare(b, 'fr'))
-        .map(region => ({ value: region, label: region })),
-    ];
+  get isPersonalEmpty(): boolean {
+    return this.scope === 'personal' && this.personalWines.length === 0;
   }
 
-  get wishlistTotal(): number {
-    return [...this.wishlist]
-      .map(id => [...COMMUNITY_WINES, ...this.personalWines].find(wine => wine.id === id)?.unitPrice ?? 0)
-      .reduce((total, price) => total + price, 0);
+  get statusFilterLabelKey(): string {
+    return this.status === 'wishlist' ? 'CATALOGUE.WISHLIST' : 'CATALOGUE.IN_CELLAR';
   }
 
-  get activeFilterCount(): number {
-    return this.selectedTypes.size + (this.selectedRegion !== 'all' ? 1 : 0) + (this.onlyWishlist || this.onlyInCave ? 1 : 0) + (this.sort !== 'name' ? 1 : 0);
+  get isDetailsWishlisted(): boolean {
+    return !!this.detailsWine?.id && this.wishlist.has(this.detailsWine.id);
   }
 
-  clearStatusFilter(): void { this.onlyWishlist = false; this.onlyInCave = false; this.resetVisibleWines(); }
+  isWishlisted(wineId: string): boolean {
+    return this.wishlist.has(wineId);
+  }
+
+  typeColor(type: WineType): string {
+    return WINE_TYPE_CONFIG[type].gradientColor === 'accent' ? `var(--wine-${type}-accent)` : `var(--wine-${type})`;
+  }
+
+  // ── Critères ──────────────────────────────────────────────
 
   setScope(scope: CatalogueScope): void {
     if (this.scope === scope) return;
     this.scope = scope;
-    this.selectedRegion = 'all';
-    this.resetVisibleWines();
+    this.region = ALL_REGIONS;
+    this.refresh();
   }
 
-  goPersonal(): void { this.setScope('personal'); void this.content?.scrollToTop(300); }
+  goPersonal(): void {
+    this.setScope('personal');
+    void this.content?.scrollToTop(300);
+  }
+
+  onSearch(event: Event): void {
+    this.query = (event as CustomEvent<{ value?: string | null }>).detail.value ?? '';
+    this.refresh();
+  }
 
   toggleType(type: WineType): void {
-    if (this.selectedTypes.has(type)) {
-      this.selectedTypes.delete(type);
-    } else {
-      this.selectedTypes.add(type);
-    }
-    this.resetVisibleWines();
+    if (!this.selectedTypes.delete(type)) this.selectedTypes.add(type);
+    this.refresh();
   }
 
-  toggleWishlist(wineId: string, event: Event): void {
-    event.stopPropagation();
-    if (this.wishlist.has(wineId)) {
-      this.wishlist.delete(wineId);
-    } else {
-      this.wishlist.add(wineId);
-    }
-    this.saveWishlist();
-  }
-
-  get wishlistWines(): CatalogueWine[] { return [...COMMUNITY_WINES, ...this.personalWines].filter(wine => this.wishlist.has(wine.id)); }
-  get slotOptions(): SelectOption[] { return this.freeSlots.map(slot => ({ value: slot.label, label: slot.label })); }
-  get typeOptions(): SelectOption[] { return [WineType.RED, WineType.WHITE, WineType.ROSE, WineType.CHAMPAGNE].map(type => ({ value: type, label: WINE_TYPE_CONFIG[type].label })); }
-  get detailsUserWine(): UserWine | null {
-    const wine = this.detailsWine;
-    if (!wine) return null;
-    const caveWine = this.caveWines.find(item => item.wineCatalogueId === wine.id);
-    return { id: wine.id, ownerId: this.userId, wineCatalogueId: wine.id, isCustom: this.personalWines.some(item => item.id === wine.id), name: wine.name, domain: wine.domain, region: wine.region, vintage: Number(wine.vintage) || 0, type: wine.type, grapeVariety: wine.grapeVariety, unitPrice: wine.unitPrice, description: wine.description ?? caveWine?.description ?? '', foodPairing: wine.foodPairing ?? caveWine?.foodPairing ?? [], placements: caveWine?.placements ?? [] };
-  }
-  openDetails(wine: CatalogueWine): void { this.detailsWine = wine; }
-  toggleDetailsWishlist(): void { if (this.detailsWine) this.toggleWishlist(this.detailsWine.id, new Event('click')); }
-  addDetailsToCave(): void { if (this.detailsWine) this.openAdd(this.detailsWine); }
-  get freeSlots(): { row: number; col: number; label: string }[] { return this.catalogueService.freeSlots; }
-  caveCount(wine: CatalogueWine): number {
-    return this.catalogueService.caveCount(wine);
-  }
-  openAdd(wine: CatalogueWine, event?: Event): void {
-    event?.stopPropagation(); this.detailsWine = null; this.wishlistOpen = false;
-    this.resetCreateForm();
-    this.createWineForm.patchValue({ type: wine.type, name: wine.name, domain: wine.domain, region: wine.region, vintage: Number(wine.vintage) || new Date().getFullYear(), grapeVariety: wine.grapeVariety, unitPrice: wine.unitPrice, description: wine.description ?? '', foodPairing: (wine.foodPairing ?? []).join(', ') });
-    this.createWineForm.controls.quantity.setValidators([Validators.required, Validators.min(1), Validators.max(this.freeSlots.length)]);
-    this.createWineForm.controls.quantity.updateValueAndValidity();
-    this.selectedSlot = this.freeSlots[0]?.label ?? ''; this.addWine = wine;
-  }
-  async submitAdd(): Promise<void> {
-    const wine = this.addWine;
-    if (!wine || this.createWineForm.invalid) { this.createWineForm.markAllAsTouched(); return; }
-    this.saving = true;
-    try {
-      await this.catalogueService.addToCave(wine, this.formData(), Number(this.createWineForm.value.quantity), this.selectedSlot, this.personalWines.some(w => w.id === wine.id));
-      this.wishlist.delete(wine.id); this.saveWishlist(); this.addWine = null; this.toast.success(this.transloco.translate('CATALOGUE.ADD_SUCCESS'));
-    } catch { this.toast.error(this.transloco.translate('CATALOGUE.ADD_ERROR')); } finally { this.saving = false; }
-  }
-  async createWine(): Promise<void> {
-    if (!this.userId || this.createWineForm.invalid) { this.createWineForm.markAllAsTouched(); return; }
-    this.saving = true;
-    try {
-      await this.catalogueService.createPersonalWine(this.formData(), this.proposeToCommunity);
-      this.createOpen = false; this.resetCreateForm(); this.toast.success(this.transloco.translate('CATALOGUE.CREATE_SUCCESS'));
-    } catch { this.toast.error(this.transloco.translate('CATALOGUE.CREATE_ERROR')); } finally { this.saving = false; }
-  }
-  async submitProposal(): Promise<void> {
-    if (!this.userId || this.createWineForm.invalid) { this.createWineForm.markAllAsTouched(); return; }
-    this.saving = true;
-    try { await this.catalogueService.submitProposal(this.formData()); this.proposalOpen = false; this.resetCreateForm(); this.toast.success(this.transloco.translate('CATALOGUE.PROPOSAL_SUCCESS')); }
-    catch { this.toast.error(this.transloco.translate('CATALOGUE.PROPOSAL_ERROR')); } finally { this.saving = false; }
-  }
-  openCreate(): void { this.resetCreateForm(); this.createOpen = true; }
-  openProposal(): void { this.resetCreateForm(); this.proposalOpen = true; }
-  private resetCreateForm(): void { this.proposeToCommunity = false; this.createWineForm.controls.quantity.clearValidators(); this.createWineForm.reset({ type: WineType.RED, name: '', domain: '', vintage: new Date().getFullYear(), peakMaturityYear: null, region: '', grapeVariety: '', unitPrice: null, rating: null, description: '', foodPairing: '', quantity: 1 }); }
-  private formData(): CatalogueWineData { const d = this.createWineForm.getRawValue(); const data: CatalogueWineData = { name: d.name!.trim(), domain: d.domain!.trim(), region: d.region!.trim(), vintage: Number(d.vintage), type: d.type!, grapeVariety: d.grapeVariety!.trim(), unitPrice: Number(d.unitPrice), description: d.description?.trim() ?? '', foodPairing: (d.foodPairing ?? '').split(',').map(v => v.trim()).filter(Boolean) }; if (d.rating != null) data.rating = d.rating; if (d.peakMaturityYear != null) data.peakMaturityYear = d.peakMaturityYear; return data; }
-  private saveWishlist(): void { try { this.catalogueService.saveWishlist(this.wishlist); } catch { this.toast.error(this.transloco.translate('CATALOGUE.WISHLIST_SAVE_ERROR')); } }
-
-  onSearch(event: CustomEvent): void {
-    this.query = event.detail.value ?? '';
-    this.resetVisibleWines();
-  }
-
-  updateSort(value: string): void {
-    this.sort = value as SortValue;
-    this.resetVisibleWines();
+  updateStatus(value: string): void {
+    this.status = value as CatalogueStatus;
+    this.refresh();
   }
 
   updateRegion(value: string): void {
-    this.selectedRegion = value;
-    this.resetVisibleWines();
+    this.region = value;
+    this.refresh();
   }
 
-  updateWishlistFilter(checked: boolean): void {
-    this.onlyWishlist = checked;
-    this.resetVisibleWines();
+  updateSort(value: string): void {
+    this.sort = value as CatalogueSort;
+    this.refresh();
   }
 
-  updateCaveFilter(checked: boolean): void {
-    this.onlyInCave = checked;
-    this.resetVisibleWines();
-  }
-
+  /** Réinitialise les filtres, la recherche comprise. */
   resetFilters(): void {
     this.query = '';
     this.selectedTypes.clear();
-    this.selectedRegion = 'all';
+    this.region = ALL_REGIONS;
+    this.status = 'all';
     this.sort = 'name';
-    this.onlyWishlist = false;
-    this.onlyInCave = false;
-    this.resetVisibleWines();
+    this.refresh();
   }
 
   loadMore(event: InfiniteScrollCustomEvent): void {
-    this.visibleCount += this.pageSize;
-    event.target.complete();
+    this.visibleCount += PAGE_SIZE;
+    this.displayedWines = this.filteredWines.slice(0, this.visibleCount);
+    void event.target.complete();
   }
 
-  wineTypeColor(type: WineType): string {
-    const color = WINE_TYPE_CONFIG[type].gradientColor === 'accent'
-      ? `var(--wine-${type}-accent)`
-      : `var(--wine-${type})`;
-    return color;
+  // ── Liste de souhaits ─────────────────────────────────────
+
+  toggleWishlist(wineId: string, event?: Event): void {
+    event?.stopPropagation();
+    if (!this.wishlist.delete(wineId)) this.wishlist.add(wineId);
+    this.persistWishlist();
+    this.refresh();
   }
 
-  private resetVisibleWines(): void {
-    this.visibleCount = this.pageSize;
+  // ── Fiche détaillée ───────────────────────────────────────
+
+  openDetails(wine: CatalogueWine): void {
+    const owned = this.caveWines.find((item) => item.wineCatalogueId === wine.id);
+    this.detailsWine = {
+      id: wine.id,
+      ownerId: this.userId,
+      wineCatalogueId: wine.id,
+      isCustom: this.personalWines.some((item) => item.id === wine.id),
+      name: wine.name,
+      domain: wine.domain,
+      region: wine.region,
+      vintage: Number(wine.vintage) || 0,
+      type: wine.type,
+      grapeVariety: wine.grapeVariety,
+      unitPrice: wine.unitPrice,
+      rating: wine.rating,
+      peakMaturityYear: wine.peakMaturityYear,
+      description: wine.description || owned?.description || '',
+      foodPairing: wine.foodPairing?.length ? wine.foodPairing : (owned?.foodPairing ?? []),
+      placements: owned?.placements ?? [],
+    };
   }
 
+  closeDetails(): void {
+    this.detailsWine = null;
+  }
+
+  toggleDetailsWishlist(): void {
+    if (this.detailsWine?.id) this.toggleWishlist(this.detailsWine.id);
+  }
+
+  addDetailsToCave(): void {
+    const wine = this.findWine(this.detailsWine?.id);
+    if (wine) this.openAdd(wine);
+  }
+
+  // ── Mise en cave ──────────────────────────────────────────
+
+  openAdd(wine: CatalogueWine, event?: Event): void {
+    event?.stopPropagation();
+    this.detailsWine = null;
+    this.wishlistOpen = false;
+
+    this.freeSlots = this.catalogueService.freeSlots;
+    this.selectedSlot = this.freeSlots[0]?.label ?? '';
+
+    const foodPairing = wine.foodPairing?.length ? formatFoodPairing(wine.foodPairing) : this.defaultFoodPairing(wine.type);
+    this.resetForm();
+    this.wineForm.patchValue({
+      type: wine.type,
+      name: wine.name,
+      domain: wine.domain,
+      region: wine.region,
+      vintage: Number(wine.vintage) || new Date().getFullYear(),
+      grapeVariety: wine.grapeVariety,
+      unitPrice: wine.unitPrice,
+      description: wine.description ?? '',
+      peakMaturityYear: wine.peakMaturityYear ?? null,
+      rating: wine.rating ?? null,
+      foodPairing,
+    });
+    this.wineForm.controls.quantity.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(Math.max(1, this.freeSlots.length)),
+    ]);
+    this.wineForm.controls.quantity.updateValueAndValidity();
+    this.addWine = wine;
+  }
+
+  async submitAdd(): Promise<void> {
+    const wine = this.addWine;
+    if (!wine || this.saving) return;
+    if (this.wineForm.invalid) {
+      this.wineForm.markAllAsTouched();
+      return;
+    }
+
+    this.saving = true;
+    try {
+      await this.catalogueService.addToCave(
+        wine,
+        this.formData(),
+        Number(this.wineForm.getRawValue().quantity),
+        this.selectedSlot,
+        this.personalWines.some((item) => item.id === wine.id)
+      );
+      if (this.wishlist.delete(wine.id)) this.persistWishlist();
+      this.addWine = null;
+      this.refresh();
+      void this.toast.success(this.transloco.translate('CATALOGUE.ADD_SUCCESS'));
+    } catch (error) {
+      console.error('Mise en cave impossible :', error);
+      void this.toast.error(this.transloco.translate('CATALOGUE.ADD_ERROR'));
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  // ── Fiches personnelles et propositions ───────────────────
+
+  openCreate(): void {
+    this.resetForm();
+    this.createOpen = true;
+  }
+
+  openProposal(): void {
+    this.resetForm();
+    this.proposalOpen = true;
+  }
+
+  async createWine(): Promise<void> {
+    if (this.saving) return;
+    if (!this.userId || this.wineForm.invalid) {
+      this.wineForm.markAllAsTouched();
+      return;
+    }
+
+    this.saving = true;
+    try {
+      await this.catalogueService.createPersonalWine(this.formData(), this.proposeToCommunity);
+      this.createOpen = false;
+      void this.toast.success(this.transloco.translate('CATALOGUE.CREATE_SUCCESS'));
+    } catch (error) {
+      console.error('Création de la fiche impossible :', error);
+      void this.toast.error(this.transloco.translate('CATALOGUE.CREATE_ERROR'));
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  async submitProposal(): Promise<void> {
+    if (this.saving) return;
+    if (!this.userId || this.wineForm.invalid) {
+      this.wineForm.markAllAsTouched();
+      return;
+    }
+
+    this.saving = true;
+    try {
+      await this.catalogueService.submitProposal(this.formData());
+      this.proposalOpen = false;
+      void this.toast.success(this.transloco.translate('CATALOGUE.PROPOSAL_SUCCESS'));
+    } catch (error) {
+      console.error("Envoi de la proposition impossible :", error);
+      void this.toast.error(this.transloco.translate('CATALOGUE.PROPOSAL_ERROR'));
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  // ── Internes ──────────────────────────────────────────────
+
+  private get allWines(): CatalogueWine[] {
+    return [...COMMUNITY_WINES, ...this.personalWines];
+  }
+
+  private findWine(id: string | undefined): CatalogueWine | undefined {
+    return id ? this.allWines.find((wine) => wine.id === id) : undefined;
+  }
+
+  private get criteria(): CatalogueCriteria {
+    return { query: this.query, types: this.selectedTypes, region: this.region, status: this.status, sort: this.sort };
+  }
+
+  /** Recalcule tout ce que le gabarit affiche ; à appeler après chaque changement de critère ou de donnée. */
+  private refresh(): void {
+    const source = this.scope === 'community' ? COMMUNITY_WINES : this.personalWines;
+
+    this.filteredWines = filterCatalogue(source, this.criteria, this.wishlist, this.caveWines);
+    this.visibleCount = PAGE_SIZE;
+    this.displayedWines = this.filteredWines.slice(0, this.visibleCount);
+    this.activeFilterCount = countActiveFilters(this.criteria);
+
+    this.wishlistWines = withCellarFlag(pickWishlisted(this.allWines, this.wishlist), this.caveWines);
+    this.wishlistSum = wishlistTotal(this.wishlistWines);
+
+    this.regionOptions = [
+      { value: ALL_REGIONS, label: this.transloco.translate('CATALOGUE.ALL_REGIONS') },
+      ...listRegions(source).map((region) => ({ value: region, label: region })),
+    ];
+  }
+
+  private persistWishlist(): void {
+    if (!this.catalogueService.saveWishlist(this.wishlist)) {
+      void this.toast.error(this.transloco.translate('CATALOGUE.WISHLIST_SAVE_ERROR'));
+    }
+  }
+
+  private defaultFoodPairing(type: WineType): string {
+    return WINE_TYPE_CONFIG[type].defaultFoodPairing.map((key) => this.transloco.translate(key)).join(', ');
+  }
+
+  private resetForm(): void {
+    this.proposeToCommunity = false;
+    this.wineForm.controls.quantity.setValidators([Validators.required, Validators.min(1)]);
+    this.wineForm.reset(emptyWineFormValue(this.defaultFoodPairing(WineType.RED)));
+  }
+
+  private formData(): CatalogueWineData {
+    const details = wineDetailsFromForm(this.wineForm.getRawValue());
+    return { ...details, grapeVariety: details.grapeVariety ?? '' };
+  }
 }

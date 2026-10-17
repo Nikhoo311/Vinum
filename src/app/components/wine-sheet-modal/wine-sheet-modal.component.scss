@@ -67,14 +67,31 @@ ion-chip {
     min-width: 0;
     margin: 0;
     font-size: 0.8rem;
+    font-weight: 700;
     --padding-start: 0;
     --padding-end: 0;
   }
 }
 
+// Liste de souhaits : contour neutre et étoile bien visible ; remplie quand le vin y figure.
 .catalogue-wishlist-action {
-  ion-icon { color: #111; }
-  &--active ion-icon { color: var(--mc-rating-star); }
+  --background: transparent;
+  --color: var(--mc-text-primary);
+  --border-color: var(--mc-text-primary);
+  --border-width: 1.5px;
+  --border-style: solid;
+
+  ion-icon {
+    color: var(--mc-text-primary);
+    font-size: 1.2rem;
+  }
+
+  &--active {
+    --background: color-mix(in srgb, var(--mc-rating-star) 20%, var(--mc-bg-card));
+    --border-color: var(--mc-rating-star);
+
+    ion-icon { color: var(--mc-rating-star); }
+  }
 }
 
 .rating-card {

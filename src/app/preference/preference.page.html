@@ -18,7 +18,7 @@
     <!-- Step 0 : Bienvenue -->
     <div class="step step-0">
       <div class="glass-illustration">
-        <img src="assets/bottle_dark_red.svg" alt="Logo" />
+        <img src="assets/bottle_dark_red.svg" alt="" aria-hidden="true" />
       </div>
 
       <div class="welcome-eyebrow">
@@ -65,13 +65,13 @@
         <app-input
           [label]="'PREFERENCES.STEPS.STEP_ONE.FIRSTNAME_LABEL' | transloco"
           [placeholder]="'PREFERENCES.STEPS.STEP_ONE.FIRSTNAME_PLACEHOLDER' | transloco"
-          [control]="identityForm.get('firstName')">
+          [control]="identityForm.controls.firstName">
         </app-input>
 
         <app-input
           [label]="'PREFERENCES.STEPS.STEP_ONE.LASTNAME_LABEL' | transloco"
           [placeholder]="'PREFERENCES.STEPS.STEP_ONE.LASTNAME_PLACEHOLDER' | transloco"
-          [control]="identityForm.get('lastName')">
+          [control]="identityForm.controls.lastName">
         </app-input>
 
       </form>
@@ -116,7 +116,7 @@
 
       <form [formGroup]="wineForm">
         <app-wines-radio-group
-          [control]="wineForm.get('selectedType')">
+          [control]="wineForm.controls.selectedType">
         </app-wines-radio-group>
       </form>
 
@@ -162,14 +162,14 @@
 
         <app-stepper
           [label]="'PREFERENCES.STEPS.STEP_THREE.ROWS_LABEL' | transloco"
-          [control]="caveForm.get('rows')"
+          [control]="caveForm.controls.rows"
           [min]="1"
           [max]="rowsMax">
         </app-stepper>
 
         <app-stepper
           [label]="'PREFERENCES.STEPS.STEP_THREE.COLS_LABEL' | transloco"
-          [control]="caveForm.get('cols')"
+          [control]="caveForm.controls.cols"
           [min]="1"
           [max]="colsMax">
         </app-stepper>
@@ -217,14 +217,14 @@
         </svg>
       </div>
       <div class="welcome-title" style="font-size:1.2rem;">
-        {{ 'PREFERENCES.CONFIRM.TITLE' | transloco : { prenom: identityForm.value.firstName } }}
+        {{ 'PREFERENCES.CONFIRM.TITLE' | transloco : { prenom: identityForm.controls.firstName.value.trim() } }}
       </div>
 
       <div class="welcome-sub" style="margin-bottom:0;">
         {{ 'PREFERENCES.CONFIRM.SUBTITLE' | transloco }}
       </div>
 
-      <ion-button class="confirm-action" color="secondary" expand="block" shape="round" (click)="finishOnboarding()">
+      <ion-button class="confirm-action" color="secondary" expand="block" shape="round" [disabled]="saving" (click)="finishOnboarding()">
         {{ 'PREFERENCES.CONFIRM.CTA' | transloco }}
       </ion-button>
       <ion-button class="back-link" (click)="goToStep(3)">

@@ -1,126 +1,154 @@
-import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, setDoc, writeBatch } from '@angular/fire/firestore';
-import { Observable, of, switchMap } from 'rxjs';
+import { Injector, Injectable, inject, runInInjectionContext } from '@angular/core';
+import {
+  Firestore,
+  collection,
+  collectionData,
+  doc,
+  serverTimestamp,
+  setDoc,
+  writeBatch,
+} from '@angular/fire/firestore';
+import { Observable, catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+
+import { CatalogueWine, CatalogueWineData } from '../models/catalogue-wine.model';
 import { AuthService } from './auth.service';
 import { CaveService } from './cave.service';
-import { UserWine } from '../models/wine.model';
-import { WineType } from '../types/WineType';
-import { CatalogueWine, CatalogueWineData, CatalogueSort } from '../models/catalogue-wine.model';
+import { findFreePlacements } from '../utils/placement.util';
+import { listFreeSlots, toCatalogueWine, FreeSlot } from '../utils/catalogue.util';
+import { omitUndefined } from '../utils/wine.util';
 
+const WISHLIST_KEY_PREFIX = 'catalogue-wishlist-';
+
+/**
+ * Catalogue de vins : fiches personnelles (`users/{uid}/catalogue`), propositions au catalogue
+ * commun (`catalogueProposals`), liste de souhaits (stockée sur l'appareil) et passage en cave.
+ */
 @Injectable({ providedIn: 'root' })
 export class CatalogueService {
-  constructor(
-    private firestore: Firestore,
-    private authService: AuthService,
-    private caveService: CaveService
-  ) {}
+  private readonly firestore = inject(Firestore);
+  private readonly authService = inject(AuthService);
+  private readonly caveService = inject(CaveService);
+  private readonly injector = inject(Injector);
 
-  getPersonalWines(): Observable<CatalogueWine[]> {
-    return this.authService.currentUser$.pipe(
-      switchMap(user => {
-        if (!user?.id) return of([]);
-        const catalogueRef = collection(this.firestore, 'users', user.id, 'catalogue');
-        return collectionData(catalogueRef, { idField: 'id' }) as Observable<CatalogueWine[]>;
-      })
-    );
-  }
+  /** Fiches personnelles de l'utilisateur connecté (vide si déconnecté ou en cas d'erreur de lecture). */
+  readonly personalWines$: Observable<CatalogueWine[]> = this.authService.currentUser$.pipe(
+    map((user) => user?.id ?? ''),
+    distinctUntilChanged(),
+    switchMap((uid) => {
+      if (!uid) return of<CatalogueWine[]>([]);
+
+      return runInInjectionContext(this.injector, () =>
+        collectionData(collection(this.firestore, 'users', uid, 'catalogue'), { idField: 'id' })
+      ).pipe(
+        map((documents) =>
+          documents
+            .map((document) => toCatalogueWine(String(document['id']), document))
+            .filter((wine): wine is CatalogueWine => wine !== null)
+        ),
+        catchError((error) => {
+          console.error('Lecture des fiches personnelles impossible :', error);
+          return of<CatalogueWine[]>([]);
+        })
+      );
+    })
+  );
 
   private get userId(): string {
     return this.authService.currentUser?.id ?? '';
   }
 
+  // ── Liste de souhaits (locale à l'appareil) ───────────────
+
   loadWishlist(): Set<string> {
+    if (!this.userId) return new Set();
     try {
-      const value = localStorage.getItem(`catalogue-wishlist-${this.userId}`);
-      return new Set(value ? JSON.parse(value) : []);
+      const parsed: unknown = JSON.parse(localStorage.getItem(WISHLIST_KEY_PREFIX + this.userId) ?? '[]');
+      return new Set(Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []);
     } catch {
       return new Set();
     }
   }
 
-  saveWishlist(wishlist: Set<string>): void {
-    if (this.userId) {
-      localStorage.setItem(`catalogue-wishlist-${this.userId}`, JSON.stringify([...wishlist]));
+  /** Retourne `false` si le stockage de l'appareil est indisponible ou plein. */
+  saveWishlist(wishlist: ReadonlySet<string>): boolean {
+    if (!this.userId) return false;
+    try {
+      localStorage.setItem(WISHLIST_KEY_PREFIX + this.userId, JSON.stringify([...wishlist]));
+      return true;
+    } catch {
+      return false;
     }
   }
 
-  get freeSlots(): { row: number; col: number; label: string }[] {
+  // ── Cave ──────────────────────────────────────────────────
+
+  get freeSlots(): FreeSlot[] {
     const { rows, cols } = this.caveService.caveConfig;
-    const occupied = new Set(this.caveService.cave.flatMap(wine =>
-      (wine.placements ?? []).map(placement => `${placement.row}-${placement.col}`)
-    ));
-
-    return Array.from({ length: rows * cols }, (_, index) => ({
-      row: Math.floor(index / cols),
-      col: index % cols,
-    }))
-      .filter(slot => !occupied.has(`${slot.row}-${slot.col}`))
-      .map(slot => ({ ...slot, label: this.caveService.formatPlacementCoords(slot) }));
+    return listFreeSlots(rows, cols, this.caveService.cave);
   }
 
-  caveCount(wine: CatalogueWine): number {
-    return this.caveService.cave
-      .filter(item => item.wineCatalogueId === wine.id || (
-        item.name === wine.name && item.domain === wine.domain && item.vintage === Number(wine.vintage)
-      ))
-      .reduce((count, item) => count + (item.placements?.length ?? 0), 0);
-  }
-
-  filterWines(wines: CatalogueWine[], query: string, types: Set<WineType>, region: string, wishlist: Set<string>, onlyWishlist: boolean, onlyInCave: boolean, sort: CatalogueSort): CatalogueWine[] {
-    const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-    const search = normalize(query);
-    return wines.map(wine => ({ ...wine, inCave: this.caveCount(wine) > 0 })).filter(wine =>
-      (!types.size || types.has(wine.type)) && (region === 'all' || wine.region === region) &&
-      (!onlyWishlist || wishlist.has(wine.id)) && (!onlyInCave || wine.inCave) &&
-      (!search || normalize([wine.name, wine.domain, wine.region, wine.grapeVariety, wine.vintage].join(' ')).includes(search))
-    ).sort((a, b) => {
-      if (sort === 'price-asc') return a.unitPrice - b.unitPrice;
-      if (sort === 'price-desc') return b.unitPrice - a.unitPrice;
-      if (sort === 'vintage-desc') return (Number(b.vintage) || 0) - (Number(a.vintage) || 0);
-      return a.name.localeCompare(b.name, 'fr');
-    });
-  }
-
+  /**
+   * Met `quantity` bouteilles en cave, à partir de l'emplacement `firstSlot` (libellé `A3`)
+   * puis dans les emplacements libres suivants.
+   */
   async addToCave(
-    wine: CatalogueWine, data: CatalogueWineData, quantity: number, selectedSlot: string, isCustom: boolean
+    wine: CatalogueWine,
+    data: CatalogueWineData,
+    quantity: number,
+    firstSlot: string,
+    isCustom: boolean
   ): Promise<void> {
+    const ownerId = this.userId;
+    if (!ownerId) throw new Error('Utilisateur non connecté.');
+
+    const { rows, cols } = this.caveService.caveConfig;
     const slots = this.freeSlots;
-    const start = slots.findIndex(slot => slot.label === selectedSlot);
-    if (!this.userId) throw new Error('Utilisateur non connecté.');
-    if (start < 0 || !Number.isInteger(quantity) || quantity < 1 || quantity > slots.length) {
+    const start = slots.find((slot) => slot.label === firstSlot);
+    if (!start || !Number.isInteger(quantity) || quantity < 1 || quantity > slots.length) {
       throw new Error('Emplacements invalides ou insuffisants.');
     }
 
-    const placements = [...slots.slice(start), ...slots.slice(0, start)]
-      .slice(0, quantity)
-      .map(({ row, col }) => ({ row, col }));
-    const userWine: Omit<UserWine, 'id'> = {
+    const placements = findFreePlacements(rows, cols, this.caveService.cave, start, quantity);
+    await this.caveService.addWine({
       ...data,
       vintage: Number(data.vintage) || 0,
-      ownerId: this.userId,
+      ownerId,
       wineCatalogueId: wine.id,
       isCustom,
       description: data.description ?? '',
       foodPairing: data.foodPairing ?? [],
       placements,
-    };
-    await this.caveService.addWine(userWine);
+    });
   }
 
+  // ── Fiches et propositions ────────────────────────────────
+
+  /** Crée une fiche personnelle, et la propose au catalogue commun si `propose` est vrai. */
   async createPersonalWine(data: CatalogueWineData, propose: boolean): Promise<void> {
-    if (!this.userId) throw new Error('Utilisateur non connecté.');
+    const ownerId = this.userId;
+    if (!ownerId) throw new Error('Utilisateur non connecté.');
+
+    const payload = omitUndefined({ ...data });
     const batch = writeBatch(this.firestore);
-    batch.set(doc(collection(this.firestore, 'users', this.userId, 'catalogue')), data);
+    batch.set(doc(collection(this.firestore, 'users', ownerId, 'catalogue')), payload);
     if (propose) {
-      const proposalRef = doc(collection(this.firestore, 'catalogueProposals'));
-      batch.set(proposalRef, { ...data, ownerId: this.userId, status: 'pending', createdAt: new Date() });
+      batch.set(doc(collection(this.firestore, 'catalogueProposals')), this.proposalOf(payload, ownerId));
     }
     await batch.commit();
   }
 
+  /** Propose un vin au catalogue commun ; il sera vérifié avant publication. */
   async submitProposal(data: CatalogueWineData): Promise<void> {
-    if (!this.userId) throw new Error('Utilisateur non connecté.');
-    const proposalRef = doc(collection(this.firestore, 'catalogueProposals'));
-    await setDoc(proposalRef, { ...data, ownerId: this.userId, status: 'pending', createdAt: new Date() });
+    const ownerId = this.userId;
+    if (!ownerId) throw new Error('Utilisateur non connecté.');
+
+    await setDoc(
+      doc(collection(this.firestore, 'catalogueProposals')),
+      this.proposalOf(omitUndefined({ ...data }), ownerId)
+    );
+  }
+
+  private proposalOf(data: object, ownerId: string) {
+    return { ...data, ownerId, status: 'pending', createdAt: serverTimestamp() };
   }
 }

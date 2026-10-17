@@ -1,71 +1,66 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Router } from '@angular/router';
-import { ToastService } from 'src/app/core/services/toast.service';
-import { ERRORS_CODES } from 'src/app/core/types/ErrorsCode';
+
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ERRORS_CODES } from '../../core/types/ErrorsCode';
+import { errorCodeOf, toErrorKey } from '../../core/utils/error.util';
 import { InputComponent } from '../input/input.component';
+
+function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirm = group.get('confirmPassword')?.value;
+  return password === confirm ? null : { passwordMismatch: true };
+}
 
 @Component({
   selector: 'app-register-form',
   standalone: true,
   templateUrl: './register-form.component.html',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    IonicModule,
-    TranslocoModule,
-    InputComponent
-  ],
+  imports: [CommonModule, ReactiveFormsModule, IonicModule, TranslocoModule, InputComponent],
 })
 export class RegisterFormComponent {
-  registerForm!: FormGroup;
-  loading: boolean = false;
+  readonly registerForm = new FormGroup(
+    {
+      email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+      password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+      confirmPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    },
+    { validators: passwordsMatch },
+  );
 
-  constructor(
-    private authService: AuthService, 
-    private router: Router, 
-    private toastService: ToastService,
-    private transloco: TranslocoService) {
-    this.registerForm = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
-      confirmPassword: new FormControl('', [Validators.required])
-    }, { validators: this.passwordsMatchValidator });
-  }
+  loading = false;
 
-  private passwordsMatchValidator(control: AbstractControl) {
-    const password: string = control.get('password')?.value;
-    const confirmPassword: string = control.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordMismatch: true };
-  }
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
-  async register() {
-    let message: string = this.transloco.translate('AUTH.RULES.FILL_ALL_FIELDS');
-    if (this.registerForm.hasError('passwordMismatch')) {
-      message = this.transloco.translate('AUTH.RULES.SAME_PASSWORD');
-    }
+  async register(): Promise<void> {
+    if (this.loading) return;
 
     if (this.registerForm.invalid) {
-      this.toastService.warning(message);
+      this.registerForm.markAllAsTouched();
+      const key = this.registerForm.hasError('passwordMismatch') ? 'AUTH.RULES.SAME_PASSWORD' : 'AUTH.RULES.FILL_ALL_FIELDS';
+      void this.toastService.warning(this.transloco.translate(key));
       return;
     }
 
     this.loading = true;
-    const { email, password } = this.registerForm.value;
+    const { email, password } = this.registerForm.getRawValue();
 
-    await this.authService
-      .register(email, password)
-      .catch(err => {
-        let errorMessage = this.transloco.translate('AUTH.RULES.REGISTER_ERROR', { error: this.transloco.translate(err.message) });
-        if (err.code === ERRORS_CODES.auth.emailAlreadyInUse) {
-          errorMessage = this.transloco.translate('AUTH.RULES.EMAIL_ALREADY_TAKEN');
-        }
-        this.toastService.error(errorMessage);
-      })
-      .finally(() => (this.loading = false));
+    try {
+      await this.authService.register(email.trim(), password);
+    } catch (error) {
+      const message =
+        errorCodeOf(error) === ERRORS_CODES.auth.emailAlreadyInUse
+          ? this.transloco.translate('AUTH.RULES.EMAIL_ALREADY_TAKEN')
+          : this.transloco.translate('AUTH.RULES.REGISTER_ERROR', { error: this.transloco.translate(toErrorKey(error)) });
+      void this.toastService.error(message);
+    } finally {
+      this.loading = false;
+    }
   }
 }

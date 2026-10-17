@@ -72,3 +72,8 @@
   color: var(--mc-accent);
   font-weight: 600;
 }
+
+// Mode sombre : le libellé de position reprend la couleur de contraste (auparavant fixée en ligne par composant).
+:host-context(body.dark) .cellar-cell__pos {
+  color: var(--ion-color-secondary-contrast);
+}

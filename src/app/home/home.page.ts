@@ -1,20 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { TranslocoModule } from '@jsverse/transloco';
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../core/services/auth.service';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from '../core/models/user.model';
-import { CaveService } from '../core/services/cave.service';
-import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
-import { UserWine } from '../core/models/wine.model';
-import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
+import { IonicModule } from '@ionic/angular';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-interface RegionDistribution {
-  name: string;
-  bottles: number;
-  types: [WineType, number][];
-}
+import { environment } from '../../environments/environment';
+import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
+import { User } from '../core/models/user.model';
+import { UserWine } from '../core/models/wine.model';
+import { AuthService } from '../core/services/auth.service';
+import { CatalogueService } from '../core/services/catalogue.service';
+import { CaveService } from '../core/services/cave.service';
+import { StarWineService } from '../core/services/star-wine.service';
+import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
+import { CaveStats, RegionDistribution, fillPercentage, percentageOf } from '../core/utils/cave-stats.util';
 
 @Component({
   selector: 'app-home',
@@ -23,111 +22,99 @@ interface RegionDistribution {
   standalone: true,
   imports: [CommonModule, IonicModule, TranslocoModule, WineSheetModalComponent],
 })
-export class HomePage implements OnInit {
+export class HomePage {
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
-  isSheetOpen: boolean = false;
+  readonly features = environment.features;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private caveService: CaveService
-  ) {}
+  isSheetOpen = false;
 
-  ngOnInit(): void {
-    console.log('Vin Star initial :', this.starWine);
-    console.log('Cave initiale :', this.caveService.cave);
+  /** Nombre de vins de la liste de souhaits (relu à chaque affichage de l'onglet). */
+  wishlistCount = 0;
+
+  private readonly authService = inject(AuthService);
+  private readonly caveService = inject(CaveService);
+  private readonly starWineService = inject(StarWineService);
+  private readonly catalogueService = inject(CatalogueService);
+  private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+
+  private readonly numberFormats = new Map<string, Intl.NumberFormat>();
+
+  ionViewWillEnter(): void {
+    if (this.features.catalogue) this.wishlistCount = this.catalogueService.loadWishlist().size;
   }
-
 
   get user(): User | null {
     return this.authService.currentUser;
   }
 
-  get totalBottles(): number {
-    return this.caveService.totalBottles;
+  /** Statistiques de la cave (mémorisées par le service tant que les vins ne changent pas). */
+  private get stats(): CaveStats {
+    return this.caveService.stats;
   }
 
-  get totalValue(): number {
-    return this.caveService.totalValue;
+  get totalBottles(): number {
+    return this.stats.totalBottles;
   }
 
   get averageRating(): number {
-    return this.caveService.averageRating;
+    return this.stats.averageRating;
   }
 
   get ratedWinesCount(): number {
-    return this.caveService.cave.filter((wine) => wine.rating !== undefined && wine.rating !== null).length;
+    return this.stats.ratedCount;
   }
 
-  get formattedTotalValue(): string {
-    return new Intl.NumberFormat('fr-FR', {
-      notation: 'compact',
-      compactDisplay: 'short',
-      maximumFractionDigits: 2,
-    }).format(this.totalValue).replace(/\s/g, '');
+  get starWine(): UserWine | null {
+    return this.starWineService.star;
   }
 
-  get starWine(): UserWine {
-    return this.caveService.starWine;
+  /** Valeur qui a désigné le vin star (« 32 € / bouteille », « ★ 4,8 / 5 »…). */
+  get starWineMetric(): string {
+    const { ranking, criterion } = this.starWineService.result;
+    return ranking.length ? this.starWineService.describe(ranking[0], criterion) : '';
   }
 
-  get wineCaveFillPercentage(): string {
-    const totalSlots = this.caveService.totalCapacity;
-    const percentage = totalSlots > 0 ? (this.totalBottles / totalSlots) * 100 : 0;
-    return percentage.toFixed(2).replace('.', ',');
+  /** Nom du critère appliqué, pour l'infobulle. */
+  get starWineCriterionLabel(): string {
+    return this.starWineService.criterionLabel(this.starWineService.result.criterion);
   }
 
-  get distributionByType(): Record<WineType, number> {
-    const allTypes = Object.keys(this.WINE_TYPE_CONFIG) as WineType[];
-    return this.caveService.getDistributionBy('type', allTypes);
-  }
-
-  distributionEntries(): [WineType, number][] {
-    return Object.entries(this.distributionByType) as [WineType, number][];
-  }
-
-  distributionPercentage(count: number): number {
-    return this.totalBottles > 0 ? (count / this.totalBottles) * 100 : 0;
-  }
-
-  wineTypeColor(type: WineType): string {
-    const colorSuffix = this.WINE_TYPE_CONFIG[type].gradientColor === 'accent' ? '-accent' : '';
-    return `var(--wine-${type}${colorSuffix})`;
+  goToStarWineSettings(): void {
+    void this.router.navigate(['/settings/star-wine']);
   }
 
   get regionEntries(): RegionDistribution[] {
-    const wineTypeOrder = Object.keys(this.WINE_TYPE_CONFIG) as WineType[];
-    const regions = new Map<string, { bottles: number; types: Map<WineType, number> }>();
+    return this.stats.regions;
+  }
 
-    for (const wine of this.caveService.cave) {
-      const regionName = wine.region?.trim();
-      const bottles = wine.placements?.length ?? 0;
-      if (!regionName || bottles === 0) continue;
+  /** Valeur de la cave en notation compacte (« 1,2k »), selon la langue active. */
+  get formattedTotalValue(): string {
+    return this.format({ notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2 }, this.stats.totalValue)
+      .replace(/\s/g, '');
+  }
 
-      const region = regions.get(regionName) ?? { bottles: 0, types: new Map<WineType, number>() };
-      region.bottles += bottles;
-      region.types.set(wine.type, (region.types.get(wine.type) ?? 0) + bottles);
-      regions.set(regionName, region);
-    }
+  /** Taux de remplissage de la cave, avec deux décimales (« 12,50 »). */
+  get wineCaveFillPercentage(): string {
+    const percentage = fillPercentage(this.totalBottles, this.caveService.totalCapacity);
+    return this.format({ minimumFractionDigits: 2, maximumFractionDigits: 2 }, percentage);
+  }
 
-    return [...regions.entries()]
-      .map(([name, region]) => ({
-        name,
-        bottles: region.bottles,
-        types: [...region.types.entries()].sort(
-          ([typeA], [typeB]) => wineTypeOrder.indexOf(typeA) - wineTypeOrder.indexOf(typeB)
-        ),
-      }))
-      .sort((regionA, regionB) => regionB.bottles - regionA.bottles);
+  distributionEntries(): [WineType, number][] {
+    return this.stats.distributionEntries;
+  }
+
+  distributionPercentage(count: number): number {
+    return percentageOf(count, this.totalBottles);
   }
 
   regionTypePercentage(regionBottles: number, typeBottles: number): number {
-    return regionBottles > 0 ? (typeBottles / regionBottles) * 100 : 0;
+    return percentageOf(typeBottles, regionBottles);
   }
 
-  async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/auth']);
+  wineTypeColor(type: WineType): string {
+    const colorSuffix = WINE_TYPE_CONFIG[type].gradientColor === 'accent' ? '-accent' : '';
+    return `var(--wine-${type}${colorSuffix})`;
   }
 
   openSheet(): void {
@@ -135,10 +122,22 @@ export class HomePage implements OnInit {
   }
 
   goToCave(): void {
-    this.router.navigate(['/cave']);
+    void this.router.navigate(['/cave']);
   }
 
   goToCatalogue(): void {
-    this.router.navigate(['/catalogue']);
+    if (this.features.catalogue) void this.router.navigate(['/catalogue']);
+  }
+
+  private format(options: Intl.NumberFormatOptions, value: number): string {
+    const locale = this.transloco.getActiveLang();
+    const key = `${locale}|${JSON.stringify(options)}`;
+
+    let formatter = this.numberFormats.get(key);
+    if (!formatter) {
+      formatter = new Intl.NumberFormat(locale, options);
+      this.numberFormats.set(key, formatter);
+    }
+    return formatter.format(value);
   }
 }

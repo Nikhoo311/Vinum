@@ -5,7 +5,7 @@
       ? 'color-mix(in srgb, var(--wine-' + type + '-accent) 30%, var(--mc-bg-card))'
       : 'color-mix(in srgb, var(--wine-' + type + ') 30%, var(--mc-bg-card))'">
     <img [src]="WINE_TYPE_CONFIG[type].icon" [alt]="WINE_TYPE_CONFIG[type].label | transloco">
-    <div class="add-wine-preview__information"><strong>{{ previewName }}</strong><span>{{ previewVintage }} · {{ previewDomain }}</span></div>
+    <div class="add-wine-preview__information"><strong>{{ previewName || ('CAVE.ADD_WINE.PREVIEW_NAME' | transloco) }}</strong><span>{{ previewVintage }} · {{ previewDomain || ('CAVE.ADD_WINE.PREVIEW_DOMAIN' | transloco) }}</span></div>
     <div class="add-wine-preview__quantity"><strong>{{ quantity }}</strong><span>{{ 'COMMON.BOTTLES_SHORT' | transloco }}</span></div>
   </section>
   <app-wines-radio-group [control]="form.controls['type']" [row]="true"></app-wines-radio-group>

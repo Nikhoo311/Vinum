@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { PreferencesService } from './core/services/preferences.service';
+import { Component, inject } from '@angular/core';
+
+import { registerIcons } from './core/icons';
+import { MaturityNotificationService } from './core/services/maturity-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +9,9 @@ import { PreferencesService } from './core/services/preferences.service';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-export class AppComponent implements OnInit {
-  constructor(private prefs: PreferencesService) {}
-
-  async ngOnInit() {
-    await this.prefs.init();
+export class AppComponent {
+  constructor() {
+    registerIcons();
+    inject(MaturityNotificationService).start();
   }
 }

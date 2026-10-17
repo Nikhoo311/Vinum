@@ -1,0 +1,67 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="topbar">
+      <ion-button fill="clear" shape="round" class="back-btn" (click)="goBack()">
+        <ion-icon slot="start" name="chevron-back-outline" aria-hidden="true"></ion-icon>
+        {{ 'SETTINGS.TITLE' | transloco }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <h1 class="visually-hidden">{{ 'STAR_WINE.TITLE' | transloco }}</h1>
+  <p class="subtitle">{{ 'STAR_WINE.SUBTITLE' | transloco }}</p>
+
+  <!-- Aperçu : le vin désigné par le critère choisi -->
+  @if (star; as top) {
+    <section
+      class="preview"
+      [style.background]="'color-mix(in srgb, var(--wine-' + top.wine.type + (WINE_TYPE_CONFIG[top.wine.type].gradientColor === 'accent' ? '-accent' : '') + ') 30%, var(--mc-bg-card))'"
+      aria-live="polite">
+      <img [src]="WINE_TYPE_CONFIG[top.wine.type].icon" alt="" aria-hidden="true" />
+      <div class="preview__info">
+        <span class="preview__tag">{{ 'HOME.STAR_WINE_TAG' | transloco }}</span>
+        <h2>{{ top.wine.name }}</h2>
+        <p>
+          {{ top.wine.vintage || '—' }} · {{ WINE_TYPE_CONFIG[top.wine.type].label | transloco }} ·
+          {{ top.wine.placements.length }} {{ 'HOME.BOTTLES' | transloco: { count: top.wine.placements.length } }}
+        </p>
+        <strong>{{ describe(top) }}</strong>
+      </div>
+    </section>
+
+    @if (isFallback) {
+      <p class="notice">{{ 'STAR_WINE.FALLBACK' | transloco }}</p>
+    }
+  } @else {
+    <p class="notice">{{ 'STAR_WINE.EMPTY' | transloco }}</p>
+  }
+
+  <!-- Choix du critère -->
+  @for (group of groups; track group.key) {
+    <h3 class="group-title">{{ 'STAR_WINE.GROUPS.' + group.key | transloco }}</h3>
+    <div class="options" role="radiogroup" [attr.aria-label]="'STAR_WINE.GROUPS.' + group.key | transloco">
+      @for (option of group.criteria; track option) {
+        <button
+          type="button"
+          class="option"
+          role="radio"
+          [class.option--selected]="option === criterion"
+          [attr.aria-checked]="option === criterion"
+          (click)="select(option)">
+          <span class="option__icon"><ion-icon [name]="icons[option]" aria-hidden="true"></ion-icon></span>
+          <span class="option__text">
+            <strong>{{ 'STAR_WINE.CRITERIA.' + keyOf(option) + '.TITLE' | transloco }}</strong>
+            <small>{{ 'STAR_WINE.CRITERIA.' + keyOf(option) + '.DESCRIPTION' | transloco }}</small>
+          </span>
+          <span class="option__check" aria-hidden="true">
+            @if (option === criterion) { <ion-icon name="checkmark-outline"></ion-icon> }
+          </span>
+        </button>
+      }
+    </div>
+  }
+
+  <p class="footnote">{{ 'STAR_WINE.FOOTNOTE' | transloco }}</p>
+</ion-content>

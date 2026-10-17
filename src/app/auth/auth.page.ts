@@ -1,56 +1,50 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { IonicModule, SegmentCustomEvent } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { UtilsComponent } from '../components/utils/utils.component';
-import { AuthTypeEnum } from '../core/types/AuthTypeEnum';
-import { ToastService } from '../core/services/toast.service';
 import { AuthService } from '../core/services/auth.service';
-import { Router } from '@angular/router';
+import { ToastService } from '../core/services/toast.service';
+import { AuthTypeEnum } from '../core/types/AuthTypeEnum';
+import { isUserCancellation, toErrorKey } from '../core/utils/error.util';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
   templateUrl: './auth.page.html',
   styleUrls: ['./auth.page.scss'],
-  imports: [
-    CommonModule,
-    IonicModule,
-    TranslocoModule,
-    UtilsComponent
-  ]
+  imports: [CommonModule, IonicModule, TranslocoModule, UtilsComponent],
 })
 export class AuthPage {
-  @Input() mode: string = AuthTypeEnum.LOGIN;
   protected readonly AuthTypeEnum = AuthTypeEnum;
-  loading: boolean = false;
-  constructor(
-    private transloco: TranslocoService,
-    private toastService: ToastService, 
-    private authService: AuthService,
-    private router: Router
-  ) {}
 
-  switchMode() {
-    this.mode =
-      this.mode === AuthTypeEnum.LOGIN
-        ? AuthTypeEnum.REGISTER
-        : AuthTypeEnum.LOGIN;
-  }
+  mode: AuthTypeEnum = AuthTypeEnum.LOGIN;
+  loading = false;
 
-  onModeChange(event: SegmentCustomEvent) {
-    if (event.detail.value) {
-      this.mode = event.detail.value as AuthTypeEnum;
+  private readonly transloco = inject(TranslocoService);
+  private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
+
+  onModeChange(event: SegmentCustomEvent): void {
+    const value = event.detail.value;
+    if (value === AuthTypeEnum.LOGIN || value === AuthTypeEnum.REGISTER) {
+      this.mode = value;
     }
   }
 
-  async loginWithGoogle() {
+  async loginWithGoogle(): Promise<void> {
+    if (this.loading) return;
+
     this.loading = true;
-    await this.authService.loginWithGoogle()
-      .catch(err => {
-        this.toastService.error(this.transloco.translate(err.message ?? 'AUTH.GOOGLE_ERROR'));
-      })
-      .finally(() => this.loading = false);
+    try {
+      await this.authService.loginWithGoogle();
+    } catch (error) {
+      if (!isUserCancellation(error)) {
+        void this.toastService.error(this.transloco.translate(toErrorKey(error, 'AUTH.GOOGLE_ERROR')));
+      }
+    } finally {
+      this.loading = false;
+    }
   }
 }

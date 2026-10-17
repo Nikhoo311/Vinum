@@ -20,7 +20,7 @@
           fill="clear"
           shape="round"
           (click)="dismiss()"
-          aria-label="Fermer">
+          [attr.aria-label]="'COMMON.CLOSE' | transloco">
           <ion-icon slot="icon-only" name="close-outline"></ion-icon>
         </ion-button>
       }

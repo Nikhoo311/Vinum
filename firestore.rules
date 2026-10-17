@@ -1,0 +1,97 @@
+rules_version = '2';
+
+// Vinum — règles Firestore.
+//
+// Modèle : chaque utilisateur ne peut lire et écrire QUE ses propres données :
+//   users/{uid}            profil
+//   users/{uid}/wine/{id}  fiches de vins de sa cave
+//   users/{uid}/catalogue/{id}  ses fiches personnelles du catalogue
+//   catalogueProposals/{id}     propositions au catalogue commun (création seule, lecture par l'auteur)
+// Tout le reste est refusé par défaut.
+//
+// Les validations de contenu sont volontairement tolérantes avec les anciens documents
+// (champs facultatifs), mais bornent la taille et le type des champs critiques afin
+// qu'un client modifié ne puisse pas stocker n'importe quoi. Voir docs/SECURITY.md.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isShortString(value, maxLength) {
+      return value is string && value.size() <= maxLength;
+    }
+
+    // Disposition de la cave : au plus 240 emplacements (CAVE_MAX_PREMIUM côté application).
+    function validCaveConfig(config) {
+      return config is map
+        && config.rows is int && config.rows >= 0 && config.rows <= 240
+        && config.cols is int && config.cols >= 0 && config.cols <= 240
+        && config.rows * config.cols <= 240
+        && config.viewMode in ['grid', 'list'];
+    }
+
+    function validUser(data) {
+      return (!('firstName' in data) || isShortString(data.firstName, 100))
+        && (!('lastName' in data) || isShortString(data.lastName, 100))
+        && (!('email' in data) || isShortString(data.email, 320))
+        && (!('caveConfig' in data) || validCaveConfig(data.caveConfig));
+    }
+
+    function validWine(uid, data) {
+      return isShortString(data.name, 200) && data.name.size() > 0
+        && data.type in ['red', 'white', 'rose', 'champagne']
+        && (!('ownerId' in data) || data.ownerId == uid)
+        && (!('domain' in data) || isShortString(data.domain, 200))
+        && (!('region' in data) || isShortString(data.region, 200))
+        && (!('appellation' in data) || isShortString(data.appellation, 200))
+        && (!('grapeVariety' in data) || isShortString(data.grapeVariety, 200))
+        && (!('description' in data) || isShortString(data.description, 5000))
+        && (!('vintage' in data) || (data.vintage is number && data.vintage >= 0 && data.vintage <= 3000))
+        && (!('peakMaturityYear' in data) || (data.peakMaturityYear is number && data.peakMaturityYear >= 0 && data.peakMaturityYear <= 3000))
+        && (!('unitPrice' in data) || (data.unitPrice is number && data.unitPrice >= 0 && data.unitPrice <= 1000000))
+        && (!('addedAt' in data) || isShortString(data.addedAt, 40))
+        && (!('rating' in data) || (data.rating is number && data.rating >= 0 && data.rating <= 5))
+        && (!('foodPairing' in data) || (data.foodPairing is list && data.foodPairing.size() <= 50))
+        && (!('placements' in data) || (data.placements is list && data.placements.size() <= 240));
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validUser(request.resource.data);
+
+      match /wine/{wineId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validWine(uid, request.resource.data);
+      }
+
+      // Fiches personnelles du catalogue : mêmes champs et mêmes bornes qu'une fiche de cave.
+      match /catalogue/{wineId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validWine(uid, request.resource.data);
+      }
+    }
+
+    // Propositions au catalogue commun : on peut en créer (statut « pending », horodatage serveur)
+    // et relire les siennes ; la modération se fait côté serveur (console / Admin SDK).
+    match /catalogueProposals/{proposalId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'name', 'domain', 'region', 'vintage', 'type', 'grapeVariety', 'unitPrice', 'description',
+          'foodPairing', 'rating', 'peakMaturityYear', 'ownerId', 'status', 'createdAt'
+        ])
+        && validWine(request.auth.uid, request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Par défaut : tout est refusé.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
