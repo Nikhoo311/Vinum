@@ -7,8 +7,10 @@
     <div class="sheet-hero">
       <img
         [src]="WINE_TYPE_CONFIG[wine.type].icon"
+        alt=""
+        aria-hidden="true"
         class="sheet-hero__wine-icon"
-        [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor == 'accent'
+        [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent'
           ? 'color-mix(in srgb, var(--wine-' + wine.type + '-accent) 30%, transparent)'
           : 'color-mix(in srgb, var(--wine-' + wine.type + ') 30%, transparent)'"
       />
@@ -16,7 +18,7 @@
       <div class="info">
         <ion-chip
           [outline]="true"
-          [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor == 'accent'
+          [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent'
             ? 'color-mix(in srgb, var(--wine-' + wine.type + '-accent) 30%, transparent)'
             : 'color-mix(in srgb, var(--wine-' + wine.type + ') 30%, transparent)'"
           [style.color]="'var(--wine-' + wine.type + '-accent)'"
@@ -108,7 +110,7 @@
             </ion-card-title>
 
             <div class="bento-kpi rating-card__value">
-              @if (wine.rating != null) {
+              @if (wine.rating !== undefined) {
                 {{ wine.rating | number }}
                 <ion-icon name="star"></ion-icon>
               } @else {
@@ -227,7 +229,7 @@
         <p class="rating-modal__label">
           @if (selectedRating !== null) {
             {{ ratingLabelKey | transloco }}
-          } @else if (wine.rating != null) {
+          } @else if (wine.rating !== undefined) {
             {{ 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE_HINT' | transloco }}
           }
         </p>
@@ -239,7 +241,7 @@
         {{ 'WINE_SHEET_MODAL.RATING_MODAL.CANCEL' | transloco }}
       </ion-button>
       <ion-button shape="round" color="primary" (click)="saveRating()" [disabled]="!canSaveRating || isSavingRating">
-        {{ (selectedRating === null && wine.rating != null ? 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE' : 'WINE_SHEET_MODAL.RATING_MODAL.SAVE') | transloco }}
+        {{ (selectedRating === null && wine.rating !== undefined ? 'WINE_SHEET_MODAL.RATING_MODAL.REMOVE' : 'WINE_SHEET_MODAL.RATING_MODAL.SAVE') | transloco }}
       </ion-button>
     </div>
   </app-custom-modal>

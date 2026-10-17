@@ -6,10 +6,12 @@ const config: CapacitorConfig = {
   webDir: 'www',
   plugins: {
     FirebaseAuthentication: {
-      skipNativeAuth: false,
-      providers: ["google.com"],
+      // L'authentification native n'est utilisée que pour obtenir l'idToken Google ;
+      // la session est ensuite portée par le SDK Firebase JS (voir AuthService).
+      skipNativeAuth: true,
+      providers: ['google.com'],
     },
-  }
+  },
 };
 
 export default config;

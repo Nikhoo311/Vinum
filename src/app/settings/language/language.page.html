@@ -5,8 +5,9 @@
         fill="clear"
         shape="round"
         class="back-btn"
+        [attr.aria-label]="'COMMON.BACK' | transloco"
         (click)="goBack()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </ion-button>
       <h1>{{ 'SETTINGS.APPEARANCE.LANGUAGE.TITLE' | transloco }}</h1>
     </div>
@@ -25,7 +26,7 @@
             [detail]="false"
             (click)="selectLanguage(lang.code)"
           >
-            <div slot="start" class="lang-code"><img [src]="lang.flag"/></div>
+            <div slot="start" class="lang-code"><img [src]="lang.flag" alt="" aria-hidden="true" /></div>
             <ion-label class="lang-info">
               <h2 class="lang-native">{{ lang.nativeName }}</h2>
               <p class="lang-english">{{ lang.englishName }}</p>

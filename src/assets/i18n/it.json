@@ -1,0 +1,372 @@
+{
+  "APP_TITLE": "Vinum",
+  "APP_SLOGAN": "La tua cantina a portata di mano",
+  "ERRORS": {
+    "GENERIC": "Si è verificato un errore. Riprova.",
+    "NETWORK": "Impossibile connettersi. Controlla la connessione a internet e riprova.",
+    "NOT_AUTHENTICATED": "La tua sessione è scaduta. Accedi di nuovo.",
+    "PERMISSION_DENIED": "Non hai l'autorizzazione per eseguire questa azione."
+  },
+  "NOTIFICATIONS": {
+    "MATURITY": {
+      "TITLE": "Un vino è al suo apice",
+      "BODY": "«{{name}}» ({{vintage}}) ha raggiunto il suo anno di apice ({{year}}). È il momento di gustarlo."
+    }
+  },
+  "FORM_ERRORS": {
+    "MIN": "Il valore deve essere maggiore o uguale a {{min}}.",
+    "MAX": "Il valore deve essere minore o uguale a {{max}}.",
+    "MAX_LENGTH": "Il valore non deve superare {{max}} caratteri.",
+    "YEAR": "Inserisci un anno di quattro cifre.",
+    "PEAK_MATURITY_YEAR": "L'anno di apice deve essere successivo all'annata.",
+    "HALF_STEP": "Il voto deve essere un multiplo di 0,5.",
+    "INVALID": "Questo valore non è valido."
+  },
+  "AUTH": {
+    "LOGIN": "Accedi",
+    "REGISTER": "Crea un account",
+    "EMAIL": "Indirizzo e-mail",
+    "EMAIL_PLACEHOLDER": "tu@esempio.com",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Conferma la password",
+    "FORGOT_PASSWORD": "Password dimenticata?",
+    "FORGOT_PASSWORD_EMAIL_REQUIRED": "Inserisci la tua e-mail per reimpostare la password.",
+    "FORGOT_PASSWORD_SUCCESS": "Ti abbiamo inviato un link di reimpostazione ✓",
+    "FORGOT_PASSWORD_ERROR": "Indirizzo non trovato o errore di rete.",
+    "LOGIN_BUTTON": "Accedi",
+    "REGISTER_BUTTON": "Registrati",
+    "NO_ACCOUNT": "Nessun account è associato a questo utente.",
+    "TOO_MANY_ATTEMPTS": "Troppi tentativi. Riprova più tardi.",
+    "INVALID_CREDENTIAL": "L'indirizzo e-mail o la password non sono corretti.",
+    "USER_DISABLED": "Questo account è stato disattivato.",
+    "REQUIRES_RECENT_LOGIN": "Per motivi di sicurezza, accedi di nuovo e riprova.",
+    "RULES": {
+      "REQUIRED": "Questo campo è obbligatorio.",
+      "EMAIL": "Inserisci un indirizzo e-mail valido.",
+      "EMAIL_ALREADY_TAKEN": "Questo indirizzo e-mail è già in uso.",
+      "PASSWORD": "La password deve contenere almeno 6 caratteri.",
+      "SAME_PASSWORD": "Le password non corrispondono.",
+      "FILL_ALL_FIELDS": "Compila correttamente tutti i campi.",
+      "REGISTER_ERROR": "Si è verificato un errore durante la registrazione: {{error}}"
+    },
+    "OR_CONNEXION_WITH": "Oppure continua con",
+    "GOOGLE_LOGIN": "Continua con Google",
+    "GOOGLE_REGISTER": "Registrati con Google",
+    "GOOGLE_ERROR": "Errore durante l'accesso con Google."
+  },
+  "PREFERENCES": {
+    "WELCOME_TO": "Benvenuto su",
+    "WELCOME_SUB_TEXT": "Crea il tuo profilo e configura la tua cantina in pochi istanti per iniziare a organizzare le tue bottiglie.",
+    "START": "Inizia",
+    "CONTINUE": "Continua",
+    "BACK": "Indietro",
+    "SAVE_ERROR": "Impossibile salvare il tuo profilo. Riprova.",
+    "STEPS": {
+      "STEP_ONE": {
+        "AMOUNT_TITLE": "Passaggio 1 di 3",
+        "QUESTION": "Come ti chiami?",
+        "PRECISION": "Lo usiamo per personalizzare il tuo spazio.",
+        "FIRSTNAME_LABEL": "Nome",
+        "FIRSTNAME_PLACEHOLDER": "Es. Camille",
+        "LASTNAME_LABEL": "Cognome",
+        "LASTNAME_PLACEHOLDER": "Es. Dubois"
+      },
+      "STEP_TWO": {
+        "AMOUNT_TITLE": "Passaggio 2 di 3",
+        "QUESTION": "Il tuo tipo di vino preferito",
+        "PRECISION": "Scegli il tipo che bevi più spesso. Ci aiuterà a mettere in evidenza le bottiglie giuste."
+      },
+      "STEP_THREE": {
+        "AMOUNT_TITLE": "Passaggio 3 di 3",
+        "QUESTION": "Dimensioni della tua cantina",
+        "PRECISION": "Indica il numero di file e di colonne in modo che corrisponda alla tua cantina reale.",
+        "ROWS_LABEL": "File",
+        "COLS_LABEL": "Colonne",
+        "TOTAL_CAPACITY": "Capacità totale:",
+        "LOCATION": "posti",
+        "CAPACITY_CAP": "{{max}} posti al massimo",
+        "CREATE_BUTTON": "Crea la mia cantina"
+      }
+    },
+    "CONFIRM": {
+      "TITLE": "È tutto pronto, {{prenom}}!",
+      "SUBTITLE": "La tua cantina è configurata. Puoi iniziare a riporre le tue prime bottiglie.",
+      "CTA": "Scopri la mia cantina"
+    }
+  },
+  "WINE": {
+    "TYPE": {
+      "RED": "rosso",
+      "WHITE": "bianco",
+      "ROSE": "rosato",
+      "CHAMPAGNE": "champagne"
+    },
+    "FOOD_PAIRINGS": {
+      "RED": {
+        "RED_MEAT": "Carni rosse",
+        "SAUCE_DISHES": "Piatti in salsa",
+        "AGED_CHEESES": "Formaggi stagionati"
+      },
+      "WHITE": {
+        "FISH_AND_SEAFOOD": "Pesce e frutti di mare",
+        "CREAMY_POULTRY": "Pollame alla panna",
+        "GOAT_CHEESE": "Formaggi di capra"
+      },
+      "ROSE": {
+        "APERITIF_AND_TAPAS": "Aperitivo e tapas",
+        "SALADS_AND_RAW_VEGETABLES": "Insalate e verdure crude",
+        "GRILLED_DISHES": "Grigliate"
+      },
+      "CHAMPAGNE": {
+        "APERITIF": "Aperitivo",
+        "SEAFOOD": "Frutti di mare",
+        "SUSHI": "Sushi"
+      }
+    }
+  },
+  "TABS": {
+    "HOME": "Dashboard",
+    "CAVE": "La mia cantina",
+    "CATALOGUE": "Catalogo",
+    "SETTINGS": "Impostazioni"
+  },
+  "CAVE": {
+    "OCCUPIED_SLOTS": "posti occupati",
+    "EMPTY_LOCATION": "Posto vuoto",
+    "ADD_WINE": {
+      "TITLE": "Aggiungi una bottiglia",
+      "NAME": "Nome del vino",
+      "NAME_PLACEHOLDER": "Es. Château Margaux",
+      "DOMAIN": "Cantina produttrice",
+      "DOMAIN_PLACEHOLDER": "Es. Domaine de la Romanée-Conti",
+      "VINTAGE": "Annata",
+      "PEAK_MATURITY_YEAR": "Anno di apice",
+      "REGION": "Regione",
+      "REGION_PLACEHOLDER": "Es. Bordeaux",
+      "GRAPE_VARIETY": "Vitigno/i",
+      "GRAPE_VARIETY_PLACEHOLDER": "Es. Merlot, Cabernet Sauvignon",
+      "UNIT_PRICE": "Prezzo unitario (€)",
+      "RATING": "Voto / 5",
+      "FLAVOR_NOTES": "Note di degustazione",
+      "FLAVOR_NOTES_PLACEHOLDER": "Aromi, colore, note di degustazione…",
+      "FOOD_PAIRING": "Abbinamenti",
+      "FOOD_PAIRING_PLACEHOLDER": "Es. Manzo, formaggio stagionato",
+      "QUANTITY": "Quantità",
+      "AVAILABLE_SLOT": "posto disponibile",
+      "AVAILABLE_SLOTS": "posti disponibili",
+      "ERRORS": {
+        "DEFAULT": "Non è stato possibile aggiungere la bottiglia. Controlla la connessione e riprova.",
+        "INVALID_DATA": "Alcune informazioni sul vino non sono valide. Controlla i campi e riprova.",
+        "PERMISSION_DENIED": "Non hai le autorizzazioni necessarie per aggiungere questa bottiglia.",
+        "UNAVAILABLE": "Il servizio è temporaneamente non disponibile. Riprova tra un istante."
+      },
+      "SUBMIT": "Aggiungi alla mia cantina",
+      "PREVIEW_NAME": "Nome del vino",
+      "PREVIEW_DOMAIN": "Cantina produttrice",
+      "SUCCESS": "Bottiglia aggiunta alla tua cantina.",
+      "NOT_ENOUGH_SLOTS": "Non ci sono abbastanza posti liberi per questa quantità."
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Cerca un vino…",
+      "NO_RESULTS": "Nessun risultato per «{{query}}»",
+      "BOTTLES_FOUND": "{count, plural, =0 {0 bottiglie trovate} =1 {1 bottiglia trovata} other {{{count}} bottiglie trovate}}"
+    }
+  },
+  "COMMON": {
+    "BOTTLES_SHORT": "bott.",
+    "BACK": "Indietro",
+    "CANCEL": "Annulla",
+    "CLOSE": "Chiudi",
+    "REQUIRED": "Obbligatorio",
+    "DECREASE": "Diminuisci",
+    "INCREASE": "Aumenta"
+  },
+  "HOME": {
+    "WELCOME": "Ciao",
+    "STAR_WINE_TAG": "Vino stella",
+    "STAR_WINE_INFO": {
+      "LABEL": "Come viene definito il vino stella?",
+      "TEXT": "Il vino stella è il vino con il prezzo unitario più alto della tua cantina."
+    },
+    "TOTAL_STOCK_LABEL": "Scorta totale",
+    "BOTTLES": "{count, plural, =0 {nessuna bottiglia} =1 {bottiglia} other {bottiglie}}",
+    "EMPTY_CAVE": "Nessuna bottiglia nella tua cantina.",
+    "DISTRIBUTION_LABEL": "Distribuzione",
+    "DISTRIBUTION_BY_TYPE_LABEL": "Distribuzione per tipo",
+    "DISTRIBUTION_BY_REGION_LABEL": "Distribuzione per regione",
+    "REGION_BOTTLES": "{count, plural, =0 {0 bott.} =1 {1 bott.} other {{{count}} bott.}}",
+    "NO_REGIONS": "Nessuna regione indicata.",
+    "STATS_LABEL": "Tasso di riempimento",
+    "STATS_SUB": "della tua cantina",
+    "AVERAGE_RATING_LABEL": "Voto medio",
+    "AVERAGE_RATING_SUB": "dei vini valutati",
+    "AVERAGE_RATING_INFO": {
+      "LABEL": "Come viene calcolato il voto medio?",
+      "TEXT": "{count, plural, =0 {Nessuna bottiglia valutata della tua cantina è ancora presa in considerazione.} =1 {Calcolato su 1 bottiglia valutata della tua cantina.} other {Calcolato su {{count}} bottiglie valutate della tua cantina.}}"
+    },
+    "IN_DEVELOPMENT": "Funzione in fase di sviluppo.",
+    "VALUE_LABEL": "Valore della cantina",
+    "VALUE_SUB": "stima (prezzo d'acquisto)",
+    "WISHLIST_LABEL": "Lista dei desideri",
+    "WINES": "{count, plural, =0 {0 vini} =1 {1 vino} other {{{count}} vini}}"
+  },
+  "WINE_SHEET_MODAL": {
+    "LOCATION": "Posizione",
+    "QUANTITY": "Quantità",
+    "GRAPE_VARIETY": "Vitigno",
+    "REGION": "Regione",
+    "PEAK_MATURITY_YEAR": "Anno di apice",
+    "UNIT_PRICE": "Prezzo unitario",
+    "RATING": "Voto",
+    "NOT_RATED": "Non valutato",
+    "DESCRIPTION": "Note di degustazione",
+    "FOOD_PAIRING": "Abbinamenti",
+    "NO_DESCRIPTION": "Nessuna nota di degustazione disponibile.",
+    "NO_FOOD_PAIRING": "Nessun abbinamento disponibile.",
+    "REGION_NOT_SPECIFIED": "Regione non specificata",
+    "REMOVE_BOTTLE": "Rimuovi una bottiglia",
+    "EDIT": "Modifica",
+    "EDIT_MODAL": {
+      "TITLE": "Modifica la bottiglia",
+      "SAVE": "Salva",
+      "SUCCESS": "«{{name}}» modificato con successo.",
+      "ERROR": "Impossibile modificare questo vino. Riprova."
+    },
+    "RATING_MODAL": {
+      "TITLE": "Valutazione della bottiglia",
+      "QUESTION": "Com'era questo vino?",
+      "DESCRIPTION": "Il tuo voto aggiorna la scheda di questo vino.",
+      "LABEL_1": "Deludente",
+      "LABEL_1_5": "Piuttosto deludente",
+      "LABEL_2": "Mediocre",
+      "LABEL_2_5": "Passabile",
+      "LABEL_3": "Discreto",
+      "LABEL_3_5": "Buono",
+      "LABEL_4": "Molto buono",
+      "LABEL_4_5": "Ottimo",
+      "LABEL_5": "Eccellente!",
+      "LABEL_0_5": "Molto deludente",
+      "REMOVE_INSTRUCTION": "Tocca di nuovo la stella selezionata per rimuovere il voto.",
+      "SKIP": "Salta",
+      "CANCEL": "Annulla",
+      "SAVE": "Salva il voto",
+      "REMOVE": "Rimuovi il voto",
+      "REMOVE_HINT": "Il voto verrà rimosso.",
+      "SAVED": "Voto salvato: {{rating}}/5",
+      "REMOVED": "Voto rimosso.",
+      "SAVE_ERROR": "Impossibile salvare il voto. Riprova.",
+      "REMOVE_ERROR": "Impossibile rimuovere questa bottiglia. Riprova."
+    }
+  },
+  "SETTINGS": {
+    "TITLE": "Impostazioni",
+    "SUBTITLE": "Account e preferenze",
+    "SECTIONS": {
+      "ACCOUNT": "Account",
+      "CAVE": "Cantina",
+      "APPEARANCE": "Aspetto"
+    },
+    "APPEARANCE": {
+      "DARK_MODE": "Modalità scura",
+      "LANGUAGE": {
+        "TITLE": "Lingua",
+        "AVAILABLE": "Lingue disponibili",
+        "NO_RESULTS": "Nessuna lingua trovata",
+        "HINT": "La lingua scelta si applica a tutta l'applicazione. Non è necessario riavviarla."
+      }
+    },
+    "INFO_PERSONAL": {
+      "TITLE": "Informazioni personali",
+      "UPDATE_SUCCESS": "Le tue informazioni personali sono state aggiornate con successo.",
+      "UPDATE_ERROR": "Si è verificato un errore durante l'aggiornamento.\n{{error}}",
+      "REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR": "Password richiesta per cambiare l'e-mail.",
+      "REQUIRED_PASSWORD_DELETE_ERROR": "Password richiesta per confermare l'eliminazione.",
+      "EMAIL_CONFIRMATION_SENT": "Un'e-mail di conferma è stata inviata al tuo nuovo indirizzo."
+    },
+    "FAVORITE_WINE": {
+      "TITLE": "Tipo di vino preferito",
+      "SUBTITLE": "Scegli il tipo di vino che preferisci.",
+      "UPDATE_BUTTON": "Salva",
+      "UPDATE_SUCCESS": "Il tuo tipo di vino preferito è stato aggiornato con successo.",
+      "UPDATE_ERROR": "Si è verificato un errore durante l'aggiornamento.",
+      "NOT_SPECIFIED": "Non specificato"
+    },
+    "ACCOUNT_PAGE": {
+      "SECTIONS": {
+        "PERSONAL_INFO": "Informazioni personali",
+        "IDENTIFIER": "Identificativo",
+        "SECURITY": "Sicurezza"
+      },
+      "FIRSTNAME": "Nome",
+      "LASTNAME": "Cognome",
+      "EMAIL": "Indirizzo e-mail",
+      "PASSWORD": "Password",
+      "GOOGLE_MANAGED": "Gestito da Google",
+      "EMAIL_CHANGED_NOTICE": "Accedi di nuovo per vedere il tuo nuovo indirizzo e-mail.",
+      "SAVE": "Salva",
+      "LOGOUT": "Esci",
+      "DELETE_ACCOUNT": {
+        "BUTTON": "Elimina il mio account",
+        "HINT": "L'eliminazione è definitiva e comporta la perdita di tutti i tuoi dati.",
+        "CONFIRM_HEADER": "Elimina il mio account",
+        "CONFIRM_MESSAGE": "L'eliminazione è definitiva e comporta la perdita di tutti i tuoi dati.",
+        "PASSWORD_PLACEHOLDER": "Password attuale",
+        "CANCEL": "Annulla",
+        "CONFIRM": "Elimina",
+        "ERROR": "Impossibile eliminare l'account"
+      },
+      "EMAIL_CHANGE_CONFIRM": {
+        "HEADER": "Conferma la modifica dell'e-mail",
+        "MESSAGE": "Per motivi di sicurezza, inserisci la tua password attuale.",
+        "PASSWORD_PLACEHOLDER": "Password attuale",
+        "CANCEL": "Annulla",
+        "CONFIRM": "Conferma"
+      }
+    },
+    "CHANGE_PASSWORD": {
+      "TITLE": "Modifica la password",
+      "SUBTITLE": "Scegli una password di almeno 6 caratteri.",
+      "CURRENT_LABEL": "Password attuale",
+      "NEW_LABEL": "Nuova password",
+      "CONFIRM_LABEL": "Conferma la nuova password",
+      "SUBMIT": "Modifica la password",
+      "MISMATCH": "Le password non corrispondono",
+      "SUCCESS": "Password modificata con successo",
+      "ERROR": "Impossibile modificare la password"
+    },
+    "CAVE": {
+      "DISPOSITION": {
+        "TITLE": "Disposizione della cantina",
+        "SLOTS": "{count, plural, =0 {posto} =1 {posto} other {posti}}",
+        "ROWS": "{count, plural, =0 {fila} =1 {fila} other {file}}",
+        "COLS": "{count, plural, =0 {colonna} =1 {colonna} other {colonne}}",
+        "MODAL": {
+          "HINT": "Regola il numero di file e di colonne in modo che corrisponda alla tua cantina reale (massimo {{max}} posti).",
+          "TOTAL_LABEL": "Capacità totale:",
+          "SAVE": "Salva",
+          "SAVE_SUCCESS": "La disposizione della tua cantina è stata salvata.",
+          "SAVE_ERROR": "Si è verificato un errore durante il salvataggio della disposizione.\n{{error}}"
+        },
+        "CONFIRM": {
+          "TITLE": "Rimuovere delle bottiglie?",
+          "MESSAGE": "{count, plural, =1 {1 bottiglia non ha più un posto nella nuova disposizione e sarà rimossa dalla tua cantina.} other {{{count}} bottiglie non hanno più un posto nella nuova disposizione e saranno rimosse dalla tua cantina.}} Questa azione è irreversibile.",
+          "CONFIRM": "Conferma"
+        }
+      },
+      "DISPLAY": {
+        "TITLE": "Visualizzazione dell'inventario",
+        "SUBTITLE": "Vista predefinita",
+        "GRID": "Griglia",
+        "LIST": "Elenco",
+        "UPDATE_SUCCESS": "Vista predefinita modificata: {{view}}",
+        "UPDATE_ERROR": "Si è verificato un errore durante la modifica della vista."
+      },
+      "NOTIFICATIONS": {
+        "TITLE": "Avvisi di maturità",
+        "ENABLED": "Attivati",
+        "DISABLED": "Disattivati",
+        "PERMISSION_DENIED": "Notifiche negate. Consentile nelle impostazioni del dispositivo per attivare gli avvisi."
+      }
+    }
+  }
+}

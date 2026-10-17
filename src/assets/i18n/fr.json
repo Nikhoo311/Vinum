@@ -1,12 +1,26 @@
 {
   "APP_TITLE": "Vinum",
   "APP_SLOGAN": "Votre cave à portée de main",
+  "ERRORS": {
+    "GENERIC": "Une erreur est survenue. Veuillez réessayer.",
+    "NETWORK": "Connexion impossible. Vérifiez votre connexion internet puis réessayez.",
+    "NOT_AUTHENTICATED": "Votre session a expiré. Veuillez vous reconnecter.",
+    "PERMISSION_DENIED": "Vous n'avez pas l'autorisation d'effectuer cette action."
+  },
+  "NOTIFICATIONS": {
+    "MATURITY": {
+      "TITLE": "Un vin est à son apogée",
+      "BODY": "« {{name}} » ({{vintage}}) a atteint son année d'apogée ({{year}}). C'est le moment de le déguster."
+    }
+  },
   "FORM_ERRORS": {
     "MIN": "La valeur doit être supérieure ou égale à {{min}}.",
     "MAX": "La valeur doit être inférieure ou égale à {{max}}.",
     "MAX_LENGTH": "La valeur ne doit pas dépasser {{max}} caractères.",
     "YEAR": "Saisissez une année à quatre chiffres.",
-    "PEAK_MATURITY_YEAR": "L’année d’apogée doit être postérieure au millésime."
+    "PEAK_MATURITY_YEAR": "L’année d’apogée doit être postérieure au millésime.",
+    "HALF_STEP": "La note doit être un multiple de 0,5.",
+    "INVALID": "Cette valeur n'est pas valide."
   },
   "AUTH": {
     "LOGIN": "Connexion",
@@ -24,6 +38,8 @@
     "NO_ACCOUNT": "Aucun compte n'est associé à cet utilisateur.",
     "TOO_MANY_ATTEMPTS": "Trop de tentatives. Réessayez plus tard.",
     "INVALID_CREDENTIAL": "L'adresse e-mail ou le mot de passe est incorrect.",
+    "USER_DISABLED": "Ce compte a été désactivé.",
+    "REQUIRES_RECENT_LOGIN": "Pour des raisons de sécurité, reconnectez-vous puis réessayez.",
     "RULES": {
       "REQUIRED": "Ce champ est obligatoire.",
       "EMAIL": "Veuillez entrer une adresse e-mail valide.",
@@ -44,6 +60,7 @@
     "START": "Commencer",
     "CONTINUE": "Continuer",
     "BACK": "Retour",
+    "SAVE_ERROR": "Impossible d'enregistrer votre profil. Réessayez.",
     "STEPS": {
       "STEP_ONE": {
         "AMOUNT_TITLE": "Étape 1 sur 3",
@@ -110,7 +127,7 @@
   "TABS": {
     "HOME": "Dashboard",
     "CAVE": "Ma cave",
-    "STATS": "Catalogue",
+    "CATALOGUE": "Catalogue",
     "SETTINGS": "Paramètres"
   },
   "CAVE": {
@@ -118,7 +135,6 @@
     "EMPTY_LOCATION": "Emplacement vide",
     "ADD_WINE": {
       "TITLE": "Ajouter une bouteille",
-      "CLOSE": "Fermer",
       "NAME": "Nom du vin",
       "NAME_PLACEHOLDER": "Ex. Château Margaux",
       "DOMAIN": "Domaine",
@@ -144,7 +160,11 @@
         "PERMISSION_DENIED": "Vous n’avez pas les droits nécessaires pour ajouter cette bouteille.",
         "UNAVAILABLE": "Le service est momentanément indisponible. Réessayez dans un instant."
       },
-      "SUBMIT": "Ajouter à ma cave"
+      "SUBMIT": "Ajouter à ma cave",
+      "PREVIEW_NAME": "Nom du vin",
+      "PREVIEW_DOMAIN": "Domaine",
+      "SUCCESS": "Bouteille ajoutée à votre cave.",
+      "NOT_ENOUGH_SLOTS": "Il n'y a pas assez d'emplacements libres pour cette quantité."
     },
     "SEARCH": {
       "PLACEHOLDER": "Rechercher un vin…",
@@ -153,7 +173,13 @@
     }
   },
   "COMMON": {
-    "BOTTLES_SHORT": "btl"
+    "BOTTLES_SHORT": "btl",
+    "BACK": "Retour",
+    "CANCEL": "Annuler",
+    "CLOSE": "Fermer",
+    "REQUIRED": "Obligatoire",
+    "DECREASE": "Diminuer",
+    "INCREASE": "Augmenter"
   },
   "HOME": {
     "WELCOME": "Bonjour",
@@ -198,7 +224,6 @@
     "NO_DESCRIPTION": "Aucune note de saveur disponible.",
     "NO_FOOD_PAIRING": "Aucun accord disponible.",
     "REGION_NOT_SPECIFIED": "Région non spécifiée",
-    "CLOSE": "Fermer",
     "REMOVE_BOTTLE": "Retirer une bouteille",
     "EDIT": "Modifier",
     "EDIT_MODAL": {
@@ -252,7 +277,6 @@
     },
     "INFO_PERSONAL": {
       "TITLE": "Informations personnelles",
-      "UPDATE_BUTTON": "Enregistrer",
       "UPDATE_SUCCESS": "Vos informations personnelles ont été mises à jour avec succès.",
       "UPDATE_ERROR": "Une erreur est survenue lors de la mise à jour.\n{{error}}",
       "REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR": "Mot de passe requis pour changer l'e-mail.",
@@ -263,7 +287,7 @@
       "TITLE": "Type de vin préféré",
       "SUBTITLE": "Choisissez le type de vin que vous préférez.",
       "UPDATE_BUTTON": "Enregistrer",
-      "UPDATE_SUCCESS": "Votre type vin préféré a été mis à jour avec succès.",
+      "UPDATE_SUCCESS": "Votre type de vin préféré a été mis à jour avec succès.",
       "UPDATE_ERROR": "Une erreur est survenue lors de la mise à jour.",
       "NOT_SPECIFIED": "Non renseigné"
     },
@@ -278,6 +302,7 @@
       "EMAIL": "Adresse e-mail",
       "PASSWORD": "Mot de passe",
       "GOOGLE_MANAGED": "Géré par Google",
+      "EMAIL_CHANGED_NOTICE": "Reconnectez-vous pour afficher votre nouvelle adresse e-mail.",
       "SAVE": "Enregistrer",
       "LOGOUT": "Se déconnecter",
       "DELETE_ACCOUNT": {
@@ -316,11 +341,16 @@
         "ROWS": "{count, plural, =0 {rangée} =1 {rangée} other {rangées}}",
         "COLS": "{count, plural, =0 {colonne} =1 {colonne} other {colonnes}}",
         "MODAL": {
-          "HINT": "Ajuste le nombre de rangées et de colonnes pour correspondre à ta cave réelle ({{max}} emplacements max).",
+          "HINT": "Ajustez le nombre de rangées et de colonnes pour correspondre à votre cave réelle ({{max}} emplacements max).",
           "TOTAL_LABEL": "Capacité totale :",
           "SAVE": "Enregistrer",
           "SAVE_SUCCESS": "La disposition de votre cave a été enregistrée.",
           "SAVE_ERROR": "Une erreur est survenue lors de l'enregistrement de la disposition.\n{{error}}"
+        },
+        "CONFIRM": {
+          "TITLE": "Retirer des bouteilles ?",
+          "MESSAGE": "{count, plural, =1 {1 bouteille n'a plus d'emplacement dans la nouvelle disposition et sera retirée de votre cave.} other {{{count}} bouteilles n'ont plus d'emplacement dans la nouvelle disposition et seront retirées de votre cave.}} Cette action est irréversible.",
+          "CONFIRM": "Confirmer"
         }
       },
       "DISPLAY": {
@@ -334,7 +364,8 @@
       "NOTIFICATIONS": {
         "TITLE": "Alertes de maturité",
         "ENABLED": "Activées",
-        "DISABLED": "Désactivées"
+        "DISABLED": "Désactivées",
+        "PERMISSION_DENIED": "Notifications refusées. Autorisez-les dans les réglages de votre appareil pour activer les alertes."
       }
     }
   }

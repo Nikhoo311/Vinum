@@ -5,8 +5,9 @@
         fill="clear"
         shape="round"
         class="back-btn"
+        [attr.aria-label]="'COMMON.BACK' | transloco"
         (click)="goBack()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </ion-button>
       <h1>{{ 'SETTINGS.FAVORITE_WINE.TITLE' | transloco }}</h1>
     </div>
@@ -17,14 +18,14 @@
   <p class="subtitle">{{ 'SETTINGS.FAVORITE_WINE.SUBTITLE' | transloco }}</p>
 
   <form [formGroup]="wineForm" (ngSubmit)="updateFavoriteWine()">
-    <app-wines-radio-group [control]="wineForm.get('selectedType')" [defaultValue]="favoriteWine"></app-wines-radio-group>
+    <app-wines-radio-group [control]="wineForm.controls.selectedType" [defaultValue]="favoriteWine"></app-wines-radio-group>
     <ion-button
       class="ion-margin-top"
       expand="block"
       shape="round"
       color="secondary"
       type="submit"
-      [disabled]="wineForm.invalid">
+      [disabled]="wineForm.invalid || loading">
       {{ 'SETTINGS.FAVORITE_WINE.UPDATE_BUTTON' | transloco }}
     </ion-button> 
   </form>

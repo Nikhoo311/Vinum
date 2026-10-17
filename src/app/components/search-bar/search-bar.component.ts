@@ -1,19 +1,20 @@
-import { Component, computed, effect, input, output, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, computed, input, output, signal } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-// Minimal form expected by the search bar for any content type (wine, food pairings, etc.).
-// Each screen using this component provides its own adaptation function.
-export interface SearchableItem {
-  id: string;
-  label: string;
-  subtitle?: string;
-  tag?: string;
-  keywords: (string | undefined)[];
-  placementCount?: number;
-}
+import { SearchableItem, searchItems } from '../../core/utils/search.util';
 
+export type { SearchableItem } from '../../core/utils/search.util';
+
+/** Délai (ms) entre la dernière frappe et le lancement de la recherche. */
+const SEARCH_DEBOUNCE_MS = 300;
+
+/**
+ * Barre de recherche avec résumé des résultats.
+ * Le composant n'applique aucun filtre lui-même : il émet la requête (`queryChange`)
+ * et son parent décide quoi afficher, avec la même fonction {@link searchItems}.
+ */
 @Component({
   selector: 'app-search-bar',
   standalone: true,
@@ -23,58 +24,28 @@ export interface SearchableItem {
 })
 export class SearchBarComponent implements OnDestroy {
   items = input.required<SearchableItem[]>();
-  placeholder = input('Rechercher…');
-  matchedIds = output<Set<string>>();
+  queryChange = output<string>();
 
   query = signal('');
   private debounceTimer?: ReturnType<typeof setTimeout>;
 
-  ngOnDestroy() {
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-    }
-  }
-
-  results = computed<SearchableItem[]>(() => {
-    const q = this.normalize(this.query());
-    if (!q) return [];
-    const searchTerms = q.split(/\s+/).filter((term) => term.length > 0);
-
-    return this.items().filter((item) => {
-      const haystack = this.normalize(
-        [item.label, item.subtitle, item.tag, ...item.keywords].filter(Boolean).join(' ')
-      );
-
-      return searchTerms.some((term) => haystack.includes(term));
-    });
-  });
-
+  results = computed<SearchableItem[]>(() => searchItems(this.items(), this.query()));
   hasQuery = computed(() => this.query().trim().length > 0);
 
-  constructor() {
-    effect(() => {
-      const matchedIds = new Set(this.results().map((item) => item.id));
-      this.matchedIds.emit(matchedIds);
-    });
+  ngOnDestroy(): void {
+    clearTimeout(this.debounceTimer);
   }
 
   onInput(event: Event): void {
-    const value = (event as CustomEvent).detail.value ?? '';
+    const value = (event as CustomEvent<{ value?: string | null }>).detail.value ?? '';
 
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-    }
-
-    this.debounceTimer = setTimeout(() => {
-      this.query.set(value);
-    }, 500);
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => this.setQuery(value), SEARCH_DEBOUNCE_MS);
   }
 
   clear(): void {
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-    }
-    this.query.set('');
+    clearTimeout(this.debounceTimer);
+    this.setQuery('');
   }
 
   allResultTags(): string {
@@ -88,11 +59,8 @@ export class SearchBarComponent implements OnDestroy {
     return this.results().reduce((total, item) => total + (item.placementCount || 1), 0);
   }
 
-  private normalize(str: string): string {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
+  private setQuery(value: string): void {
+    this.query.set(value);
+    this.queryChange.emit(value);
   }
 }

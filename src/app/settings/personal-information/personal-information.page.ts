@@ -1,73 +1,49 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, IonicModule } from '@ionic/angular';
-
-import { AuthService } from '../../core/services/auth.service';
-import { WINE_TYPE_CONFIG, WineTypeConfig } from '../../core/types/WineType';
-import { ToastService } from 'src/app/core/services/toast.service';
-import { InputComponent } from "src/app/components/input/input.component";
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { User } from 'src/app/core/models/user.model';
-import { CustomModalComponent } from "src/app/components/custom-modal/custom-modal.component";
 
-type EditableField = 'firstName' | 'lastName' | 'email';
+import { CustomModalComponent } from '../../components/custom-modal/custom-modal.component';
+import { InputComponent } from '../../components/input/input.component';
+import { User } from '../../core/models/user.model';
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { WINE_TYPE_CONFIG, WineTypeConfig } from '../../core/types/WineType';
+import { errorCodeOf, toErrorKey } from '../../core/utils/error.util';
+import { ERRORS_CODES } from '../../core/types/ErrorsCode';
 
 @Component({
   selector: 'app-personal-information',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    IonicModule,
-    TranslocoModule,
-    InputComponent,
-    CustomModalComponent
-],
+  imports: [ReactiveFormsModule, CommonModule, IonicModule, TranslocoModule, InputComponent, CustomModalComponent],
   templateUrl: './personal-information.page.html',
   styleUrls: ['./personal-information.page.scss'],
 })
-export class PersonalInformationPage implements OnInit {
-  readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
-  private readonly EDITABLE_FIELDS: EditableField[] = ['firstName', 'lastName', 'email'];
+export class PersonalInformationPage {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  private readonly alertCtrl = inject(AlertController);
+  private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
-  form!: FormGroup;
-  passwordForm!: FormGroup;
+  readonly form = new FormGroup({
+    firstName: new FormControl({ value: this.user?.firstName ?? '', disabled: true }, { nonNullable: true, validators: [Validators.required] }),
+    lastName: new FormControl({ value: this.user?.lastName ?? '', disabled: true }, { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl({ value: this.user?.email ?? '', disabled: true }, { nonNullable: true, validators: [Validators.required, Validators.email] }),
+  });
 
-  isPasswordModalOpen: boolean = false;
+  readonly passwordForm = new FormGroup({
+    oldPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    newPassword: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+    confirmPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
 
-  showOldPassword: boolean = false;
-  showNewPassword: boolean = false;
-  showConfirmPassword: boolean = false;
-  
-  emailChanged: boolean = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private location: Location,
-    private alertCtrl: AlertController,
-    private toastService: ToastService,
-    private translocoService: TranslocoService,
-  ) {}
-
-  ngOnInit(): void {
-    const user = this.user;
-
-    this.form = this.fb.group({
-      firstName: [{ value: user?.firstName ?? '', disabled: true }, Validators.required],
-      lastName: [{ value: user?.lastName ?? '', disabled: true }, Validators.required],
-      email: [{ value: user?.email ?? '', disabled: true }, [Validators.required, Validators.email]],
-    });
-
-    this.passwordForm = this.fb.group({
-      oldPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-    });
-  }
+  isPasswordModalOpen = false;
+  emailChanged = false;
+  saving = false;
 
   get user(): User | null {
     return this.auth.currentUser;
@@ -89,7 +65,7 @@ export class PersonalInformationPage implements OnInit {
 
   get favoriteWineConfig(): WineTypeConfig | null {
     const type = this.user?.favoriteWineType;
-    return type ? this.WINE_TYPE_CONFIG[type] : null;
+    return type ? (WINE_TYPE_CONFIG[type] ?? null) : null;
   }
 
   goBack(): void {
@@ -97,47 +73,40 @@ export class PersonalInformationPage implements OnInit {
   }
 
   goToFavoriteWine(): void {
-    this.router.navigate(['/settings/favorite-wine'], {
-      state: { favoriteWine: this.auth.currentUser?.favoriteWineType }
-    });
+    void this.router.navigate(['/settings/favorite-wine']);
   }
 
-  save(): void {
+  async save(): Promise<void> {
+    if (this.saving) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     const { firstName, lastName, email } = this.form.getRawValue();
-    const emailChanged = email !== this.user?.email;
+    const data = { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim() };
 
-    if (emailChanged && !this.isGoogleUser) {
-      this.promptPasswordThenSave(firstName, lastName, email);
+    if (data.email !== this.user?.email && !this.isGoogleUser) {
+      await this.promptPasswordThenSave(data);
       return;
     }
 
-    this.persistPersonalInfo(firstName, lastName, email);
+    await this.persistPersonalInfo(data);
   }
 
-  private async promptPasswordThenSave(firstName: string, lastName: string, email: string): Promise<void> {
+  private async promptPasswordThenSave(data: { firstName: string; lastName: string; email: string }): Promise<void> {
+    const t = (key: string) => this.transloco.translate(`SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.${key}`);
     const alert = await this.alertCtrl.create({
-      header: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.HEADER'),
-      message: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.MESSAGE'),
-      inputs: [
-        { 
-          name: 'password', 
-          type: 'password', 
-          placeholder: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.PASSWORD_PLACEHOLDER') 
-        }
-      ],
+      header: t('HEADER'),
+      message: t('MESSAGE'),
+      inputs: [{ name: 'password', type: 'password', placeholder: t('PASSWORD_PLACEHOLDER') }],
       buttons: [
-        { 
-          text: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.CANCEL'), 
-          role: 'cancel' 
-        },
+        { text: t('CANCEL'), role: 'cancel' },
         {
-          text: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGE_CONFIRM.CONFIRM'),
-          handler: (data: { password?: string }) => this.persistPersonalInfo(firstName, lastName, email, data?.password),
+          text: t('CONFIRM'),
+          handler: (value: { password?: string }) => {
+            void this.persistPersonalInfo(data, value?.password);
+          },
         },
       ],
       mode: 'ios',
@@ -145,22 +114,27 @@ export class PersonalInformationPage implements OnInit {
     await alert.present();
   }
 
-  private persistPersonalInfo(firstName: string, lastName: string, email: string, password?: string): void {
-    const emailChanged = email !== this.user?.email;
+  private async persistPersonalInfo(data: { firstName: string; lastName: string; email: string }, password?: string): Promise<void> {
+    const emailChanged = data.email !== this.user?.email;
 
-    this.auth.updatePersonalInfo({ firstName, lastName, email }, password)
-      .then(() => {
-        if (emailChanged) {
-          this.emailChanged = true;
-          this.toastService.info(this.translocoService.translate('SETTINGS.INFO_PERSONAL.EMAIL_CONFIRMATION_SENT'))
-        } else {
-          this.toastService.success(this.translocoService.translate('SETTINGS.INFO_PERSONAL.UPDATE_SUCCESS'));
-          this.goBack();
-        }
-      })
-      .catch((error) => {
-        this.toastService.error(this.translocoService.translate('SETTINGS.INFO_PERSONAL.UPDATE_ERROR', { error: this.translocoService.translate(error.message) }));
-      });
+    this.saving = true;
+    try {
+      await this.auth.updatePersonalInfo(data, password);
+
+      if (emailChanged) {
+        this.emailChanged = true;
+        void this.toastService.info(this.transloco.translate('SETTINGS.INFO_PERSONAL.EMAIL_CONFIRMATION_SENT'));
+      } else {
+        void this.toastService.success(this.transloco.translate('SETTINGS.INFO_PERSONAL.UPDATE_SUCCESS'));
+        this.goBack();
+      }
+    } catch (error) {
+      void this.toastService.error(
+        this.transloco.translate('SETTINGS.INFO_PERSONAL.UPDATE_ERROR', { error: this.transloco.translate(toErrorKey(error)) }),
+      );
+    } finally {
+      this.saving = false;
+    }
   }
 
   openPasswordModal(): void {
@@ -173,56 +147,50 @@ export class PersonalInformationPage implements OnInit {
     this.isPasswordModalOpen = false;
   }
 
-  submitPasswordChange(): void {
+  async submitPasswordChange(): Promise<void> {
     if (this.passwordForm.invalid) {
       this.passwordForm.markAllAsTouched();
       return;
     }
 
-    const { oldPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
+    const { oldPassword, newPassword, confirmPassword } = this.passwordForm.getRawValue();
     if (newPassword !== confirmPassword) {
-      this.toastService.warning(this.translocoService.translate('SETTINGS.CHANGE_PASSWORD.MISMATCH'));
+      void this.toastService.warning(this.transloco.translate('SETTINGS.CHANGE_PASSWORD.MISMATCH'));
       return;
     }
 
-    this.auth.updatePassword(oldPassword, newPassword)
-      .then(() => {
-        this.closePasswordModal();
-        this.toastService.success(this.translocoService.translate('SETTINGS.CHANGE_PASSWORD.SUCCESS'));
-      })
-      .catch((err: { message?: string }) => {
-        this.toastService.error(this.translocoService.translate(err.message || 'SETTINGS.CHANGE_PASSWORD.ERROR'));
-      });
+    try {
+      await this.auth.updatePassword(oldPassword, newPassword);
+      this.closePasswordModal();
+      void this.toastService.success(this.transloco.translate('SETTINGS.CHANGE_PASSWORD.SUCCESS'));
+    } catch (error) {
+      void this.toastService.error(this.transloco.translate(toErrorKey(error, 'SETTINGS.CHANGE_PASSWORD.ERROR')));
+    }
   }
 
-  logout(): void {
-    this.auth.logout();
+  async logout(): Promise<void> {
+    try {
+      await this.auth.logout();
+    } catch (error) {
+      void this.toastService.error(this.transloco.translate(toErrorKey(error)));
+    }
   }
 
   async confirmDeleteAccount(): Promise<void> {
-    const isGoogle = this.isGoogleUser;
-
+    const t = (key: string) => this.transloco.translate(`SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.${key}`);
     const alert = await this.alertCtrl.create({
       cssClass: 'delete-alert',
-      header: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.CONFIRM_HEADER'),
-      message: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.CONFIRM_MESSAGE'),
-      inputs: isGoogle ? [] : [
-        { 
-          name: 'password', 
-          type: 'password', 
-          placeholder: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.PASSWORD_PLACEHOLDER') 
-        }
-      ],
+      header: t('CONFIRM_HEADER'),
+      message: t('CONFIRM_MESSAGE'),
+      inputs: this.isGoogleUser ? [] : [{ name: 'password', type: 'password', placeholder: t('PASSWORD_PLACEHOLDER') }],
       buttons: [
-        { 
-          text: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.CANCEL'), 
-          role: 'cancel' 
-        },
+        { text: t('CANCEL'), role: 'cancel' },
         {
-          text: this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.CONFIRM'),
+          text: t('CONFIRM'),
           role: 'destructive',
-          handler: (data: { password?: string }) => this.deleteAccount(data?.password),
+          handler: (value: { password?: string }) => {
+            void this.deleteAccount(value?.password);
+          },
         },
       ],
       mode: 'ios',
@@ -230,9 +198,15 @@ export class PersonalInformationPage implements OnInit {
     await alert.present();
   }
 
-  private deleteAccount(password?: string): void {
-    this.auth.deleteAccount(password)
-      .then(() => this.router.navigate(['/auth']))
-      .catch(() => this.toastService.error(this.translocoService.translate('SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.ERROR')));
+  private async deleteAccount(password?: string): Promise<void> {
+    try {
+      await this.auth.deleteAccount(password);
+      await this.router.navigateByUrl('/auth');
+    } catch (error) {
+      const key = errorCodeOf(error) === ERRORS_CODES.auth.requiresRecentLogin
+        ? 'AUTH.REQUIRES_RECENT_LOGIN'
+        : 'SETTINGS.ACCOUNT_PAGE.DELETE_ACCOUNT.ERROR';
+      void this.toastService.error(this.transloco.translate(key));
+    }
   }
 }

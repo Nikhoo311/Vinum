@@ -1,212 +1,229 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
-  Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  signInWithCredential, GoogleAuthProvider, signOut, onAuthStateChanged,
-  User as FirebaseUser, sendPasswordResetEmail,
-  EmailAuthProvider, reauthenticateWithCredential,
-  updatePassword as fbUpdatePassword, verifyBeforeUpdateEmail,
-  deleteUser
+  Auth,
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  User as FirebaseUser,
+  createUserWithEmailAndPassword,
+  deleteUser,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword as firebaseUpdatePassword,
+  verifyBeforeUpdateEmail,
 } from '@angular/fire/auth';
 import { browserLocalPersistence, setPersistence } from 'firebase/auth';
+import {
+  DocumentReference,
+  Firestore,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocFromCache,
+  getDocs,
+  setDoc,
+  updateDoc,
+  writeBatch,
+} from '@angular/fire/firestore';
 import { BehaviorSubject, filter, firstValueFrom, take } from 'rxjs';
-import { CaveView, User } from '../models/user.model';
-import { ERRORS_CODES } from '../types/ErrorsCode';
-import { doc, Firestore, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch } from '@angular/fire/firestore';
-import { WineType } from '../types/WineType';
 
+import { CaveConfig, CaveView, EMPTY_CAVE_CONFIG, User } from '../models/user.model';
+import { WineType } from '../types/WineType';
+import { AppError, ERROR_KEYS } from '../utils/error.util';
+import { hasCompletedSetup, normalizeUser } from '../utils/user.util';
+import { omitUndefined } from '../utils/wine.util';
+
+/** Taille maximale d'un lot d'écritures Firestore. */
+const FIRESTORE_BATCH_LIMIT = 500;
+
+/**
+ * Authentification (Firebase Auth) et profil utilisateur (Firestore `users/{uid}`).
+ *
+ * Les méthodes ne traduisent pas les erreurs : elles lèvent l'erreur d'origine ou une
+ * {@link AppError}. C'est à l'interface de la convertir avec `toErrorKey`.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  private authReadySubject = new BehaviorSubject(false);
+  private readonly auth = inject(Auth);
+  private readonly firestore = inject(Firestore);
+  private readonly router = inject(Router);
 
-  constructor(private auth: Auth, private router: Router, private firestore: Firestore) {
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
+  private readonly readySubject = new BehaviorSubject<boolean>(false);
+
+  /** Utilisateur courant (`null` si déconnecté ou profil indisponible). */
+  readonly currentUser$ = this.userSubject.asObservable();
+
+  constructor() {
     void this.initializeAuthState();
   }
- 
+
   get currentUser(): User | null {
-    return this.currentUserSubject.value;
+    return this.userSubject.value;
   }
 
-  get currentUser$() {
-    return this.currentUserSubject.asObservable();
-  }
-
+  /** Attend la première résolution de l'état d'authentification (session restaurée ou non). */
   async waitUntilReady(): Promise<User | null> {
-    if (!this.authReadySubject.value) {
-      await firstValueFrom(this.authReadySubject.pipe(filter(Boolean), take(1)));
+    if (!this.readySubject.value) {
+      await firstValueFrom(this.readySubject.pipe(filter(Boolean), take(1)));
     }
-
     return this.currentUser;
   }
- 
+
   // ── Authentification ──────────────────────────────────────
- 
-  register(email: string, password: string): Promise<User> {
-    return createUserWithEmailAndPassword(this.auth, email, password)
-      .then(({ user }) => {
-        const mappedUser = this.mapFirebaseUser(user);
-        this.currentUserSubject.next(mappedUser);
-        this.router.navigate(['/preference']);
-        return mappedUser;
-      })
-      .catch((error) => this.handleAuthError(error));
+
+  async register(email: string, password: string): Promise<User> {
+    const { user } = await createUserWithEmailAndPassword(this.auth, email, password);
+    const mappedUser = this.mapFirebaseUser(user);
+    this.userSubject.next(mappedUser);
+    await this.router.navigateByUrl('/preference', { replaceUrl: true });
+    return mappedUser;
   }
- 
-  login(email: string, password: string): Promise<void> {
-    return signInWithEmailAndPassword(this.auth, email, password)
-      .then(({ user }) => this.handleAuthSuccess(user))
-      .catch((error) => this.handleAuthError(error));
+
+  async login(email: string, password: string): Promise<void> {
+    const { user } = await signInWithEmailAndPassword(this.auth, email, password);
+    await this.handleAuthSuccess(user);
   }
- 
-  loginWithGoogle(): Promise<void> {
-    return FirebaseAuthentication.signInWithGoogle()
-      .then((result) => {
-        const credential = GoogleAuthProvider.credential(result.credential?.idToken);
-        return signInWithCredential(this.auth, credential);
-      })
-      .then(({ user }) => this.handleAuthSuccess(user))
-      .catch((error) => this.handleAuthError(error));
+
+  async loginWithGoogle(): Promise<void> {
+    const result = await FirebaseAuthentication.signInWithGoogle();
+    const idToken = result.credential?.idToken;
+    if (!idToken) throw new AppError('AUTH.GOOGLE_ERROR');
+
+    const credential = GoogleAuthProvider.credential(idToken);
+    const { user } = await signInWithCredential(this.auth, credential);
+    await this.handleAuthSuccess(user);
   }
- 
-  logout(): Promise<void> {
-    return signOut(this.auth)
-      .then(() => FirebaseAuthentication.signOut())
-      .then(() => {
-        this.currentUserSubject.next(null);
-        this.router.navigate(['/auth']);
-      })
-      .catch((error) => this.handleAuthError(error));
+
+  async logout(): Promise<void> {
+    await signOut(this.auth);
+    await this.signOutNative();
+    this.userSubject.next(null);
+    await this.router.navigateByUrl('/auth', { replaceUrl: true });
   }
- 
+
   sendPasswordResetEmail(email: string): Promise<void> {
-    return sendPasswordResetEmail(this.auth, email)
-      .catch((error) => this.handleAuthError(error));
+    return sendPasswordResetEmail(this.auth, email);
   }
- 
-  saveUserPreferences(user: User): Promise<void> {
-    const userRef = doc(this.firestore, `users/${user.id}`);
-    return setDoc(userRef, { ...user, createdAt: user.createdAt.toISOString() }, { merge: true })
-      .then(() => {
-        this.currentUserSubject.next(user);
-      })
-      .catch((error) => this.handleAuthError(error));
+
+  // ── Profil ────────────────────────────────────────────────
+
+  /** Enregistre (ou complète) le profil complet, typiquement à la fin de l'onboarding. */
+  async saveUserPreferences(user: User): Promise<void> {
+    const userRef = doc(this.firestore, 'users', user.id);
+    await setDoc(userRef, omitUndefined({ ...user }), { merge: true });
+    this.userSubject.next(user);
   }
- 
+
+  /** Met à jour l'utilisateur en mémoire uniquement (après une écriture déjà faite ailleurs). */
+  patchLocalUser(patch: Partial<Omit<User, 'id'>>): void {
+    const user = this.currentUser;
+    if (user) this.userSubject.next({ ...user, ...patch });
+  }
+
   async updatePersonalInfo(
     data: { firstName: string; lastName: string; email: string },
     currentPassword?: string
   ): Promise<void> {
-    const user = this.currentUser;
-    const firebaseUser = this.auth.currentUser;
-    if (!user || !user.id || !firebaseUser) {
-      throw new Error('Utilisateur non connecté.');
-    }
- 
-    const emailChanged = data.email !== user.email;
- 
-    if (emailChanged) {
+    const { user, firebaseUser } = this.requireSession();
+
+    if (data.email !== user.email) {
       if (!currentPassword || !firebaseUser.email) {
-        throw new Error("SETTINGS.INFO_PERSONAL.REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR");
+        throw new AppError('SETTINGS.INFO_PERSONAL.REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR');
       }
       const credential = EmailAuthProvider.credential(firebaseUser.email, currentPassword);
-      await reauthenticateWithCredential(firebaseUser, credential)
-        .then(() => verifyBeforeUpdateEmail(firebaseUser, data.email))
-        .catch((error) => this.handleAuthError(error));
+      await reauthenticateWithCredential(firebaseUser, credential);
+      await verifyBeforeUpdateEmail(firebaseUser, data.email);
     }
- 
-    const userRef = doc(this.firestore, 'users', user.id);
-    await updateDoc(userRef, { firstName: data.firstName, lastName: data.lastName })
-      .catch((error) => this.handleAuthError(error));
 
-    this.currentUserSubject.next({ ...user, firstName: data.firstName, lastName: data.lastName });
+    const userRef = doc(this.firestore, 'users', user.id);
+    await updateDoc(userRef, { firstName: data.firstName, lastName: data.lastName });
+    this.patchLocalUser({ firstName: data.firstName, lastName: data.lastName });
   }
- 
-  updatePassword(oldPassword: string, newPassword: string): Promise<void> {
-    const firebaseUser = this.auth.currentUser;
-    if (!firebaseUser || !firebaseUser.email) {
-      return Promise.reject(new Error('Utilisateur non connecté.'));
+
+  async updatePassword(oldPassword: string, newPassword: string): Promise<void> {
+    const { user, firebaseUser } = this.requireSession();
+    if (user.provider === 'google' || !firebaseUser.email) {
+      throw new AppError('SETTINGS.CHANGE_PASSWORD.ERROR');
     }
- 
+
     const credential = EmailAuthProvider.credential(firebaseUser.email, oldPassword);
- 
-    return reauthenticateWithCredential(firebaseUser, credential)
-      .then(() => fbUpdatePassword(firebaseUser, newPassword))
-      .catch((error) => this.handleAuthError(error));
-  }
- 
-  updateFavoriteWine(selectedType: WineType): Promise<void> {
-    const user = this.currentUser;
-    if (!user || !user.id) {
-      return Promise.reject(new Error('Utilisateur non connecté.'));
-    }
- 
-    const userRef = doc(this.firestore, 'users', user.id);
-    return updateDoc(userRef, { favoriteWineType: selectedType })
-      .then(() => {
-        this.currentUserSubject.next({ ...user, favoriteWineType: selectedType });
-      })
-      .catch((error) => this.handleAuthError(error));
+    await reauthenticateWithCredential(firebaseUser, credential);
+    await firebaseUpdatePassword(firebaseUser, newPassword);
   }
 
-  updateCaveConfig(config: { rows?: number; cols?: number; viewMode?: CaveView }): Promise<void> {
-    const user = this.currentUser;
-    if (!user || !user.id) {
-      return Promise.reject(new Error('Utilisateur non connecté.'));
-    }
-
+  async updateFavoriteWine(selectedType: WineType): Promise<void> {
+    const { user } = this.requireSession();
     const userRef = doc(this.firestore, 'users', user.id);
-    return updateDoc(userRef, { caveConfig: { ...user.caveConfig, ...config } })
-      .then(() => {
-        this.currentUserSubject.next({
-          ...user,
-          caveConfig: { ...user.caveConfig, ...config },
-        });
-      })
-      .catch((error) => this.handleAuthError(error));
+    await updateDoc(userRef, { favoriteWineType: selectedType });
+    this.patchLocalUser({ favoriteWineType: selectedType });
   }
- 
+
+  async updateCaveConfig(config: { rows?: number; cols?: number; viewMode?: CaveView }): Promise<void> {
+    const { user } = this.requireSession();
+    const caveConfig: CaveConfig = { ...user.caveConfig, ...omitUndefined(config) };
+    const userRef = doc(this.firestore, 'users', user.id);
+    await updateDoc(userRef, { caveConfig });
+    this.patchLocalUser({ caveConfig });
+  }
+
+  /**
+   * Supprime définitivement le compte : ré-authentification, suppression des vins, du profil
+   * puis du compte Firebase Auth.
+   * @param password Mot de passe actuel (comptes e-mail uniquement).
+   */
   async deleteAccount(password?: string): Promise<void> {
-    const user = this.currentUser;
-    const firebaseUser = this.auth.currentUser;
-    if (!user || !user.id || !firebaseUser) {
-      throw new Error('Utilisateur non connecté.');
-    }
- 
+    const { user, firebaseUser } = this.requireSession();
+
     if (user.provider === 'google') {
       const result = await FirebaseAuthentication.signInWithGoogle();
-      const credential = GoogleAuthProvider.credential(result.credential?.idToken);
-      await reauthenticateWithCredential(firebaseUser, credential)
-        .catch((error) => this.handleAuthError(error));
+      const idToken = result.credential?.idToken;
+      if (!idToken) throw new AppError('AUTH.GOOGLE_ERROR');
+      await reauthenticateWithCredential(firebaseUser, GoogleAuthProvider.credential(idToken));
     } else {
-      if (!password) throw new Error('SETTINGS.INFO_PERSONAL.REQUIRED_PASSWORD_DELETE_ERROR');
-      const credential = EmailAuthProvider.credential(firebaseUser.email!, password);
-      await reauthenticateWithCredential(firebaseUser, credential)
-        .catch((error) => this.handleAuthError(error));
+      if (!password || !firebaseUser.email) {
+        throw new AppError('SETTINGS.INFO_PERSONAL.REQUIRED_PASSWORD_DELETE_ERROR');
+      }
+      await reauthenticateWithCredential(firebaseUser, EmailAuthProvider.credential(firebaseUser.email, password));
     }
- 
-    await this.deleteWineSubcollection(user.id).catch((error) => this.handleAuthError(error));
-    await deleteDoc(doc(this.firestore, 'users', user.id)).catch((error) => this.handleAuthError(error));
-    await deleteUser(firebaseUser).catch((error) => this.handleAuthError(error));
- 
-    this.currentUserSubject.next(null);
+
+    await this.deleteWineSubcollection(user.id);
+    await deleteDoc(doc(this.firestore, 'users', user.id));
+    await deleteUser(firebaseUser);
+    await this.signOutNative();
+
+    this.userSubject.next(null);
   }
- 
-  // ── Internes ───────────────────────────────────────────────
+
+  // ── Internes ──────────────────────────────────────────────
+
+  private requireSession(): { user: User; firebaseUser: FirebaseUser } {
+    const user = this.currentUser;
+    const firebaseUser = this.auth.currentUser;
+    if (!user || !firebaseUser) throw new AppError(ERROR_KEYS.notAuthenticated);
+    return { user, firebaseUser };
+  }
+
+  private async signOutNative(): Promise<void> {
+    try {
+      await FirebaseAuthentication.signOut();
+    } catch {
+      // Aucune session native à fermer (connexion par e-mail, navigateur…) : sans conséquence.
+    }
+  }
 
   private async deleteWineSubcollection(userId: string): Promise<void> {
-    const wineRef = collection(this.firestore, `users/${userId}/wine`);
-    const snapshot = await getDocs(wineRef);
+    const snapshot = await getDocs(collection(this.firestore, 'users', userId, 'wine'));
 
-    if (snapshot.empty) return;
-    const batchSize = 500;
-    const docs = snapshot.docs;
-
-    for (let i = 0; i < docs.length; i += batchSize) {
+    for (let start = 0; start < snapshot.docs.length; start += FIRESTORE_BATCH_LIMIT) {
       const batch = writeBatch(this.firestore);
-      const chunk = docs.slice(i, i + batchSize);
-      chunk.forEach((d) => batch.delete(d.ref));
+      snapshot.docs.slice(start, start + FIRESTORE_BATCH_LIMIT).forEach((entry) => batch.delete(entry.ref));
       await batch.commit();
     }
   }
@@ -218,64 +235,77 @@ export class AuthService {
       console.warn('Impossible de configurer la persistance locale Firebase.', error);
     }
 
-    onAuthStateChanged(this.auth, async (firebaseUser) => {
-      try {
-        if (firebaseUser) {
-          await this.syncUserFromFirestore(firebaseUser);
-        } else {
-          this.currentUserSubject.next(null);
-        }
-      } catch (error) {
-        console.error('Erreur de synchronisation utilisateur :', error);
-        this.currentUserSubject.next(null);
-      } finally {
-        this.authReadySubject.next(true);
-      }
-    });
+    onAuthStateChanged(this.auth, (firebaseUser) => void this.onAuthStateChange(firebaseUser));
   }
- 
-  private handleAuthSuccess(firebaseUser: FirebaseUser): Promise<void> {
-    return this.syncUserFromFirestore(firebaseUser).then((user) => {
-      const isSetupDone = user.caveConfig?.rows > 0;
-      this.router.navigate([!isSetupDone ? '/preference' : '/home']);
-    });
+
+  private async onAuthStateChange(firebaseUser: FirebaseUser | null): Promise<void> {
+    try {
+      if (firebaseUser) {
+        await this.syncUserFromFirestore(firebaseUser);
+      } else {
+        this.userSubject.next(null);
+      }
+    } catch (error) {
+      console.error('Erreur de synchronisation du profil utilisateur :', error);
+      this.userSubject.next(null);
+    } finally {
+      this.readySubject.next(true);
+    }
+  }
+
+  private async handleAuthSuccess(firebaseUser: FirebaseUser): Promise<void> {
+    const user = await this.syncUserFromFirestore(firebaseUser);
+    await this.router.navigateByUrl(hasCompletedSetup(user) ? '/home' : '/preference', { replaceUrl: true });
+  }
+
+  /** Lit le profil Firestore ; hors ligne, retombe sur le cache local s'il existe. */
+  private async readUserDoc(userRef: DocumentReference) {
+    try {
+      return await getDoc(userRef);
+    } catch (error) {
+      try {
+        return await getDocFromCache(userRef);
+      } catch {
+        throw error;
+      }
+    }
   }
 
   private async syncUserFromFirestore(firebaseUser: FirebaseUser): Promise<User> {
-    await firebaseUser.reload();
-    const freshEmail = this.auth.currentUser?.email ?? firebaseUser.email;
- 
-    const userRef = doc(this.firestore, `users/${firebaseUser.uid}`);
-    const snap = await getDoc(userRef);
-    let user = snap.exists() ? (snap.data() as User) : this.mapFirebaseUser(firebaseUser);
- 
-    if (freshEmail && user.email !== freshEmail) {
-      user = { ...user, email: freshEmail };
-      await updateDoc(userRef, { email: freshEmail });
+    try {
+      await firebaseUser.reload();
+    } catch {
+      // Hors ligne : on continue avec les informations déjà connues du compte.
     }
- 
-    this.currentUserSubject.next(user);
+
+    const base = this.mapFirebaseUser(this.auth.currentUser ?? firebaseUser);
+    const userRef = doc(this.firestore, 'users', firebaseUser.uid);
+    const snapshot = await this.readUserDoc(userRef);
+
+    let user = snapshot.exists() ? normalizeUser(snapshot.data(), base) : base;
+
+    // L'adresse du compte Auth fait foi (elle change après validation d'un nouvel e-mail).
+    if (snapshot.exists() && base.email && user.email !== base.email) {
+      user = { ...user, email: base.email };
+      void updateDoc(userRef, { email: base.email }).catch(() => undefined);
+    }
+
+    this.userSubject.next(user);
     return user;
   }
- 
+
   private mapFirebaseUser(firebaseUser: FirebaseUser): User {
+    const created = new Date(firebaseUser.metadata.creationTime ?? Date.now());
+
     return {
       id: firebaseUser.uid,
       email: firebaseUser.email ?? '',
       firstName: '',
       lastName: '',
       favoriteWineType: null,
-      provider: firebaseUser.providerData.some(p => p.providerId === 'google.com') ? 'google' : 'password',
-      createdAt: new Date(firebaseUser.metadata.creationTime || Date.now()),
-      caveConfig: { rows: 0, cols: 0, viewMode: 'grid' },
+      provider: firebaseUser.providerData.some((p) => p.providerId === 'google.com') ? 'google' : 'password',
+      createdAt: (Number.isNaN(created.getTime()) ? new Date() : created).toISOString(),
+      caveConfig: { ...EMPTY_CAVE_CONFIG },
     };
-  }
-
-  private handleAuthError(error: any): never {
-    if (error.code === ERRORS_CODES.auth.userNotFound) throw new Error('AUTH.NO_ACCOUNT');
-    if (error.code === ERRORS_CODES.auth.tooManyRequests) throw new Error('AUTH.TOO_MANY_ATTEMPTS');
-    if (error.code === ERRORS_CODES.auth.invalidCredential) throw new Error('AUTH.INVALID_CREDENTIAL');
-    if (error.code === ERRORS_CODES.auth.emailAlreadyInUse) throw new Error('AUTH.RULES.EMAIL_ALREADY_TAKEN');
-    throw error;
   }
 }

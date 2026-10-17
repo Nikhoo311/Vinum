@@ -1,7 +1,7 @@
 <ion-content class="auth-page">
   <div class="app-header">
     <div class="app-header__content">
-      <img class="app-header__logo" src="../../assets/bottle_dark_red.svg" alt="Bottle" />
+      <img class="app-header__logo" src="assets/bottle_dark_red.svg" alt="" aria-hidden="true" />
       <p id="app-header__title">{{ 'APP_TITLE' | transloco }}</p>
       <p id="app-header__slogan">{{ 'APP_SLOGAN' | transloco }}</p>
     </div>
@@ -27,9 +27,7 @@
     </ion-card-header>
 
     <ion-card-content>
-      <ng-container [ngSwitch]="mode">
-        <app-utils [mode]="mode"></app-utils>
-      </ng-container>
+      <app-utils [mode]="mode"></app-utils>
 
       <div class="divider">
         <div class="divider-line"></div>
@@ -41,8 +39,9 @@
         expand="block"
         fill="outline"
         class="google-btn"
+        [disabled]="loading"
         (click)="loginWithGoogle()">
-        <img class="slot-start-icon" slot="start" src="assets/google_logo.svg" alt="Google logo" width="20px" height="20px"/>
+        <img class="slot-start-icon" slot="start" src="assets/google_logo.svg" alt="" aria-hidden="true" width="20px" height="20px"/>
         {{ mode === AuthTypeEnum.LOGIN ? ('AUTH.GOOGLE_LOGIN' | transloco) : ('AUTH.GOOGLE_REGISTER' | transloco) }}
       </ion-button>
 

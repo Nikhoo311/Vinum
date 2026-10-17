@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, map } from 'rxjs';
-import { PreferencesService } from 'src/app/core/services/preferences.service';
-import { WINE_TYPE_CONFIG, WineType } from 'src/app/core/types/WineType';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
+import { WINE_TYPE_CONFIG, WineType } from '../../core/types/WineType';
+
+/** Case de la grille de la cave : vide (bouton « + ») ou occupée par une bouteille. */
 @Component({
   selector: 'app-cellar-cell',
   standalone: true,
@@ -14,22 +14,12 @@ import { WINE_TYPE_CONFIG, WineType } from 'src/app/core/types/WineType';
 })
 export class CellarCellComponent {
   @Input({ required: true }) positionLabel!: string;
-
   @Input() wineType: WineType | null = null;
-
   @Input() wineName: string | null = null;
-
   @Input() wineVintage: number | null = null;
-
   @Output() cellTap = new EventEmitter<void>();
 
-  isDarkMode$!: Observable<boolean>;
-
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
-
-  constructor(private prefs: PreferencesService) {
-    this.isDarkMode$ = this.prefs.preferences$.pipe(map((p) => p.darkMode === 'dark'));
-  }
 
   get isEmpty(): boolean {
     return this.wineType === null;

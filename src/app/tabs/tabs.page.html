@@ -10,10 +10,12 @@
       <ion-label>{{ 'TABS.CAVE' | transloco }}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="catalogue">
-      <ion-icon name="library-outline"></ion-icon>
-      <ion-label>{{ 'TABS.STATS' | transloco }}</ion-label>
-    </ion-tab-button>
+    @if (features.catalogue) {
+      <ion-tab-button tab="catalogue">
+        <ion-icon name="library-outline"></ion-icon>
+        <ion-label>{{ 'TABS.CATALOGUE' | transloco }}</ion-label>
+      </ion-tab-button>
+    }
 
     <ion-tab-button tab="settings">
       <ion-icon name="settings-outline"></ion-icon>

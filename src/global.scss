@@ -36,18 +36,20 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 
 // @import './theme/bubbles.scss';
 
 :root {
+  /* Police unique de l'application (Ionic lit cette variable pour tous ses composants). */
+  --ion-font-family: 'Quicksand', sans-serif;
   --mc-rating-star: #f4c542;
 }
 
 html,
 body,
 ion-app {
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: var(--ion-font-family);
   background: var(--mc-bg-main);
   color: var(--mc-text-primary);
 }

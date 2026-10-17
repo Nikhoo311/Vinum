@@ -1,56 +1,64 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 
+/** Clé de traduction (et paramètres éventuels) associés à chaque type d'erreur de validation. */
+interface ErrorMessage {
+  key: string;
+  params?: Record<string, unknown>;
+}
+
+/** Affiche le premier message d'erreur d'un contrôle de formulaire, une fois touché ou modifié. */
 @Component({
-  selector: 'form-error',
+  selector: 'app-form-error',
   templateUrl: './form-error.component.html',
   styleUrls: ['./form-error.component.scss'],
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, IonicModule],
 })
-export class FormErrorComponent  implements OnInit {
+export class FormErrorComponent {
   @Input() control!: AbstractControl | null;
 
-  constructor(private transloco: TranslocoService) { }
-  
-  ngOnInit() {}
+  private readonly transloco = inject(TranslocoService);
 
   get errorMessage(): string | null {
-    if (!this.control || !this.control.errors || (!this.control.touched && !this.control.dirty)) return null;
+    const control = this.control;
+    if (!control?.errors || (!control.touched && !control.dirty)) return null;
 
-    const errorsMap: Record<string, string> = {
-      required: this.transloco.translate('AUTH.RULES.REQUIRED'),
-      email: this.transloco.translate('AUTH.RULES.EMAIL'),
-      minlength: this.transloco.translate('AUTH.RULES.PASSWORD'),
-      passwordMismatch: this.transloco.translate('AUTH.RULES.SAME_PASSWORD'),
-      emailAlreadyTaken: this.transloco.translate('AUTH.RULES.EMAIL_ALREADY_TAKEN'),
-    };
+    const [errorKey, errorValue] = Object.entries(control.errors)[0] as [string, Record<string, number> | true];
+    const detail = typeof errorValue === 'object' ? errorValue : {};
+    const message = this.messageFor(errorKey, detail);
 
-    const firstErrorKey = Object.keys(this.control.errors)[0];
-    const error = this.control.errors[firstErrorKey] as { min?: number; max?: number; requiredLength?: number };
+    return this.transloco.translate(message.key, message.params);
+  }
 
-    if (firstErrorKey === 'min') {
-      return this.transloco.translate('FORM_ERRORS.MIN', { min: error.min });
+  private messageFor(errorKey: string, detail: Record<string, number>): ErrorMessage {
+    switch (errorKey) {
+      case 'required':
+        return { key: 'AUTH.RULES.REQUIRED' };
+      case 'email':
+        return { key: 'AUTH.RULES.EMAIL' };
+      case 'minlength':
+        return { key: 'AUTH.RULES.PASSWORD' };
+      case 'passwordMismatch':
+        return { key: 'AUTH.RULES.SAME_PASSWORD' };
+      case 'emailAlreadyTaken':
+        return { key: 'AUTH.RULES.EMAIL_ALREADY_TAKEN' };
+      case 'min':
+        return { key: 'FORM_ERRORS.MIN', params: { min: detail['min'] } };
+      case 'max':
+        return { key: 'FORM_ERRORS.MAX', params: { max: detail['max'] } };
+      case 'maxlength':
+        return { key: 'FORM_ERRORS.MAX_LENGTH', params: { max: detail['requiredLength'] } };
+      case 'pattern':
+        return { key: 'FORM_ERRORS.YEAR' };
+      case 'peakMaturityYearBeforeVintage':
+        return { key: 'FORM_ERRORS.PEAK_MATURITY_YEAR' };
+      case 'halfStepRating':
+        return { key: 'FORM_ERRORS.HALF_STEP' };
+      default:
+        return { key: 'FORM_ERRORS.INVALID' };
     }
-
-    if (firstErrorKey === 'max') {
-      return this.transloco.translate('FORM_ERRORS.MAX', { max: error.max });
-    }
-
-    if (firstErrorKey === 'maxlength') {
-      return this.transloco.translate('FORM_ERRORS.MAX_LENGTH', { max: error.requiredLength });
-    }
-
-    if (firstErrorKey === 'pattern') {
-      return this.transloco.translate('FORM_ERRORS.YEAR');
-    }
-
-    if (firstErrorKey === 'peakMaturityYearBeforeVintage') {
-      return this.transloco.translate('FORM_ERRORS.PEAK_MATURITY_YEAR');
-    }
-
-    return errorsMap[firstErrorKey] || null;
   }
 }

@@ -1,26 +1,30 @@
-import {
-  provideTransloco,
-  TranslocoModule
-} from '@jsverse/transloco';
 import { NgModule } from '@angular/core';
-import { TranslocoHttpLoader } from './transloco-loader';
-import { environment } from '../environments/environment';
+import { provideTransloco, TranslocoModule } from '@jsverse/transloco';
 import { provideTranslocoMessageformat } from '@jsverse/transloco-messageformat';
 
+import { environment } from '../environments/environment';
+import { TranslocoHttpLoader } from './transloco-loader';
+
+/** Langues de l'application : chaque entrée doit avoir son fichier dans `assets/i18n`. */
+export const AVAILABLE_LANGS = ['fr', 'en', 'es', 'it'];
+export const DEFAULT_LANG = 'fr';
+
 @NgModule({
-  exports: [ TranslocoModule ],
+  exports: [TranslocoModule],
   providers: [
-      provideTransloco({
-        config: {
-          availableLangs: ['fr', 'en', 'it', 'es'],
-          defaultLang: 'fr',
-          // Remove this option if your application doesn't support changing language in runtime.
-          reRenderOnLangChange: true,
-          prodMode: environment.production,
-        },
-        loader: TranslocoHttpLoader
-      }),
-      provideTranslocoMessageformat()
+    provideTransloco({
+      config: {
+        availableLangs: AVAILABLE_LANGS,
+        defaultLang: DEFAULT_LANG,
+        fallbackLang: DEFAULT_LANG,
+        missingHandler: { useFallbackTranslation: true },
+        failedRetries: 1,
+        reRenderOnLangChange: true,
+        prodMode: environment.production,
+      },
+      loader: TranslocoHttpLoader,
+    }),
+    provideTranslocoMessageformat(),
   ],
 })
 export class TranslocoRootModule {}

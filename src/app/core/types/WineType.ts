@@ -7,7 +7,20 @@ export const WineType = {
 
 export type WineType = (typeof WineType)[keyof typeof WineType];
 
-type GradientColor = "base" | "accent";
+/** Liste ordonnée des types de vin (ordre d'affichage des statistiques). */
+export const WINE_TYPES: readonly WineType[] = [
+  WineType.RED,
+  WineType.WHITE,
+  WineType.ROSE,
+  WineType.CHAMPAGNE,
+];
+
+/** Garde de type : vérifie qu'une valeur inconnue est bien un type de vin. */
+export function isWineType(value: unknown): value is WineType {
+  return typeof value === 'string' && (WINE_TYPES as readonly string[]).includes(value);
+}
+
+type GradientColor = 'base' | 'accent';
 
 export interface WineTypeConfig {
   icon: string;
@@ -59,5 +72,11 @@ export const WINE_TYPE_CONFIG: Record<WineType, WineTypeConfig> = {
   },
 };
 
+/** Nombre maximum d'emplacements (offre gratuite). */
 export const CAVE_MAX = 24;
-export const CAVE_MAX_PRENIUM = 240;
+
+/**
+ * Nombre maximum d'emplacements (offre premium, non activée).
+ * Cette valeur est aussi le plafond appliqué par les règles Firestore.
+ */
+export const CAVE_MAX_PREMIUM = 240;

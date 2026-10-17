@@ -5,8 +5,9 @@
         fill="clear"
         shape="round"
         class="back-btn"
+        [attr.aria-label]="'COMMON.BACK' | transloco"
         (click)="goBack()">
-        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
       </ion-button>
     </div>
   </ion-toolbar>
@@ -25,7 +26,7 @@
         </div>
       } @else {
         <div class="profile-avatar-badge profile-avatar-badge--google">
-          <img src="assets/google_logo.svg" alt="Google logo" />
+          <img src="assets/google_logo.svg" alt=""  aria-hidden="true" />
         </div>
       }
     </div>
@@ -42,7 +43,7 @@
         <ion-icon name="person-outline" slot="start" class="settings-row-icon settings-row-icon--standalone"></ion-icon>
         <div class="settings-row-content">
           <app-input
-            [control]="form.get('firstName')"
+            [control]="form.controls.firstName"
             [label]="'SETTINGS.ACCOUNT_PAGE.FIRSTNAME' | transloco"
             [grouped]="false"
             [canEdit]="true"
@@ -56,7 +57,7 @@
         <ion-icon name="person-outline" slot="start" class="settings-row-icon settings-row-icon--standalone"></ion-icon>
         <div class="settings-row-content">
           <app-input
-            [control]="form.get('lastName')"
+            [control]="form.controls.lastName"
             [label]="'SETTINGS.ACCOUNT_PAGE.LASTNAME' | transloco"
             [grouped]="false"
             [canEdit]="true"
@@ -92,19 +93,19 @@
 
         <div class="settings-row-content">
           <app-input
-            [control]="form.get('email')"
+            [control]="form.controls.email"
             [label]="'SETTINGS.ACCOUNT_PAGE.EMAIL' | transloco"
             [grouped]="false"
             [canEdit]="!isGoogleUser"
             type="email"
-            placeholder="exemple@email.com">
+            [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | transloco">
           </app-input>
 
           @if (isGoogleUser) {
             <span class="google-managed-pill">
               <img
                 src="assets/google_logo.svg"
-                alt="Google logo"
+                alt=""  aria-hidden="true"
                 class="google-managed-dot">
               {{ 'SETTINGS.ACCOUNT_PAGE.GOOGLE_MANAGED' | transloco }}
             </span>
@@ -114,7 +115,7 @@
       @if(emailChanged) {
         <ion-item class="settings-row info" lines="full">
           <ion-icon aria-hidden="true" slot="start" name="information-circle-outline" class="settings-row-icon"></ion-icon>
-          Veuillez vous reconnecté pour voir l'adresse mail à jour.
+          {{ 'SETTINGS.ACCOUNT_PAGE.EMAIL_CHANGED_NOTICE' | transloco }}
         </ion-item>
       }
     </ion-list>
@@ -136,7 +137,7 @@
  
           @if (isGoogleUser) {
             <span class="google-managed-pill">
-              <img src="assets/google_logo.svg" alt="Google logo" class="google-managed-dot">
+              <img src="assets/google_logo.svg" alt=""  aria-hidden="true" class="google-managed-dot">
               {{ 'SETTINGS.ACCOUNT_PAGE.GOOGLE_MANAGED' | transloco }}
             </span>
           }
@@ -151,7 +152,7 @@
     </ion-list>
 
     <div class="primary-action">
-      <ion-button expand="block" shape="round" color="secondary" (click)="save()">
+      <ion-button expand="block" shape="round" color="secondary" [disabled]="saving" (click)="save()">
         <ion-icon class="slot-start-icon" slot="start" name="save-outline"></ion-icon>
         {{ 'SETTINGS.ACCOUNT_PAGE.SAVE' | transloco }}
       </ion-button>
@@ -184,21 +185,21 @@
     <h2 class="modal-heading">{{ 'SETTINGS.CHANGE_PASSWORD.TITLE' | transloco }}</h2>
     <p class="modal-subheading">{{ 'SETTINGS.CHANGE_PASSWORD.SUBTITLE' | transloco }}</p>
     <app-input
-      [control]="passwordForm.get('oldPassword')"
+      [control]="passwordForm.controls.oldPassword"
       [label]="'SETTINGS.CHANGE_PASSWORD.CURRENT_LABEL' | transloco"
       placeholder="••••••••"
       type="password"
       [showEye]="true">
     </app-input>
     <app-input
-      [control]="passwordForm.get('newPassword')"
+      [control]="passwordForm.controls.newPassword"
       [label]="'SETTINGS.CHANGE_PASSWORD.NEW_LABEL' | transloco"
       placeholder="••••••••"
       type="password"
       [showEye]="true">
     </app-input>
     <app-input
-      [control]="passwordForm.get('confirmPassword')"
+      [control]="passwordForm.controls.confirmPassword"
       [label]="'SETTINGS.CHANGE_PASSWORD.CONFIRM_LABEL' | transloco"
       placeholder="••••••••"
       type="password"

@@ -9,11 +9,11 @@
         <ion-col size="12">
           <ion-card class="bento-card star-card ion-activatable ripple-parent"
             (click)="openSheet()"
-            [style.background]="WINE_TYPE_CONFIG[starWine.type].gradientColor == 'accent'
+            [style.background]="WINE_TYPE_CONFIG[starWine.type].gradientColor === 'accent'
               ? 'color-mix(in srgb, var(--wine-' + starWine.type + '-accent) 30%, var(--mc-bg-card))'
               : 'color-mix(in srgb, var(--wine-' + starWine.type + ') 30%, var(--mc-bg-card))'">
             <ion-ripple-effect></ion-ripple-effect>
-            <img [src]="WINE_TYPE_CONFIG[starWine.type].icon"/>
+            <img [src]="WINE_TYPE_CONFIG[starWine.type].icon" alt="" aria-hidden="true"/>
   
             <div class="star-card__info">
               <div class="star-card__tag-row">
@@ -105,7 +105,7 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="6">
+      <ion-col [size]="features.catalogue ? '6' : '12'">
         <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCave()">
           <ion-ripple-effect></ion-ripple-effect>
           <ion-card-title class="bento-label">{{ 'HOME.STATS_LABEL' | transloco }}</ion-card-title>
@@ -114,14 +114,16 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="6">
-        <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCatalogue()">
-          <ion-ripple-effect></ion-ripple-effect>
-          <ion-card-title class="bento-label">{{ 'HOME.WISHLIST_LABEL' | transloco }}</ion-card-title>
-          <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: 0 } }}</div>
-          <div class="bento-sub-text">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
-        </ion-card>
-      </ion-col>
+      @if (features.catalogue) {
+        <ion-col size="6">
+          <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCatalogue()">
+            <ion-ripple-effect></ion-ripple-effect>
+            <ion-card-title class="bento-label">{{ 'HOME.WISHLIST_LABEL' | transloco }}</ion-card-title>
+            <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: 0 } }}</div>
+            <div class="bento-sub-text">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
+          </ion-card>
+        </ion-col>
+      }
 
       <ion-col size="12">
         <ion-card class="bento-card region-card">

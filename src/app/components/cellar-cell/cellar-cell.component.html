@@ -9,8 +9,8 @@
     <span class="cellar-cell__add">+</span>
   } @else {
     <span class="cellar-cell__wine-summary">{{ wineVintage }} · {{ wineName }}</span>
-    <img class="cellar-cell__bottle" [src]="WINE_TYPE_CONFIG[wineType || 'red'].icon"/>
+    <img class="cellar-cell__bottle" [src]="WINE_TYPE_CONFIG[wineType || 'red'].icon" alt="" aria-hidden="true"/>
   }
 
-  <span class="cellar-cell__pos" [style.color]="(isDarkMode$ | async) ? 'var(--ion-color-secondary-contrast)' : 'var(--mc-accent)'">{{ positionLabel }}</span>
+  <span class="cellar-cell__pos">{{ positionLabel }}</span>
 </button>

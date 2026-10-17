@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
+import { environment } from '../../environments/environment';
 import { TabsPage } from './tabs.page';
-import { AuthGuard } from '../guards/auth-guard';
 
+/** Les routes enfants héritent de la protection (`setupGuard`) posée sur le chemin parent. */
 const routes: Routes = [
   {
     path: '',
@@ -11,23 +12,24 @@ const routes: Routes = [
     children: [
       {
         path: 'home',
-        canActivate: [AuthGuard],
-        loadChildren: () => import("../home/home.module").then(m => m.HomePageModule),
+        loadChildren: () => import('../home/home.module').then((m) => m.HomePageModule),
       },
       {
         path: 'cave',
-        canActivate: [AuthGuard],
-        loadChildren: () => import("../cave/cave.module").then(m => m.CavePageModule),
+        loadChildren: () => import('../cave/cave.module').then((m) => m.CavePageModule),
       },
-      {
-        path: 'catalogue',
-        canActivate: [AuthGuard],
-        loadChildren: () => import("../home/home.module").then(m => m.HomePageModule),
-      },
+      ...(environment.features.catalogue
+        ? [
+            {
+              path: 'catalogue',
+              // Page provisoire : à remplacer par la page catalogue.
+              loadChildren: () => import('../home/home.module').then((m) => m.HomePageModule),
+            },
+          ]
+        : []),
       {
         path: 'settings',
-        canActivate: [AuthGuard],
-        loadChildren: () => import("../settings/settings.module").then(m => m.SettingsPageModule),
+        loadChildren: () => import('../settings/settings.module').then((m) => m.SettingsPageModule),
       },
       {
         path: '',
@@ -35,11 +37,6 @@ const routes: Routes = [
         pathMatch: 'full',
       },
     ],
-  },
-  {
-    path: '',
-    redirectTo: 'tabs/home',
-    pathMatch: 'full',
   },
 ];
 

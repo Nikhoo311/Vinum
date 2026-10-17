@@ -1,12 +1,12 @@
 <div class="stepper-row">
   <span class="stepper-label">{{ label }}</span>
   <div class="stepper-controls">
-    <ion-button mode="md" class="stepper-btn" fill="clear" [disabled]="value <= min" (click)="decrement()">
-      <ion-icon name="remove-outline" />
+    <ion-button mode="md" class="stepper-btn" fill="clear" [disabled]="value <= min" (click)="decrement()" [attr.aria-label]="'COMMON.DECREASE' | transloco">
+      <ion-icon name="remove-outline" aria-hidden="true" />
     </ion-button>
     <span class="stepper-value">{{ value }}</span>
-    <ion-button mode="md" class="stepper-btn" fill="clear" [disabled]="value >= max" (click)="increment()">
-      <ion-icon name="add-outline" />
+    <ion-button mode="md" class="stepper-btn" fill="clear" [disabled]="value >= max" (click)="increment()" [attr.aria-label]="'COMMON.INCREASE' | transloco">
+      <ion-icon name="add-outline" aria-hidden="true" />
     </ion-button>
   </div>
 </div>

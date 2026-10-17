@@ -73,3 +73,11 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Signature Android (secrets)
+keystore.properties
+*.jks
+*.keystore
+
+# Firebase local
+.firebase/

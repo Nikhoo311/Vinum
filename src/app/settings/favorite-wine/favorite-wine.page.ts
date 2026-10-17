@@ -1,65 +1,58 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { RadioGroupComponent } from 'src/app/components/wines-radio-group/wines-radio-group.component';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { ToastService } from 'src/app/core/services/toast.service';
-import { WineType } from 'src/app/core/types/WineType';
+
+import { WinesRadioGroupComponent } from '../../components/wines-radio-group/wines-radio-group.component';
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { WineType } from '../../core/types/WineType';
+import { toErrorKey } from '../../core/utils/error.util';
 
 @Component({
   selector: 'app-favorite-wine',
   standalone: true,
   templateUrl: './favorite-wine.page.html',
   styleUrls: ['./favorite-wine.page.scss'],
-  imports: [
-    CommonModule,
-    IonicModule,
-    TranslocoModule,
-    ReactiveFormsModule,
-    RadioGroupComponent
-  ],
+  imports: [CommonModule, IonicModule, TranslocoModule, ReactiveFormsModule, WinesRadioGroupComponent],
 })
-export class FavoriteWinePage implements OnInit {
-  wineForm: FormGroup;
-  loading: boolean = false;
+export class FavoriteWinePage {
+  private readonly location = inject(Location);
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
-  constructor(
-    private fb: FormBuilder,
-    private location: Location,
-    private authService: AuthService,
-    private toastService: ToastService,
-    private transloco: TranslocoService
-  ) {
-    this.wineForm = this.fb.group({
-      selectedType: [null as WineType | null, Validators.required],
-    });
-  }
+  readonly wineForm = new FormGroup({
+    selectedType: new FormControl<WineType | null>(null, Validators.required),
+  });
 
-  ngOnInit() {
-  }
+  loading = false;
 
+  /** Valeur actuelle du profil (source de vérité, indépendante de l'historique de navigation). */
   get favoriteWine(): WineType | null {
-    return history.state.favoriteWine || null;
+    return this.authService.currentUser?.favoriteWineType ?? null;
   }
 
-  async updateFavoriteWine() {
-    this.loading = true;
-    if (this.wineForm.valid) {
-      const selectedType: WineType = this.wineForm.get('selectedType')?.value;
+  async updateFavoriteWine(): Promise<void> {
+    const selectedType = this.wineForm.controls.selectedType.value;
+    if (this.loading || this.wineForm.invalid || !selectedType) return;
 
-      await this.authService.updateFavoriteWine(selectedType).then(() => {
-        this.toastService.success(this.transloco.translate('SETTINGS.FAVORITE_WINE.UPDATE_SUCCESS'));
-        this.goBack();
-      }).catch(err => {
-        this.toastService.error(this.transloco.translate('SETTINGS.FAVORITE_WINE.UPDATE_ERROR', { error: err.message }));
-      })
-      .finally(() => this.loading = false);
+    this.loading = true;
+    try {
+      await this.authService.updateFavoriteWine(selectedType);
+      void this.toastService.success(this.transloco.translate('SETTINGS.FAVORITE_WINE.UPDATE_SUCCESS'));
+      this.goBack();
+    } catch (error) {
+      void this.toastService.error(
+        this.transloco.translate('SETTINGS.FAVORITE_WINE.UPDATE_ERROR', { error: this.transloco.translate(toErrorKey(error)) }),
+      );
+    } finally {
+      this.loading = false;
     }
   }
 
-  goBack() {
+  goBack(): void {
     this.location.back();
   }
 }

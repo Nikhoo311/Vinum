@@ -1,73 +1,67 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Router } from '@angular/router';
-import { ToastService } from 'src/app/core/services/toast.service';
-import { InputComponent } from "../input/input.component";
+
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { toErrorKey } from '../../core/utils/error.util';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-login-form',
   standalone: true,
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.scss'],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    IonicModule,
-    TranslocoModule,
-    InputComponent
-],
+  imports: [CommonModule, ReactiveFormsModule, IonicModule, TranslocoModule, InputComponent],
 })
 export class LoginFormComponent {
-  loginForm!: FormGroup;
-  loading: boolean = false;
+  readonly loginForm = new FormGroup({
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
+  });
 
-  constructor(
-    private authService: AuthService, 
-    private router: Router, 
-    private toastService: ToastService, 
-    private transloco: TranslocoService
-  ) {
-    this.loginForm = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)])
-    });
-  }
+  loading = false;
 
-  async login() {
+  private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
+
+  async login(): Promise<void> {
+    if (this.loading) return;
+
     if (this.loginForm.invalid) {
-      this.toastService.warning(this.transloco.translate('AUTH.RULES.FILL_ALL_FIELDS'))
+      this.loginForm.markAllAsTouched();
+      void this.toastService.warning(this.transloco.translate('AUTH.RULES.FILL_ALL_FIELDS'));
       return;
     }
 
     this.loading = true;
+    const { email, password } = this.loginForm.getRawValue();
 
-    const { email, password }: { email: string, password: string } = this.loginForm.value;
-
-    await this.authService.login(email, password)
-      .catch(err => {
-        this.toastService.error(this.transloco.translate(err.message))
-      })
-      .finally(() => this.loading = false);
+    try {
+      await this.authService.login(email.trim(), password);
+    } catch (error) {
+      void this.toastService.error(this.transloco.translate(toErrorKey(error)));
+    } finally {
+      this.loading = false;
+    }
   }
 
-  async forgotPassword() {
-    const email = this.loginForm.get('email')?.value?.trim();
+  async forgotPassword(): Promise<void> {
+    const email = this.loginForm.controls.email.value.trim();
 
-    if (!email) {
-      await this.toastService.error(this.transloco.translate('AUTH.FORGOT_PASSWORD_EMAIL_REQUIRED'));
+    if (!email || this.loginForm.controls.email.hasError('email')) {
+      void this.toastService.error(this.transloco.translate('AUTH.FORGOT_PASSWORD_EMAIL_REQUIRED'));
       return;
     }
 
     try {
       await this.authService.sendPasswordResetEmail(email);
-      await this.toastService.success(this.transloco.translate('AUTH.FORGOT_PASSWORD_SUCCESS'));
-
-    } catch (error) {
-      await this.toastService.error(this.transloco.translate('AUTH.FORGOT_PASSWORD_ERROR'));
+      void this.toastService.success(this.transloco.translate('AUTH.FORGOT_PASSWORD_SUCCESS'));
+    } catch {
+      void this.toastService.error(this.transloco.translate('AUTH.FORGOT_PASSWORD_ERROR'));
     }
   }
 }

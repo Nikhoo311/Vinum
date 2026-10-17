@@ -1,0 +1,372 @@
+{
+  "APP_TITLE": "Vinum",
+  "APP_SLOGAN": "Your cellar at your fingertips",
+  "ERRORS": {
+    "GENERIC": "Something went wrong. Please try again.",
+    "NETWORK": "Unable to connect. Check your internet connection and try again.",
+    "NOT_AUTHENTICATED": "Your session has expired. Please sign in again.",
+    "PERMISSION_DENIED": "You don't have permission to perform this action."
+  },
+  "NOTIFICATIONS": {
+    "MATURITY": {
+      "TITLE": "A wine is at its peak",
+      "BODY": "“{{name}}” ({{vintage}}) has reached its peak year ({{year}}). Time to enjoy it."
+    }
+  },
+  "FORM_ERRORS": {
+    "MIN": "The value must be greater than or equal to {{min}}.",
+    "MAX": "The value must be less than or equal to {{max}}.",
+    "MAX_LENGTH": "The value must not exceed {{max}} characters.",
+    "YEAR": "Enter a four-digit year.",
+    "PEAK_MATURITY_YEAR": "The peak year must be later than the vintage.",
+    "HALF_STEP": "The rating must be a multiple of 0.5.",
+    "INVALID": "This value is not valid."
+  },
+  "AUTH": {
+    "LOGIN": "Sign in",
+    "REGISTER": "Create an account",
+    "EMAIL": "Email address",
+    "EMAIL_PLACEHOLDER": "you@example.com",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "FORGOT_PASSWORD": "Forgot your password?",
+    "FORGOT_PASSWORD_EMAIL_REQUIRED": "Enter your email to reset your password.",
+    "FORGOT_PASSWORD_SUCCESS": "A reset link has been sent ✓",
+    "FORGOT_PASSWORD_ERROR": "Address not found or network error.",
+    "LOGIN_BUTTON": "Sign in",
+    "REGISTER_BUTTON": "Sign up",
+    "NO_ACCOUNT": "No account is associated with this user.",
+    "TOO_MANY_ATTEMPTS": "Too many attempts. Please try again later.",
+    "INVALID_CREDENTIAL": "The email address or password is incorrect.",
+    "USER_DISABLED": "This account has been disabled.",
+    "REQUIRES_RECENT_LOGIN": "For security reasons, sign in again and retry.",
+    "RULES": {
+      "REQUIRED": "This field is required.",
+      "EMAIL": "Please enter a valid email address.",
+      "EMAIL_ALREADY_TAKEN": "This email address is already in use.",
+      "PASSWORD": "The password must be at least 6 characters long.",
+      "SAME_PASSWORD": "The passwords do not match.",
+      "FILL_ALL_FIELDS": "Please fill in all fields correctly.",
+      "REGISTER_ERROR": "An error occurred during sign-up: {{error}}"
+    },
+    "OR_CONNEXION_WITH": "Or continue with",
+    "GOOGLE_LOGIN": "Continue with Google",
+    "GOOGLE_REGISTER": "Sign up with Google",
+    "GOOGLE_ERROR": "Error signing in with Google."
+  },
+  "PREFERENCES": {
+    "WELCOME_TO": "Welcome to",
+    "WELCOME_SUB_TEXT": "Create your profile and set up your cellar in a few moments to start organizing your bottles.",
+    "START": "Get started",
+    "CONTINUE": "Continue",
+    "BACK": "Back",
+    "SAVE_ERROR": "Unable to save your profile. Please try again.",
+    "STEPS": {
+      "STEP_ONE": {
+        "AMOUNT_TITLE": "Step 1 of 3",
+        "QUESTION": "What's your name?",
+        "PRECISION": "We use it to personalize your space.",
+        "FIRSTNAME_LABEL": "First name",
+        "FIRSTNAME_PLACEHOLDER": "E.g. Camille",
+        "LASTNAME_LABEL": "Last name",
+        "LASTNAME_PLACEHOLDER": "E.g. Dubois"
+      },
+      "STEP_TWO": {
+        "AMOUNT_TITLE": "Step 2 of 3",
+        "QUESTION": "Your favorite type of wine",
+        "PRECISION": "Choose the type you drink most often. This helps us highlight the right bottles."
+      },
+      "STEP_THREE": {
+        "AMOUNT_TITLE": "Step 3 of 3",
+        "QUESTION": "Size of your cellar",
+        "PRECISION": "Enter the number of rows and columns to match your actual cellar.",
+        "ROWS_LABEL": "Rows",
+        "COLS_LABEL": "Columns",
+        "TOTAL_CAPACITY": "Total capacity:",
+        "LOCATION": "slots",
+        "CAPACITY_CAP": "{{max}} slots maximum",
+        "CREATE_BUTTON": "Create my cellar"
+      }
+    },
+    "CONFIRM": {
+      "TITLE": "You're all set, {{prenom}}!",
+      "SUBTITLE": "Your cellar is ready. You can start putting away your first bottles.",
+      "CTA": "Discover my cellar"
+    }
+  },
+  "WINE": {
+    "TYPE": {
+      "RED": "red",
+      "WHITE": "white",
+      "ROSE": "rosé",
+      "CHAMPAGNE": "champagne"
+    },
+    "FOOD_PAIRINGS": {
+      "RED": {
+        "RED_MEAT": "Red meats",
+        "SAUCE_DISHES": "Dishes in sauce",
+        "AGED_CHEESES": "Aged cheeses"
+      },
+      "WHITE": {
+        "FISH_AND_SEAFOOD": "Fish and seafood",
+        "CREAMY_POULTRY": "Poultry in cream sauce",
+        "GOAT_CHEESE": "Goat cheeses"
+      },
+      "ROSE": {
+        "APERITIF_AND_TAPAS": "Aperitif and tapas",
+        "SALADS_AND_RAW_VEGETABLES": "Salads and raw vegetables",
+        "GRILLED_DISHES": "Grilled dishes"
+      },
+      "CHAMPAGNE": {
+        "APERITIF": "Aperitif",
+        "SEAFOOD": "Seafood",
+        "SUSHI": "Sushi"
+      }
+    }
+  },
+  "TABS": {
+    "HOME": "Dashboard",
+    "CAVE": "My cellar",
+    "CATALOGUE": "Catalogue",
+    "SETTINGS": "Settings"
+  },
+  "CAVE": {
+    "OCCUPIED_SLOTS": "slots occupied",
+    "EMPTY_LOCATION": "Empty slot",
+    "ADD_WINE": {
+      "TITLE": "Add a bottle",
+      "NAME": "Wine name",
+      "NAME_PLACEHOLDER": "E.g. Château Margaux",
+      "DOMAIN": "Estate",
+      "DOMAIN_PLACEHOLDER": "E.g. Domaine de la Romanée-Conti",
+      "VINTAGE": "Vintage",
+      "PEAK_MATURITY_YEAR": "Peak year",
+      "REGION": "Region",
+      "REGION_PLACEHOLDER": "E.g. Bordeaux",
+      "GRAPE_VARIETY": "Grape variety(ies)",
+      "GRAPE_VARIETY_PLACEHOLDER": "E.g. Merlot, Cabernet Sauvignon",
+      "UNIT_PRICE": "Unit price (€)",
+      "RATING": "Rating / 5",
+      "FLAVOR_NOTES": "Tasting notes",
+      "FLAVOR_NOTES_PLACEHOLDER": "Aromas, color, tasting notes…",
+      "FOOD_PAIRING": "Food pairings",
+      "FOOD_PAIRING_PLACEHOLDER": "E.g. Beef, aged cheese",
+      "QUANTITY": "Quantity",
+      "AVAILABLE_SLOT": "slot available",
+      "AVAILABLE_SLOTS": "slots available",
+      "ERRORS": {
+        "DEFAULT": "Your bottle could not be added. Check your connection and try again.",
+        "INVALID_DATA": "Some of the wine's information is invalid. Check the fields and try again.",
+        "PERMISSION_DENIED": "You don't have the required permissions to add this bottle.",
+        "UNAVAILABLE": "The service is temporarily unavailable. Please try again in a moment."
+      },
+      "SUBMIT": "Add to my cellar",
+      "PREVIEW_NAME": "Wine name",
+      "PREVIEW_DOMAIN": "Estate",
+      "SUCCESS": "Bottle added to your cellar.",
+      "NOT_ENOUGH_SLOTS": "There aren't enough free slots for this quantity."
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search for a wine…",
+      "NO_RESULTS": "No results for “{{query}}”",
+      "BOTTLES_FOUND": "{count, plural, =0 {0 bottles found} =1 {1 bottle found} other {{{count}} bottles found}}"
+    }
+  },
+  "COMMON": {
+    "BOTTLES_SHORT": "btl",
+    "BACK": "Back",
+    "CANCEL": "Cancel",
+    "CLOSE": "Close",
+    "REQUIRED": "Required",
+    "DECREASE": "Decrease",
+    "INCREASE": "Increase"
+  },
+  "HOME": {
+    "WELCOME": "Hello",
+    "STAR_WINE_TAG": "Star wine",
+    "STAR_WINE_INFO": {
+      "LABEL": "How is the star wine defined?",
+      "TEXT": "The star wine is the wine with the highest unit price in your cellar."
+    },
+    "TOTAL_STOCK_LABEL": "Total stock",
+    "BOTTLES": "{count, plural, =0 {no bottles} =1 {bottle} other {bottles}}",
+    "EMPTY_CAVE": "No bottles in your cellar.",
+    "DISTRIBUTION_LABEL": "Distribution",
+    "DISTRIBUTION_BY_TYPE_LABEL": "Distribution by type",
+    "DISTRIBUTION_BY_REGION_LABEL": "Distribution by region",
+    "REGION_BOTTLES": "{count, plural, =0 {0 btl} =1 {1 btl} other {{{count}} btl}}",
+    "NO_REGIONS": "No region specified.",
+    "STATS_LABEL": "Fill rate",
+    "STATS_SUB": "of your cellar",
+    "AVERAGE_RATING_LABEL": "Average rating",
+    "AVERAGE_RATING_SUB": "of rated wines",
+    "AVERAGE_RATING_INFO": {
+      "LABEL": "How is the average rating calculated?",
+      "TEXT": "{count, plural, =0 {No rated bottle in your cellar is taken into account yet.} =1 {Calculated from 1 rated bottle in your cellar.} other {Calculated from {{count}} rated bottles in your cellar.}}"
+    },
+    "IN_DEVELOPMENT": "Feature in development.",
+    "VALUE_LABEL": "Cellar value",
+    "VALUE_SUB": "estimate (purchase price)",
+    "WISHLIST_LABEL": "Wishlist",
+    "WINES": "{count, plural, =0 {0 wines} =1 {1 wine} other {{{count}} wines}}"
+  },
+  "WINE_SHEET_MODAL": {
+    "LOCATION": "Location",
+    "QUANTITY": "Quantity",
+    "GRAPE_VARIETY": "Grape variety",
+    "REGION": "Region",
+    "PEAK_MATURITY_YEAR": "Peak year",
+    "UNIT_PRICE": "Unit price",
+    "RATING": "Rating",
+    "NOT_RATED": "Not rated",
+    "DESCRIPTION": "Tasting notes",
+    "FOOD_PAIRING": "Food pairings",
+    "NO_DESCRIPTION": "No tasting notes available.",
+    "NO_FOOD_PAIRING": "No pairings available.",
+    "REGION_NOT_SPECIFIED": "Region not specified",
+    "REMOVE_BOTTLE": "Remove a bottle",
+    "EDIT": "Edit",
+    "EDIT_MODAL": {
+      "TITLE": "Edit bottle",
+      "SAVE": "Save",
+      "SUCCESS": "“{{name}}” updated successfully.",
+      "ERROR": "Unable to edit this wine. Please try again."
+    },
+    "RATING_MODAL": {
+      "TITLE": "Rate the bottle",
+      "QUESTION": "How was this wine?",
+      "DESCRIPTION": "Your rating updates this wine's record.",
+      "LABEL_1": "Disappointing",
+      "LABEL_1_5": "Rather disappointing",
+      "LABEL_2": "Average",
+      "LABEL_2_5": "Passable",
+      "LABEL_3": "Decent",
+      "LABEL_3_5": "Good",
+      "LABEL_4": "Very good",
+      "LABEL_4_5": "Great",
+      "LABEL_5": "Excellent!",
+      "LABEL_0_5": "Very disappointing",
+      "REMOVE_INSTRUCTION": "Tap the selected star again to remove the rating.",
+      "SKIP": "Skip",
+      "CANCEL": "Cancel",
+      "SAVE": "Save rating",
+      "REMOVE": "Remove rating",
+      "REMOVE_HINT": "The rating will be removed.",
+      "SAVED": "Rating saved: {{rating}}/5",
+      "REMOVED": "Rating removed.",
+      "SAVE_ERROR": "Unable to save the rating. Please try again.",
+      "REMOVE_ERROR": "Unable to remove this bottle. Please try again."
+    }
+  },
+  "SETTINGS": {
+    "TITLE": "Settings",
+    "SUBTITLE": "Account & preferences",
+    "SECTIONS": {
+      "ACCOUNT": "Account",
+      "CAVE": "Cellar",
+      "APPEARANCE": "Appearance"
+    },
+    "APPEARANCE": {
+      "DARK_MODE": "Dark mode",
+      "LANGUAGE": {
+        "TITLE": "Language",
+        "AVAILABLE": "Available languages",
+        "NO_RESULTS": "No language found",
+        "HINT": "The selected language applies to the whole app. No restart is needed."
+      }
+    },
+    "INFO_PERSONAL": {
+      "TITLE": "Personal information",
+      "UPDATE_SUCCESS": "Your personal information has been updated successfully.",
+      "UPDATE_ERROR": "An error occurred while updating.\n{{error}}",
+      "REQUIRED_PASSWORD_UPDATE_EMAIL_ERROR": "Password required to change the email.",
+      "REQUIRED_PASSWORD_DELETE_ERROR": "Password required to confirm deletion.",
+      "EMAIL_CONFIRMATION_SENT": "A confirmation email has been sent to your new address."
+    },
+    "FAVORITE_WINE": {
+      "TITLE": "Favorite wine type",
+      "SUBTITLE": "Choose the type of wine you prefer.",
+      "UPDATE_BUTTON": "Save",
+      "UPDATE_SUCCESS": "Your favorite wine type has been updated successfully.",
+      "UPDATE_ERROR": "An error occurred while updating.",
+      "NOT_SPECIFIED": "Not specified"
+    },
+    "ACCOUNT_PAGE": {
+      "SECTIONS": {
+        "PERSONAL_INFO": "Personal information",
+        "IDENTIFIER": "Identifier",
+        "SECURITY": "Security"
+      },
+      "FIRSTNAME": "First name",
+      "LASTNAME": "Last name",
+      "EMAIL": "Email address",
+      "PASSWORD": "Password",
+      "GOOGLE_MANAGED": "Managed by Google",
+      "EMAIL_CHANGED_NOTICE": "Sign in again to see your new email address.",
+      "SAVE": "Save",
+      "LOGOUT": "Sign out",
+      "DELETE_ACCOUNT": {
+        "BUTTON": "Delete my account",
+        "HINT": "Deletion is permanent and all your data will be lost.",
+        "CONFIRM_HEADER": "Delete my account",
+        "CONFIRM_MESSAGE": "Deletion is permanent and all your data will be lost.",
+        "PASSWORD_PLACEHOLDER": "Current password",
+        "CANCEL": "Cancel",
+        "CONFIRM": "Delete",
+        "ERROR": "Unable to delete the account"
+      },
+      "EMAIL_CHANGE_CONFIRM": {
+        "HEADER": "Confirm email change",
+        "MESSAGE": "For security reasons, please enter your current password.",
+        "PASSWORD_PLACEHOLDER": "Current password",
+        "CANCEL": "Cancel",
+        "CONFIRM": "Confirm"
+      }
+    },
+    "CHANGE_PASSWORD": {
+      "TITLE": "Change password",
+      "SUBTITLE": "Choose a password of at least 6 characters.",
+      "CURRENT_LABEL": "Current password",
+      "NEW_LABEL": "New password",
+      "CONFIRM_LABEL": "Confirm new password",
+      "SUBMIT": "Change password",
+      "MISMATCH": "The passwords do not match",
+      "SUCCESS": "Password changed successfully",
+      "ERROR": "Unable to change the password"
+    },
+    "CAVE": {
+      "DISPOSITION": {
+        "TITLE": "Cellar layout",
+        "SLOTS": "{count, plural, =0 {slot} =1 {slot} other {slots}}",
+        "ROWS": "{count, plural, =0 {row} =1 {row} other {rows}}",
+        "COLS": "{count, plural, =0 {column} =1 {column} other {columns}}",
+        "MODAL": {
+          "HINT": "Adjust the number of rows and columns to match your actual cellar ({{max}} slots max).",
+          "TOTAL_LABEL": "Total capacity:",
+          "SAVE": "Save",
+          "SAVE_SUCCESS": "Your cellar layout has been saved.",
+          "SAVE_ERROR": "An error occurred while saving the layout.\n{{error}}"
+        },
+        "CONFIRM": {
+          "TITLE": "Remove bottles?",
+          "MESSAGE": "{count, plural, =1 {1 bottle no longer has a slot in the new layout and will be removed from your cellar.} other {{{count}} bottles no longer have a slot in the new layout and will be removed from your cellar.}} This action cannot be undone.",
+          "CONFIRM": "Confirm"
+        }
+      },
+      "DISPLAY": {
+        "TITLE": "Inventory display",
+        "SUBTITLE": "Default view",
+        "GRID": "Grid",
+        "LIST": "List",
+        "UPDATE_SUCCESS": "Default view changed: {{view}}",
+        "UPDATE_ERROR": "An error occurred while changing the view."
+      },
+      "NOTIFICATIONS": {
+        "TITLE": "Maturity alerts",
+        "ENABLED": "Enabled",
+        "DISABLED": "Disabled",
+        "PERMISSION_DENIED": "Notifications denied. Allow them in your device settings to enable alerts."
+      }
+    }
+  }
+}
