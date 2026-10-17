@@ -1,0 +1,32 @@
+.checkbox {
+  --background: var(--mc-bg-card);
+  --border-color: var(--mc-border);
+  --color: var(--mc-text-primary);
+  --padding-start: 0.875rem;
+  --padding-end: 0.875rem;
+  --inner-padding-end: 0;
+  --min-height: 3rem;
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-input);
+
+  ion-checkbox {
+    --size: 1.25rem;
+    --checkbox-background-checked: var(--ion-color-primary);
+    --border-color-checked: var(--ion-color-primary);
+    margin-inline-end: 0.75rem;
+  }
+
+  ion-label {
+    margin: 0.625rem 0;
+    font-size: 0.8125rem;
+    font-weight: 700;
+
+    small {
+      display: block;
+      margin-top: 0.125rem;
+      color: var(--mc-text-secondary);
+      font-size: 0.6875rem;
+      font-weight: 500;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.select__label {
+  display: block;
+  margin-bottom: 0.375rem;
+  color: var(--mc-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+ion-select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-input);
+  background: var(--mc-bg-card);
+  color: var(--mc-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}

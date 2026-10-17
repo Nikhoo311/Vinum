@@ -369,3 +369,13 @@ ion-header {
   align-items: center;
   gap: 6px;
 }
+.radio-group-wrapper {
+  background: var(--mc-bg-card);
+  border-radius: var(--mc-radius-card);
+}
+
+.select-interface-option {
+  --background: transparent;
+  --background-hover: transparent;
+  --background-focused: transparent;
+}

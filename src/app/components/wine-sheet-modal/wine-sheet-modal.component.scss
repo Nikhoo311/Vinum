@@ -72,6 +72,11 @@ ion-chip {
   }
 }
 
+.catalogue-wishlist-action {
+  ion-icon { color: #111; }
+  &--active ion-icon { color: var(--mc-rating-star); }
+}
+
 .rating-card {
   cursor: pointer;
 

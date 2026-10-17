@@ -1,4 +1,16 @@
 {
+  "CATALOGUE": {
+    "WISHLIST": "Liste de souhaits", "IN_WISHLIST": "Dans la liste", "TO_BUY": "À acheter", "NOTHING_YET": "Rien pour le moment",
+    "WINE_COUNT": "{count, plural, one {# vin} other {# vins}}", "SHOW_WINES": "{count, plural, one {Voir # vin} other {Voir # vins}}",
+    "CHOOSE_SCOPE": "Choisir le catalogue", "COMMUNITY": "Catalogue", "PERSONAL": "Mes fiches", "SEARCH": "Rechercher un vin, un cépage…", "SEARCH_PERSONAL": "Rechercher dans mes fiches…", "UNIT": "unité",
+    "FILTERS": "Filtres", "ACTIVE_FILTERS": "Filtres actifs", "TYPE": "Type", "STATUS": "Statut", "IN_CELLAR": "En cave", "ALREADY_IN_CELLAR": "Déjà dans ma cave", "SORT_ACTIVE": "Tri actif", "REGION": "Région", "SORT": "Trier par", "ALL_REGIONS": "Toutes les régions",
+    "SORT_NAME": "Nom : A à Z", "SORT_PRICE_ASC": "Prix croissant", "SORT_PRICE_DESC": "Prix décroissant", "SORT_VINTAGE_DESC": "Millésime récent",
+    "RESET_FILTERS": "Réinitialiser les filtres", "RESET": "Réinitialiser", "VIEW_WINE": "Voir", "ADD_WISH": "Ajouter à la liste de souhaits", "REMOVE_WISH": "Retirer de la liste de souhaits", "ADD_TO_CELLAR": "Mettre en cave", "NO_RESULTS": "Aucun vin ne correspond à ces critères.",
+    "CREATE": "Créer une fiche", "CREATE_HINT": "Pour un vin absent du catalogue commun", "CREATE_DESCRIPTION": "Ajoutez une référence à votre catalogue personnel.", "SAVE_CARD": "Enregistrer la fiche", "PROPOSE_CHECK": "Proposer au catalogue commun", "PROPOSE_CHECK_HINT": "La proposition sera vérifiée avant d’être publiée.",
+    "MISSING": "Vous ne trouvez pas votre vin ?", "MISSING_HINT": "Proposez-le : il sera ajouté au catalogue après vérification.", "MAKE_PROPOSAL": "Faire une proposition", "GO_PERSONAL": "ou créer une fiche personnelle", "PROPOSE_TITLE": "Proposer un vin", "SEND_PROPOSAL": "Envoyer la proposition", "LOADING": "Chargement des vins…",
+    "WISHLIST_EMPTY": "Votre liste de souhaits est vide.", "WISHLIST_EMPTY_HINT": "Touchez l’étoile d’un vin du catalogue pour le retrouver ici.", "FIRST_SLOT": "Premier emplacement", "SLOT_HINT": "Les bouteilles suivantes occupent les emplacements libres suivants.", "NO_SLOTS": "Aucun emplacement libre dans votre cave.",
+    "ADD_SUCCESS": "Vin ajouté à la cave.", "ADD_ERROR": "Impossible d’ajouter ce vin à la cave.", "CREATE_SUCCESS": "Fiche enregistrée.", "CREATE_ERROR": "Impossible d’enregistrer la fiche.", "PROPOSAL_SUCCESS": "Votre proposition a été envoyée.", "PROPOSAL_ERROR": "Impossible d’envoyer votre proposition.", "WISHLIST_SAVE_ERROR": "Impossible de sauvegarder la liste de souhaits sur cet appareil.", "PREVIEW_NAME": "Nom du vin", "PREVIEW_DOMAIN": "Domaine"
+  },
   "APP_TITLE": "Vinum",
   "APP_SLOGAN": "Votre cave à portée de main",
   "FORM_ERRORS": {
