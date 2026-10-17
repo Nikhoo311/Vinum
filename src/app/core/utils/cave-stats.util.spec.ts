@@ -6,7 +6,6 @@ describe('cave-stats.util', () => {
     const stats = computeCaveStats([]);
     expect(stats.totalBottles).toBe(0);
     expect(stats.totalValue).toBe(0);
-    expect(stats.starWine).toBeNull();
     expect(stats.uniqueRegionsCount).toBe(0);
     expect(stats.averageRating).toBe(0);
     expect(stats.ratedCount).toBe(0);
@@ -21,17 +20,6 @@ describe('cave-stats.util', () => {
     ]);
     expect(stats.totalBottles).toBe(3);
     expect(stats.totalValue).toBe(70);
-  });
-
-  it('désigne le vin le plus cher comme vin star (le premier en cas d\'égalité)', () => {
-    const cheap = makeWine({ id: 'a', unitPrice: 10 });
-    const first = makeWine({ id: 'b', unitPrice: 80 });
-    const second = makeWine({ id: 'c', unitPrice: 80 });
-    expect(computeCaveStats([cheap, first, second]).starWine?.id).toBe('b');
-  });
-
-  it('n\'élit aucun vin star si aucun prix n\'est renseigné', () => {
-    expect(computeCaveStats([makeWine({ unitPrice: 0 })]).starWine).toBeNull();
   });
 
   it('calcule la note moyenne arrondie au dixième sur les vins notés uniquement', () => {

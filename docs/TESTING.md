@@ -16,7 +16,7 @@ La majeure partie de la logique est volontairement placée dans des **modules pu
 
 | Niveau | Fichiers | Ce qui est couvert |
 |---|---|---|
-| Logique pure | `core/utils/*.util.spec.ts` (7 fichiers, 65 tests) | Placements et redimensionnement, statistiques, normalisation des vins et profils, préférences, erreurs, recherche |
+| Logique pure | `core/utils/*.util.spec.ts` (10 fichiers, 91 tests) | Placements et redimensionnement, statistiques, normalisation des vins et profils, préférences, erreurs, recherche, catalogue, vin star |
 | Gardes | `guards/auth.guard.spec.ts` | Redirections des trois gardes selon l'état de l'utilisateur (`TestBed` avec `AuthService` et `Router` simulés) |
 | Composant | `components/search-bar/search-bar.component.spec.ts` | Debounce de 300 ms, dernière frappe seule, `clear()` |
 | Contrôles de cohérence | `scripts/check-i18n.mjs`, `scripts/check-icons.mjs` | Traductions et icônes |
@@ -27,7 +27,7 @@ La majeure partie de la logique est volontairement placée dans des **modules pu
 - Les pages et la plupart des composants (rendu, interaction).
 - Les règles Firestore (à tester dans l'émulateur, voir [Sécurité](SECURITY.md#vérifications-à-faire-avant-la-mise-en-production)).
 
-> **État de la revue** : les 65 tests purs ont été exécutés et réussissent (via `tsx` et une couche de compatibilité Jasmine), ainsi que la vérification de types de ces modules. Les tests Karma (`guards`, `search-bar`) et la compilation Angular **n'ont pas pu être exécutés** dans l'environnement de la revue (installation des dépendances impossible) ; à lancer avec `npm ci && npm run check`.
+> **État de la revue** : les 91 tests purs ont été exécutés et réussissent (via `tsx` et une couche de compatibilité Jasmine), ainsi que la vérification de types de ces modules. Les tests Karma (`guards`, `search-bar`) et la compilation Angular **n'ont pas pu être exécutés** dans l'environnement de la revue (installation des dépendances impossible) ; à lancer avec `npm ci && npm run check`.
 
 ## Écrire un test
 

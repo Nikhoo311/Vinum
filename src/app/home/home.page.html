@@ -34,12 +34,14 @@
                 <span class="star-card__meta-wine-type">{{ WINE_TYPE_CONFIG[starWine.type].label | transloco }}</span> · 
                 {{ starWine.placements.length }} {{ 'HOME.BOTTLES' | transloco: { count: starWine.placements.length } }}
               </p>
+              <p class="star-card__metric">{{ starWineMetric }}</p>
             </div>
           </ion-card>
-          <ion-popover trigger="star-wine-info" triggerAction="click" side="bottom" alignment="end">
+          <ion-popover #starPopover trigger="star-wine-info" triggerAction="click" side="bottom" alignment="end">
             <ng-template>
               <div class="star-wine-popover ion-padding">
-                {{ 'HOME.STAR_WINE_INFO.TEXT' | transloco }}
+                {{ 'HOME.STAR_WINE_INFO.TEXT' | transloco: { criterion: starWineCriterionLabel } }}
+                <a class="star-wine-popover__link" (click)="starPopover.dismiss(); goToStarWineSettings()">{{ 'HOME.STAR_WINE_INFO.CHANGE' | transloco }}</a>
               </div>
             </ng-template>
           </ion-popover>
@@ -119,8 +121,7 @@
           <ion-card class="bento-card ion-activatable ripple-parent" (click)="goToCatalogue()">
             <ion-ripple-effect></ion-ripple-effect>
             <ion-card-title class="bento-label">{{ 'HOME.WISHLIST_LABEL' | transloco }}</ion-card-title>
-            <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: 0 } }}</div>
-            <div class="bento-sub-text">{{ 'HOME.IN_DEVELOPMENT' | transloco }}</div>
+            <div class="bento-kpi">{{ 'HOME.WINES' | transloco: { count: wishlistCount } }}</div>
           </ion-card>
         </ion-col>
       }

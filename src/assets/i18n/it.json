@@ -186,7 +186,8 @@
     "STAR_WINE_TAG": "Vino stella",
     "STAR_WINE_INFO": {
       "LABEL": "Come viene definito il vino stella?",
-      "TEXT": "Il vino stella è il vino con il prezzo unitario più alto della tua cantina."
+      "TEXT": "Il vino stella è scelto in base al criterio «{{criterion}}».",
+      "CHANGE": "Cambia il criterio"
     },
     "TOTAL_STOCK_LABEL": "Scorta totale",
     "BOTTLES": "{count, plural, =0 {nessuna bottiglia} =1 {bottiglia} other {bottiglie}}",
@@ -204,7 +205,6 @@
       "LABEL": "Come viene calcolato il voto medio?",
       "TEXT": "{count, plural, =0 {Nessuna bottiglia valutata della tua cantina è ancora presa in considerazione.} =1 {Calcolato su 1 bottiglia valutata della tua cantina.} other {Calcolato su {{count}} bottiglie valutate della tua cantina.}}"
     },
-    "IN_DEVELOPMENT": "Funzione in fase di sviluppo.",
     "VALUE_LABEL": "Valore della cantina",
     "VALUE_SUB": "stima (prezzo d'acquisto)",
     "WISHLIST_LABEL": "Lista dei desideri",
@@ -368,5 +368,118 @@
         "PERMISSION_DENIED": "Notifiche negate. Consentile nelle impostazioni del dispositivo per attivare gli avvisi."
       }
     }
+  },
+  "CATALOGUE": {
+    "WISHLIST": "Lista dei desideri",
+    "IN_WISHLIST": "Nella lista",
+    "TO_BUY": "Da acquistare",
+    "NOTHING_YET": "Ancora niente",
+    "WINE_COUNT": "{count, plural, one {# vino} other {# vini}}",
+    "SHOW_WINES": "{count, plural, one {Mostra # vino} other {Mostra # vini}}",
+    "CHOOSE_SCOPE": "Scegli il catalogo",
+    "COMMUNITY": "Catalogo",
+    "PERSONAL": "Le mie schede",
+    "SEARCH": "Cerca un vino, un vitigno…",
+    "SEARCH_PERSONAL": "Cerca nelle mie schede…",
+    "UNIT": "bottiglia",
+    "FILTERS": "Filtri",
+    "ACTIVE_FILTERS": "Filtri attivi",
+    "TYPE": "Tipo",
+    "STATUS": "Stato",
+    "STATUS_ALL": "Tutti",
+    "IN_CELLAR": "In cantina",
+    "ALREADY_IN_CELLAR": "Già nella mia cantina",
+    "SORT_ACTIVE": "Ordinamento attivo",
+    "REGION": "Regione",
+    "SORT": "Ordina per",
+    "ALL_REGIONS": "Tutte le regioni",
+    "SORT_NAME": "Nome: dalla A alla Z",
+    "SORT_PRICE_ASC": "Prezzo crescente",
+    "SORT_PRICE_DESC": "Prezzo decrescente",
+    "SORT_VINTAGE_DESC": "Annata più recente",
+    "RESET_FILTERS": "Reimposta i filtri",
+    "RESET": "Reimposta",
+    "VIEW_WINE": "Vedi",
+    "ADD_WISH": "Aggiungi alla lista dei desideri",
+    "REMOVE_WISH": "Rimuovi dalla lista dei desideri",
+    "ADD_TO_CELLAR": "Metti in cantina",
+    "NO_RESULTS": "Nessun vino corrisponde a questi criteri.",
+    "NO_PERSONAL": "Non hai ancora nessuna scheda.",
+    "CREATE": "Crea una scheda",
+    "CREATE_DESCRIPTION": "Aggiungi un riferimento al tuo catalogo personale.",
+    "SAVE_CARD": "Salva la scheda",
+    "PROPOSE_CHECK": "Proponi al catalogo comune",
+    "PROPOSE_CHECK_HINT": "La proposta sarà verificata prima della pubblicazione.",
+    "MISSING": "Non trovi il tuo vino?",
+    "MISSING_HINT": "Proponilo: sarà aggiunto al catalogo dopo la verifica.",
+    "MAKE_PROPOSAL": "Fai una proposta",
+    "GO_PERSONAL": "oppure crea una scheda personale",
+    "PROPOSE_TITLE": "Proponi un vino",
+    "SEND_PROPOSAL": "Invia la proposta",
+    "LOADING": "Caricamento dei vini…",
+    "WISHLIST_EMPTY": "La tua lista dei desideri è vuota.",
+    "WISHLIST_EMPTY_HINT": "Tocca la stella di un vino del catalogo per ritrovarlo qui.",
+    "FIRST_SLOT": "Primo posto",
+    "SLOT_HINT": "Le bottiglie successive occupano i posti liberi seguenti.",
+    "NO_SLOTS": "Non c'è nessun posto libero nella tua cantina.",
+    "ADD_SUCCESS": "Vino aggiunto alla cantina.",
+    "ADD_ERROR": "Impossibile aggiungere questo vino alla cantina.",
+    "CREATE_SUCCESS": "Scheda salvata.",
+    "CREATE_ERROR": "Impossibile salvare la scheda.",
+    "PROPOSAL_SUCCESS": "La tua proposta è stata inviata.",
+    "PROPOSAL_ERROR": "Impossibile inviare la tua proposta.",
+    "WISHLIST_SAVE_ERROR": "Impossibile salvare la lista dei desideri su questo dispositivo."
+  },
+  "STAR_WINE": {
+    "TITLE": "Calcolo del vino stella",
+    "SUBTITLE": "Scegli come viene designato il vino in evidenza nella home.",
+    "NEW": "Nuovo",
+    "GROUPS": {
+      "VALUE": "Valore",
+      "CHARACTER": "Carattere",
+      "OTHER": "Altro"
+    },
+    "CRITERIA": {
+      "PRICE": {
+        "TITLE": "Prezzo unitario più alto",
+        "DESCRIPTION": "La bottiglia più costosa della tua cantina."
+      },
+      "CELLAR_VALUE": {
+        "TITLE": "Maggior valore in cantina",
+        "DESCRIPTION": "Quantità × prezzo unitario: il vino che pesa di più."
+      },
+      "OLDEST_VINTAGE": {
+        "TITLE": "Annata più vecchia",
+        "DESCRIPTION": "Il vino che è invecchiato di più (esclusi i non millesimati)."
+      },
+      "BEST_RATED": {
+        "TITLE": "Meglio valutato",
+        "DESCRIPTION": "Il vino a cui hai dato il voto più alto."
+      },
+      "BEST_VALUE": {
+        "TITLE": "Miglior rapporto qualità / prezzo",
+        "DESCRIPTION": "Voto diviso per il prezzo: il tuo miglior affare."
+      },
+      "LONGEST_IN_CELLAR": {
+        "TITLE": "Da più tempo in cantina",
+        "DESCRIPTION": "Quello che dorme da te da più tempo."
+      },
+      "BIGGEST_STOCK": {
+        "TITLE": "Scorta più grande",
+        "DESCRIPTION": "Quello di cui hai più bottiglie."
+      }
+    },
+    "METRIC": {
+      "PRICE": "{{price}} / bottiglia",
+      "CELLAR_VALUE": "{{value}} in cantina",
+      "OLDEST_VINTAGE": "Annata {{vintage}}",
+      "BEST_RATED": "★ {{rating}} / 5",
+      "BEST_VALUE": "★ {{rating}} / 5 · {{price}}",
+      "LONGEST_IN_CELLAR": "In cantina dal {{date}}",
+      "BIGGEST_STOCK": "{count, plural, =0 {0 bottiglie} =1 {1 bottiglia} other {{{count}} bottiglie}}"
+    },
+    "FOOTNOTE": "In caso di parità decide il prezzo unitario. Il vino stella viene ricalcolato automaticamente quando la tua cantina cambia.",
+    "EMPTY": "Aggiungi dei vini alla tua cantina per vedere il tuo vino stella.",
+    "FALLBACK": "Nessun vino corrisponde ancora a questo criterio (voto, data di aggiunta… mancante): nel frattempo viene mostrato il vino più costoso."
   }
 }

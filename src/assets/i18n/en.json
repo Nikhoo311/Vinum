@@ -186,7 +186,8 @@
     "STAR_WINE_TAG": "Star wine",
     "STAR_WINE_INFO": {
       "LABEL": "How is the star wine defined?",
-      "TEXT": "The star wine is the wine with the highest unit price in your cellar."
+      "TEXT": "The star wine is chosen by the “{{criterion}}” criterion.",
+      "CHANGE": "Change the criterion"
     },
     "TOTAL_STOCK_LABEL": "Total stock",
     "BOTTLES": "{count, plural, =0 {no bottles} =1 {bottle} other {bottles}}",
@@ -204,7 +205,6 @@
       "LABEL": "How is the average rating calculated?",
       "TEXT": "{count, plural, =0 {No rated bottle in your cellar is taken into account yet.} =1 {Calculated from 1 rated bottle in your cellar.} other {Calculated from {{count}} rated bottles in your cellar.}}"
     },
-    "IN_DEVELOPMENT": "Feature in development.",
     "VALUE_LABEL": "Cellar value",
     "VALUE_SUB": "estimate (purchase price)",
     "WISHLIST_LABEL": "Wishlist",
@@ -368,5 +368,118 @@
         "PERMISSION_DENIED": "Notifications denied. Allow them in your device settings to enable alerts."
       }
     }
+  },
+  "CATALOGUE": {
+    "WISHLIST": "Wishlist",
+    "IN_WISHLIST": "In wishlist",
+    "TO_BUY": "To buy",
+    "NOTHING_YET": "Nothing yet",
+    "WINE_COUNT": "{count, plural, one {# wine} other {# wines}}",
+    "SHOW_WINES": "{count, plural, one {Show # wine} other {Show # wines}}",
+    "CHOOSE_SCOPE": "Choose the catalogue",
+    "COMMUNITY": "Catalogue",
+    "PERSONAL": "My cards",
+    "SEARCH": "Search a wine, a grape variety…",
+    "SEARCH_PERSONAL": "Search my cards…",
+    "UNIT": "bottle",
+    "FILTERS": "Filters",
+    "ACTIVE_FILTERS": "Active filters",
+    "TYPE": "Type",
+    "STATUS": "Status",
+    "STATUS_ALL": "All",
+    "IN_CELLAR": "In cellar",
+    "ALREADY_IN_CELLAR": "Already in my cellar",
+    "SORT_ACTIVE": "Sorted",
+    "REGION": "Region",
+    "SORT": "Sort by",
+    "ALL_REGIONS": "All regions",
+    "SORT_NAME": "Name: A to Z",
+    "SORT_PRICE_ASC": "Price: low to high",
+    "SORT_PRICE_DESC": "Price: high to low",
+    "SORT_VINTAGE_DESC": "Most recent vintage",
+    "RESET_FILTERS": "Reset filters",
+    "RESET": "Reset",
+    "VIEW_WINE": "View",
+    "ADD_WISH": "Add to wishlist",
+    "REMOVE_WISH": "Remove from wishlist",
+    "ADD_TO_CELLAR": "Add to cellar",
+    "NO_RESULTS": "No wine matches these criteria.",
+    "NO_PERSONAL": "You don't have any wine card yet.",
+    "CREATE": "Create a card",
+    "CREATE_DESCRIPTION": "Add a reference to your personal catalogue.",
+    "SAVE_CARD": "Save the card",
+    "PROPOSE_CHECK": "Suggest to the shared catalogue",
+    "PROPOSE_CHECK_HINT": "The suggestion will be reviewed before being published.",
+    "MISSING": "Can't find your wine?",
+    "MISSING_HINT": "Suggest it: it will be added to the catalogue after review.",
+    "MAKE_PROPOSAL": "Make a suggestion",
+    "GO_PERSONAL": "or create a personal card",
+    "PROPOSE_TITLE": "Suggest a wine",
+    "SEND_PROPOSAL": "Send the suggestion",
+    "LOADING": "Loading wines…",
+    "WISHLIST_EMPTY": "Your wishlist is empty.",
+    "WISHLIST_EMPTY_HINT": "Tap the star of a catalogue wine to find it here.",
+    "FIRST_SLOT": "First slot",
+    "SLOT_HINT": "The following bottles take the next free slots.",
+    "NO_SLOTS": "There is no free slot in your cellar.",
+    "ADD_SUCCESS": "Wine added to the cellar.",
+    "ADD_ERROR": "Unable to add this wine to the cellar.",
+    "CREATE_SUCCESS": "Card saved.",
+    "CREATE_ERROR": "Unable to save the card.",
+    "PROPOSAL_SUCCESS": "Your suggestion has been sent.",
+    "PROPOSAL_ERROR": "Unable to send your suggestion.",
+    "WISHLIST_SAVE_ERROR": "Unable to save the wishlist on this device."
+  },
+  "STAR_WINE": {
+    "TITLE": "Star wine calculation",
+    "SUBTITLE": "Choose how the wine featured on the home page is picked.",
+    "NEW": "New",
+    "GROUPS": {
+      "VALUE": "Value",
+      "CHARACTER": "Character",
+      "OTHER": "Other"
+    },
+    "CRITERIA": {
+      "PRICE": {
+        "TITLE": "Highest unit price",
+        "DESCRIPTION": "The most expensive bottle in your cellar."
+      },
+      "CELLAR_VALUE": {
+        "TITLE": "Highest value in cellar",
+        "DESCRIPTION": "Quantity × unit price: the wine that weighs the most."
+      },
+      "OLDEST_VINTAGE": {
+        "TITLE": "Oldest vintage",
+        "DESCRIPTION": "The wine that has aged the longest (non-vintage wines excluded)."
+      },
+      "BEST_RATED": {
+        "TITLE": "Best rated",
+        "DESCRIPTION": "The wine you rated the highest."
+      },
+      "BEST_VALUE": {
+        "TITLE": "Best quality / price ratio",
+        "DESCRIPTION": "Rating divided by price: your best bargain."
+      },
+      "LONGEST_IN_CELLAR": {
+        "TITLE": "Longest in the cellar",
+        "DESCRIPTION": "The one that has been sleeping with you the longest."
+      },
+      "BIGGEST_STOCK": {
+        "TITLE": "Biggest stock",
+        "DESCRIPTION": "The one you have the most bottles of."
+      }
+    },
+    "METRIC": {
+      "PRICE": "{{price}} / bottle",
+      "CELLAR_VALUE": "{{value}} in cellar",
+      "OLDEST_VINTAGE": "Vintage {{vintage}}",
+      "BEST_RATED": "★ {{rating}} / 5",
+      "BEST_VALUE": "★ {{rating}} / 5 · {{price}}",
+      "LONGEST_IN_CELLAR": "In the cellar since {{date}}",
+      "BIGGEST_STOCK": "{count, plural, =0 {0 bottles} =1 {1 bottle} other {{{count}} bottles}}"
+    },
+    "FOOTNOTE": "In case of a tie, the unit price decides. The star wine is recalculated automatically whenever your cellar changes.",
+    "EMPTY": "Add wines to your cellar to see your star wine.",
+    "FALLBACK": "No wine matches this criterion yet (missing rating, date added…): the most expensive wine is shown in the meantime."
   }
 }

@@ -61,7 +61,7 @@ Cave de l'utilisateur connecté (`users/{uid}/wine`). Un écouteur temps réel a
 | `cave` | Fiches de vin courantes |
 | `caveConfig` | Disposition (`rows`, `cols`, `viewMode`) |
 | `stats` | Statistiques courantes, **mémorisées** tant que la liste ne change pas |
-| `totalCapacity`, `occupiedCount`, `totalBottles`, `totalValue`, `starWine`, `uniqueRegionsCount`, `averageRating` | Raccourcis sur `stats` / la configuration |
+| `totalCapacity`, `occupiedCount`, `totalBottles`, `totalValue`, `uniqueRegionsCount`, `averageRating` | Raccourcis sur `stats` / la configuration |
 | `winesSortedByRatingDesc` | Vins notés, du mieux noté au moins bien noté |
 | `formatPlacementCoords(placement)` | `{row:0,col:2}` → `"A3"` (lettre de la rangée + numéro de colonne) |
 
@@ -87,7 +87,7 @@ Préférences **de l'appareil** (non synchronisées entre appareils), stockées 
 
 | Membre | Description |
 |---|---|
-| `preferences$` / `current` | Préférences courantes (`darkMode`, `language`, `notificationsEnabled`) |
+| `preferences$` / `current` | Préférences courantes (`darkMode`, `language`, `notificationsEnabled`, `starWineCriterion`) ; `setStarWineCriterion(criterion)` enregistre le critère du vin star |
 | `availableLangs` | Langues déclarées dans la configuration Transloco |
 | `init()` | Appelée au démarrage par `provideAppInitializer`. Valide les valeurs lues (une valeur corrompue retombe sur le défaut), charge la langue **avant** de l'activer, applique le thème |
 | `setDarkMode('light' \| 'dark' \| 'system')` | Enregistre et applique : classe `dark` sur `<body>`, `color-scheme`, style de la barre d'état Android |
@@ -130,4 +130,37 @@ Fonctions exportées principales — toutes sans effet de bord :
 - **preferences.util** : `sanitizePreferences(raw, availableLangs)`, `isDarkModeSetting`.
 - **error.util** : `AppError`, `ERROR_KEYS`, `toErrorKey(error, fallback?)`, `errorCodeOf(error)`, `isUserCancellation(error)`.
 - **maturity.util** : `maturityDate(addedAt, peakYear)`, `planMaturityNotifications(wines, now)`, `notificationIdFor(wineId)`.
+- **star-wine.util** : `STAR_WINE_CRITERIA`, `STAR_WINE_GROUPS`, `isStarWineCriterion`, `rankStarWines(wines, criterion)`, `resolveStarWine(wines, criterion)`.
+- **catalogue.util** : `filterCatalogue(wines, criteria, wishlist, cave)`, `countBottles`, `withCellarFlag`, `listRegions`, `listFreeSlots`, `pickWishlisted`, `wishlistTotal`, `countActiveFilters`, `toCatalogueWine`.
 - **search.util** : `normalizeSearchText`, `searchItems(items, query)` — chaque mot de la requête doit être trouvé (ET logique).
+
+## StarWineService
+
+Désigne le **vin star** du tableau de bord selon le critère choisi par l'utilisateur (préférence de l'appareil `starWineCriterion`, par défaut `price`).
+
+| Membre | Description |
+|---|---|
+| `criterion` | Critère choisi |
+| `result` | `StarWineResult` : classement complet, critère **réellement appliqué** et indicateur `fellBack`. Mémorisé tant que la cave et le critère ne changent pas |
+| `star` | Vin en tête du classement, ou `null` |
+| `setCriterion(criterion)` | Enregistre le choix (effet immédiat sur l'accueil) |
+| `criterionLabel(criterion)` | Nom du critère dans la langue courante |
+| `describe(entry, criterion)` | Valeur qui a classé le vin, formatée selon la langue : « 32 € / bouteille », « ★ 4,8 / 5 »… |
+| `isNew` / `markSeen()` | Pastille « Nouveau » du réglage, jusqu'à la première ouverture de l'écran |
+
+Les sept critères (`price`, `cellar-value`, `oldest-vintage`, `best-rated`, `best-value`, `longest-in-cellar`, `biggest-stock`), leurs règles d'éligibilité et le départage sont dans `core/utils/star-wine.util.ts` (testé) : un vin sans la donnée du critère (sans note, sans millésime, sans date d'ajout…) est écarté ; à score égal, le prix unitaire départage, puis l'ordre alphabétique. **Si aucun vin n'est éligible**, le critère par défaut (prix) s'applique et `fellBack` vaut `true` (l'écran de réglage l'indique).
+
+## CatalogueService
+
+Catalogue de vins : fiches personnelles, propositions, liste de souhaits et mise en cave. Les vins du catalogue commun sont embarqués (`catalogue/community-wines.ts`) en attendant un catalogue serveur.
+
+| Membre | Description |
+|---|---|
+| `personalWines$` | Fiches personnelles (`users/{uid}/catalogue`), validées par `toCatalogueWine` (les documents sans nom ou de type inconnu sont ignorés) ; vide si déconnecté ou en cas d'erreur de lecture |
+| `loadWishlist()` / `saveWishlist(ids)` | Liste de souhaits, **stockée sur l'appareil** (`localStorage`, clé `catalogue-wishlist-<uid>`), non synchronisée entre appareils. `saveWishlist` retourne `false` si le stockage est indisponible |
+| `freeSlots` | Emplacements libres de la cave (`{row, col, label}`) |
+| `addToCave(wine, data, quantity, firstSlot, isCustom)` | Place `quantity` bouteilles à partir de l'emplacement `firstSlot` (`A3`), puis dans les suivants (`findFreePlacements`) ; passe par `CaveService.addWine`, qui fusionne avec une fiche identique existante |
+| `createPersonalWine(data, propose)` | Crée la fiche personnelle ; si `propose`, crée **dans le même lot** la proposition correspondante |
+| `submitProposal(data)` | Crée un document `catalogueProposals/{id}` (`status: 'pending'`, `createdAt` : horodatage serveur) |
+
+Filtrage, tri, comptage des bouteilles en cave, régions et emplacements libres sont des fonctions pures dans `core/utils/catalogue.util.ts` (testées).

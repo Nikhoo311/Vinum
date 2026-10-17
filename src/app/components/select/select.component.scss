@@ -1,0 +1,121 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+// Même libellé que les champs de saisie (voir `.input-label` dans global.scss).
+.select__label {
+  display: block;
+  margin-bottom: 7px;
+  padding-left: 2px;
+  color: var(--mc-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.select {
+  position: relative;
+}
+
+.select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.875rem;
+  border: 1.5px solid var(--mc-border);
+  border-radius: var(--mc-radius-input);
+  background: var(--mc-bg-card);
+  color: var(--mc-text-primary);
+  font-family: var(--ion-font-family);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible,
+  .select--open & {
+    border-color: var(--ion-color-primary);
+    outline: none;
+  }
+}
+
+.select__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &--placeholder {
+    color: var(--mc-text-secondary);
+    font-weight: 500;
+  }
+}
+
+.select__chevron {
+  flex: none;
+  color: var(--mc-text-secondary);
+  font-size: 1.1rem;
+  transition: transform 0.15s;
+
+  .select--open & {
+    transform: rotate(180deg);
+  }
+}
+
+.select__list {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 13rem;
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-input);
+  background: var(--mc-bg-card);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  list-style: none;
+}
+
+.select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.625rem;
+  border-radius: calc(var(--mc-radius-input) - 4px);
+  color: var(--mc-text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  ion-icon {
+    flex: none;
+    color: var(--ion-color-primary);
+    font-size: 1.1rem;
+  }
+
+  &--active {
+    background: color-mix(in srgb, var(--mc-text-primary) 7%, transparent);
+  }
+
+  &--selected {
+    color: var(--ion-color-primary);
+  }
+}

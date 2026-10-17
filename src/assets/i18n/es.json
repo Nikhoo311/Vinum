@@ -186,7 +186,8 @@
     "STAR_WINE_TAG": "Vino estrella",
     "STAR_WINE_INFO": {
       "LABEL": "¿Cómo se define el vino estrella?",
-      "TEXT": "El vino estrella es el vino con el precio unitario más alto de tu bodega."
+      "TEXT": "El vino estrella se elige según el criterio «{{criterion}}».",
+      "CHANGE": "Cambiar el criterio"
     },
     "TOTAL_STOCK_LABEL": "Existencias totales",
     "BOTTLES": "{count, plural, =0 {ninguna botella} =1 {botella} other {botellas}}",
@@ -204,7 +205,6 @@
       "LABEL": "¿Cómo se calcula la nota media?",
       "TEXT": "{count, plural, =0 {Aún no se tiene en cuenta ninguna botella puntuada de tu bodega.} =1 {Calculada a partir de 1 botella puntuada de tu bodega.} other {Calculada a partir de {{count}} botellas puntuadas de tu bodega.}}"
     },
-    "IN_DEVELOPMENT": "Función en desarrollo.",
     "VALUE_LABEL": "Valor de la bodega",
     "VALUE_SUB": "estimación (precio de compra)",
     "WISHLIST_LABEL": "Lista de deseos",
@@ -368,5 +368,118 @@
         "PERMISSION_DENIED": "Notificaciones denegadas. Permítelas en los ajustes de tu dispositivo para activar las alertas."
       }
     }
+  },
+  "CATALOGUE": {
+    "WISHLIST": "Lista de deseos",
+    "IN_WISHLIST": "En la lista",
+    "TO_BUY": "Por comprar",
+    "NOTHING_YET": "Nada por ahora",
+    "WINE_COUNT": "{count, plural, one {# vino} other {# vinos}}",
+    "SHOW_WINES": "{count, plural, one {Ver # vino} other {Ver # vinos}}",
+    "CHOOSE_SCOPE": "Elegir el catálogo",
+    "COMMUNITY": "Catálogo",
+    "PERSONAL": "Mis fichas",
+    "SEARCH": "Buscar un vino, una uva…",
+    "SEARCH_PERSONAL": "Buscar en mis fichas…",
+    "UNIT": "botella",
+    "FILTERS": "Filtros",
+    "ACTIVE_FILTERS": "Filtros activos",
+    "TYPE": "Tipo",
+    "STATUS": "Estado",
+    "STATUS_ALL": "Todos",
+    "IN_CELLAR": "En bodega",
+    "ALREADY_IN_CELLAR": "Ya en mi bodega",
+    "SORT_ACTIVE": "Orden activo",
+    "REGION": "Región",
+    "SORT": "Ordenar por",
+    "ALL_REGIONS": "Todas las regiones",
+    "SORT_NAME": "Nombre: A a Z",
+    "SORT_PRICE_ASC": "Precio ascendente",
+    "SORT_PRICE_DESC": "Precio descendente",
+    "SORT_VINTAGE_DESC": "Añada más reciente",
+    "RESET_FILTERS": "Restablecer filtros",
+    "RESET": "Restablecer",
+    "VIEW_WINE": "Ver",
+    "ADD_WISH": "Añadir a la lista de deseos",
+    "REMOVE_WISH": "Quitar de la lista de deseos",
+    "ADD_TO_CELLAR": "Poner en bodega",
+    "NO_RESULTS": "Ningún vino coincide con estos criterios.",
+    "NO_PERSONAL": "Todavía no tiene ninguna ficha.",
+    "CREATE": "Crear una ficha",
+    "CREATE_DESCRIPTION": "Añada una referencia a su catálogo personal.",
+    "SAVE_CARD": "Guardar la ficha",
+    "PROPOSE_CHECK": "Proponer al catálogo común",
+    "PROPOSE_CHECK_HINT": "La propuesta se revisará antes de publicarse.",
+    "MISSING": "¿No encuentra su vino?",
+    "MISSING_HINT": "Propóngalo: se añadirá al catálogo tras su revisión.",
+    "MAKE_PROPOSAL": "Hacer una propuesta",
+    "GO_PERSONAL": "o crear una ficha personal",
+    "PROPOSE_TITLE": "Proponer un vino",
+    "SEND_PROPOSAL": "Enviar la propuesta",
+    "LOADING": "Cargando vinos…",
+    "WISHLIST_EMPTY": "Su lista de deseos está vacía.",
+    "WISHLIST_EMPTY_HINT": "Toque la estrella de un vino del catálogo para encontrarlo aquí.",
+    "FIRST_SLOT": "Primer hueco",
+    "SLOT_HINT": "Las botellas siguientes ocupan los siguientes huecos libres.",
+    "NO_SLOTS": "No hay ningún hueco libre en su bodega.",
+    "ADD_SUCCESS": "Vino añadido a la bodega.",
+    "ADD_ERROR": "No se ha podido añadir este vino a la bodega.",
+    "CREATE_SUCCESS": "Ficha guardada.",
+    "CREATE_ERROR": "No se ha podido guardar la ficha.",
+    "PROPOSAL_SUCCESS": "Su propuesta ha sido enviada.",
+    "PROPOSAL_ERROR": "No se ha podido enviar su propuesta.",
+    "WISHLIST_SAVE_ERROR": "No se ha podido guardar la lista de deseos en este dispositivo."
+  },
+  "STAR_WINE": {
+    "TITLE": "Cálculo del vino estrella",
+    "SUBTITLE": "Elija cómo se designa el vino destacado en el inicio.",
+    "NEW": "Nuevo",
+    "GROUPS": {
+      "VALUE": "Valor",
+      "CHARACTER": "Carácter",
+      "OTHER": "Otros"
+    },
+    "CRITERIA": {
+      "PRICE": {
+        "TITLE": "Precio unitario más alto",
+        "DESCRIPTION": "La botella más cara de su bodega."
+      },
+      "CELLAR_VALUE": {
+        "TITLE": "Mayor valor en bodega",
+        "DESCRIPTION": "Cantidad × precio unitario: el vino que más pesa."
+      },
+      "OLDEST_VINTAGE": {
+        "TITLE": "Añada más antigua",
+        "DESCRIPTION": "El vino que más ha envejecido (sin contar los sin añada)."
+      },
+      "BEST_RATED": {
+        "TITLE": "Mejor valorado",
+        "DESCRIPTION": "El vino al que usted dio la mejor nota."
+      },
+      "BEST_VALUE": {
+        "TITLE": "Mejor relación calidad / precio",
+        "DESCRIPTION": "Nota dividida por el precio: su mejor hallazgo."
+      },
+      "LONGEST_IN_CELLAR": {
+        "TITLE": "El que más tiempo lleva en bodega",
+        "DESCRIPTION": "El que duerme en su bodega desde hace más tiempo."
+      },
+      "BIGGEST_STOCK": {
+        "TITLE": "Mayor stock",
+        "DESCRIPTION": "El que tiene más botellas."
+      }
+    },
+    "METRIC": {
+      "PRICE": "{{price}} / botella",
+      "CELLAR_VALUE": "{{value}} en bodega",
+      "OLDEST_VINTAGE": "Añada {{vintage}}",
+      "BEST_RATED": "★ {{rating}} / 5",
+      "BEST_VALUE": "★ {{rating}} / 5 · {{price}}",
+      "LONGEST_IN_CELLAR": "En bodega desde el {{date}}",
+      "BIGGEST_STOCK": "{count, plural, =0 {0 botellas} =1 {1 botella} other {{{count}} botellas}}"
+    },
+    "FOOTNOTE": "En caso de empate, decide el precio unitario. El vino estrella se recalcula automáticamente cuando cambia su bodega.",
+    "EMPTY": "Añada vinos a su bodega para ver su vino estrella.",
+    "FALLBACK": "Ningún vino cumple todavía este criterio (falta la nota, la fecha de alta…): mientras tanto se muestra el vino más caro."
   }
 }

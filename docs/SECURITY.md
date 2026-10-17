@@ -35,6 +35,8 @@ Principe : *chacun ne voit et ne modifie que ses propres données ; tout le rest
 |---|---|---|
 | `users/{uid}` | propriétaire (`request.auth.uid == uid`) | propriétaire **et** contenu valide |
 | `users/{uid}/wine/{wineId}` | propriétaire | propriétaire **et** contenu valide |
+| `users/{uid}/catalogue/{id}` | propriétaire | propriétaire **et** contenu valide (mêmes règles qu'un vin) |
+| `catalogueProposals/{id}` | l'auteur (`ownerId`) | **création seule** : `ownerId` = uid, `status == 'pending'`, `createdAt` = horodatage serveur, liste de champs fermée ; ni modification ni suppression |
 | tout autre chemin | refusé | refusé |
 
 ### Validations de contenu
@@ -48,6 +50,7 @@ Ces validations sont **volontairement tolérantes** avec les champs facultatifs,
 
 ### Limites des règles
 
+- Les propositions s'accumulent dans `catalogueProposals` : leur **modération** (lecture de toutes les propositions, publication) se fait hors de l'application (console Firebase ou Admin SDK, qui ignorent les règles). Aucune limite de débit n'est appliquée côté règles.
 - Elles ne peuvent pas garantir l'**unicité d'un emplacement** dans la cave (deux fiches pourraient revendiquer la même case) : la cohérence est assurée par le client. Voir [Limites connues](REVIEW.md#limites-connues).
 - Elles ne vérifient pas que `rows × cols` correspond au nombre de bouteilles ; le redimensionnement passe par `resizeCave` (lot atomique).
 - `CAVE_MAX` (24) est une règle de **produit** appliquée par l'interface ; le plafond technique des règles est 240 (`CAVE_MAX_PREMIUM`).

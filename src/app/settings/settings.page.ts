@@ -13,6 +13,7 @@ import { AuthService } from '../core/services/auth.service';
 import { CaveService } from '../core/services/cave.service';
 import { MaturityNotificationService } from '../core/services/maturity-notification.service';
 import { DarkModeSetting, PreferencesService } from '../core/services/preferences.service';
+import { StarWineService } from '../core/services/star-wine.service';
 import { ToastService } from '../core/services/toast.service';
 import { LANGUAGE_CONFIG } from '../core/types/LanguageConfig';
 import { CAVE_MAX, WINE_TYPE_CONFIG } from '../core/types/WineType';
@@ -28,6 +29,7 @@ import { environment } from '../../environments/environment';
 })
 export class SettingsPage {
   private readonly authService = inject(AuthService);
+  private readonly starWine = inject(StarWineService);
 
   readonly maxEmplacements = CAVE_MAX;
   readonly features = environment.features;
@@ -193,6 +195,20 @@ export class SettingsPage {
 
   goToVinPrefere(): void {
     void this.router.navigate(['/settings/favorite-wine']);
+  }
+
+  goToStarWine(): void {
+    void this.router.navigate(['/settings/star-wine']);
+  }
+
+  /** Nom du critère de vin star actuellement choisi. */
+  get starWineCriterionLabel(): string {
+    return this.starWine.criterionLabel(this.starWine.criterion);
+  }
+
+  /** Pastille « Nouveau » tant que l'écran n'a pas été ouvert. */
+  get isStarWineNew(): boolean {
+    return this.starWine.isNew;
   }
 
   goToLanguage(): void {

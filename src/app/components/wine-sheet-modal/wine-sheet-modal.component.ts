@@ -27,7 +27,12 @@ export class WineSheetModalComponent {
   @Input({ required: true }) wine: UserWine | null = null;
   @Input() isOpen = false;
   @Input() coords: CellPlacement | null = null;
+  /** Fiche du catalogue commun : pas de notation ni de retrait, boutons « liste de souhaits » / « mettre en cave ». */
+  @Input() catalogueMode = false;
+  @Input() isWishlisted = false;
   @Output() isOpenChange = new EventEmitter<boolean>();
+  @Output() wishlistToggle = new EventEmitter<void>();
+  @Output() addToCave = new EventEmitter<void>();
 
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
   readonly ratingValues = [1, 2, 3, 4, 5];
@@ -47,6 +52,12 @@ export class WineSheetModalComponent {
 
   /** Bouteille en cours de retrait pendant que la fenêtre de notation est ouverte. */
   private pendingBottleRemoval: CellPlacement | null = null;
+
+  /**
+   * Fermer la fiche en même temps que la fenêtre de notation laisse un fond d'écran bloquant
+   * (deux modales qui se ferment ensemble) : la fiche ne se ferme qu'une fois la notation fermée.
+   */
+  private closeSheetAfterRating = false;
 
   get formattedPlacements(): string[] {
     return [...(this.wine?.placements ?? [])].sort(comparePlacements).map((placement) => formatPlacement(placement));
@@ -116,17 +127,34 @@ export class WineSheetModalComponent {
   // ── Notation ──────────────────────────────────────────────
 
   openRatingModal(bottleToRemove: CellPlacement | null = null): void {
-    if (!this.wine) return;
+    if (!this.wine || this.catalogueMode) return;
 
     this.selectedRating = this.wine.rating != null ? Math.round(this.wine.rating * 2) / 2 : null;
     this.pendingBottleRemoval = bottleToRemove;
     this.isRatingModalOpen = true;
   }
 
+  /** Demande la fermeture de la fenêtre de notation (l'état est remis à zéro dans `onRatingDismissed`). */
   closeRatingModal(): void {
+    this.isRatingModalOpen = false;
+  }
+
+  /** Fenêtre de notation réellement fermée : remet l'état à zéro, puis ferme la fiche si le retrait est fini. */
+  onRatingDismissed(): void {
     this.isRatingModalOpen = false;
     this.selectedRating = null;
     this.pendingBottleRemoval = null;
+
+    if (this.closeSheetAfterRating) {
+      this.closeSheetAfterRating = false;
+      this.closeModal();
+    }
+  }
+
+  /** Bouteille retirée : ferme la notation, puis la fiche une fois la notation fermée. */
+  private finishBottleRemoval(): void {
+    this.closeSheetAfterRating = true;
+    this.isRatingModalOpen = false;
   }
 
   /** Un clic sur la moitié gauche d'une étoile donne une demi-note ; recliquer retire la note. */
@@ -164,8 +192,8 @@ export class WineSheetModalComponent {
           { rating }
         )
       );
-      this.closeRatingModal();
-      if (bottleToRemove) this.closeModal();
+      if (bottleToRemove) this.finishBottleRemoval();
+      else this.closeRatingModal();
     } catch (error) {
       console.error("Enregistrement de la note impossible :", error);
       void this.toastService.error(this.transloco.translate('WINE_SHEET_MODAL.RATING_MODAL.SAVE_ERROR'));
@@ -181,8 +209,7 @@ export class WineSheetModalComponent {
     this.isSavingRating = true;
     try {
       await this.caveService.removeBottle(this.wine.id, this.pendingBottleRemoval);
-      this.closeRatingModal();
-      this.closeModal();
+      this.finishBottleRemoval();
     } catch (error) {
       console.error('Retrait de la bouteille impossible :', error);
       void this.toastService.error(this.transloco.translate('WINE_SHEET_MODAL.RATING_MODAL.REMOVE_ERROR'));

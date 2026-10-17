@@ -47,6 +47,16 @@
         </ion-segment>
       </ion-item>
 
+      <ion-item [button]="true" [detail]="true" (click)="goToStarWine()">
+        <ion-label>
+          <h2>
+            {{ 'STAR_WINE.TITLE' | transloco }}
+            @if (isStarWineNew) { <span class="new-badge">{{ 'STAR_WINE.NEW' | transloco }}</span> }
+          </h2>
+          <p>{{ starWineCriterionLabel }}</p>
+        </ion-label>
+      </ion-item>
+
       @if (features.maturityAlerts) {
       <ion-item [button]="true">
         <ion-toggle

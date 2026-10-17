@@ -1,4 +1,65 @@
 {
+  "CATALOGUE": {
+    "WISHLIST": "Liste de souhaits",
+    "IN_WISHLIST": "Dans la liste",
+    "TO_BUY": "À acheter",
+    "NOTHING_YET": "Rien pour le moment",
+    "WINE_COUNT": "{count, plural, one {# vin} other {# vins}}",
+    "SHOW_WINES": "{count, plural, one {Voir # vin} other {Voir # vins}}",
+    "CHOOSE_SCOPE": "Choisir le catalogue",
+    "COMMUNITY": "Catalogue",
+    "PERSONAL": "Mes fiches",
+    "SEARCH": "Rechercher un vin, un cépage…",
+    "SEARCH_PERSONAL": "Rechercher dans mes fiches…",
+    "UNIT": "unité",
+    "FILTERS": "Filtres",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "TYPE": "Type",
+    "STATUS": "Statut",
+    "STATUS_ALL": "Tous",
+    "IN_CELLAR": "En cave",
+    "ALREADY_IN_CELLAR": "Déjà dans ma cave",
+    "SORT_ACTIVE": "Tri actif",
+    "REGION": "Région",
+    "SORT": "Trier par",
+    "ALL_REGIONS": "Toutes les régions",
+    "SORT_NAME": "Nom : A à Z",
+    "SORT_PRICE_ASC": "Prix croissant",
+    "SORT_PRICE_DESC": "Prix décroissant",
+    "SORT_VINTAGE_DESC": "Millésime récent",
+    "RESET_FILTERS": "Réinitialiser les filtres",
+    "RESET": "Réinitialiser",
+    "VIEW_WINE": "Voir",
+    "ADD_WISH": "Ajouter à la liste de souhaits",
+    "REMOVE_WISH": "Retirer de la liste de souhaits",
+    "ADD_TO_CELLAR": "Mettre en cave",
+    "NO_RESULTS": "Aucun vin ne correspond à ces critères.",
+    "NO_PERSONAL": "Vous n’avez pas encore de fiche personnelle.",
+    "CREATE": "Créer une fiche",
+    "CREATE_DESCRIPTION": "Ajoutez une référence à votre catalogue personnel.",
+    "SAVE_CARD": "Enregistrer la fiche",
+    "PROPOSE_CHECK": "Proposer au catalogue commun",
+    "PROPOSE_CHECK_HINT": "La proposition sera vérifiée avant d’être publiée.",
+    "MISSING": "Vous ne trouvez pas votre vin ?",
+    "MISSING_HINT": "Proposez-le : il sera ajouté au catalogue après vérification.",
+    "MAKE_PROPOSAL": "Faire une proposition",
+    "GO_PERSONAL": "ou créer une fiche personnelle",
+    "PROPOSE_TITLE": "Proposer un vin",
+    "SEND_PROPOSAL": "Envoyer la proposition",
+    "LOADING": "Chargement des vins…",
+    "WISHLIST_EMPTY": "Votre liste de souhaits est vide.",
+    "WISHLIST_EMPTY_HINT": "Touchez l’étoile d’un vin du catalogue pour le retrouver ici.",
+    "FIRST_SLOT": "Premier emplacement",
+    "SLOT_HINT": "Les bouteilles suivantes occupent les emplacements libres suivants.",
+    "NO_SLOTS": "Aucun emplacement libre dans votre cave.",
+    "ADD_SUCCESS": "Vin ajouté à la cave.",
+    "ADD_ERROR": "Impossible d’ajouter ce vin à la cave.",
+    "CREATE_SUCCESS": "Fiche enregistrée.",
+    "CREATE_ERROR": "Impossible d’enregistrer la fiche.",
+    "PROPOSAL_SUCCESS": "Votre proposition a été envoyée.",
+    "PROPOSAL_ERROR": "Impossible d’envoyer votre proposition.",
+    "WISHLIST_SAVE_ERROR": "Impossible de sauvegarder la liste de souhaits sur cet appareil."
+  },
   "APP_TITLE": "Vinum",
   "APP_SLOGAN": "Votre cave à portée de main",
   "ERRORS": {
@@ -186,7 +247,8 @@
     "STAR_WINE_TAG": "Vin star",
     "STAR_WINE_INFO": {
       "LABEL": "Comment est défini le vin star ?",
-      "TEXT": "Le vin star est le vin au prix unitaire le plus élevé de votre cave."
+      "TEXT": "Le vin star est choisi selon le critère « {{criterion}} ».",
+      "CHANGE": "Modifier le critère"
     },
     "TOTAL_STOCK_LABEL": "Stock total",
     "BOTTLES": "{count, plural, =0 {aucune bouteille} =1 {bouteille} other {bouteilles}}",
@@ -204,7 +266,6 @@
       "LABEL": "Comment est calculée la note moyenne ?",
       "TEXT": "{count, plural, =0 {Aucune bouteille notée de votre cave n’est encore prise en compte.} =1 {Calculée à partir de 1 bouteille notée de votre cave.} other {Calculée à partir de {{count}} bouteilles notées de votre cave.}}"
     },
-    "IN_DEVELOPMENT": "Fonctionnalité en développement.",
     "VALUE_LABEL": "Valeur de la cave",
     "VALUE_SUB": "estimation (prix d'achat)",
     "WISHLIST_LABEL": "Liste de souhaits",
@@ -368,5 +429,57 @@
         "PERMISSION_DENIED": "Notifications refusées. Autorisez-les dans les réglages de votre appareil pour activer les alertes."
       }
     }
+  },
+  "STAR_WINE": {
+    "TITLE": "Calcul du vin star",
+    "SUBTITLE": "Choisissez comment le vin mis en avant sur l’accueil est désigné.",
+    "NEW": "Nouveau",
+    "GROUPS": {
+      "VALUE": "Valeur",
+      "CHARACTER": "Caractère",
+      "OTHER": "Divers"
+    },
+    "CRITERIA": {
+      "PRICE": {
+        "TITLE": "Prix unitaire le plus élevé",
+        "DESCRIPTION": "La bouteille la plus chère de votre cave."
+      },
+      "CELLAR_VALUE": {
+        "TITLE": "Valeur en cave la plus élevée",
+        "DESCRIPTION": "Quantité × prix unitaire : le vin qui pèse le plus lourd."
+      },
+      "OLDEST_VINTAGE": {
+        "TITLE": "Millésime le plus ancien",
+        "DESCRIPTION": "Le vin qui a le plus vieilli (hors non-millésimés)."
+      },
+      "BEST_RATED": {
+        "TITLE": "Mieux noté",
+        "DESCRIPTION": "Le vin que vous avez le mieux noté."
+      },
+      "BEST_VALUE": {
+        "TITLE": "Meilleur rapport qualité / prix",
+        "DESCRIPTION": "Note divisée par le prix : votre meilleur coup de cœur."
+      },
+      "LONGEST_IN_CELLAR": {
+        "TITLE": "Le plus longtemps en cave",
+        "DESCRIPTION": "Celui qui dort chez vous depuis le plus longtemps."
+      },
+      "BIGGEST_STOCK": {
+        "TITLE": "Plus gros stock",
+        "DESCRIPTION": "Celui dont vous avez le plus de bouteilles."
+      }
+    },
+    "METRIC": {
+      "PRICE": "{{price}} / bouteille",
+      "CELLAR_VALUE": "{{value}} en cave",
+      "OLDEST_VINTAGE": "Millésime {{vintage}}",
+      "BEST_RATED": "★ {{rating}} / 5",
+      "BEST_VALUE": "★ {{rating}} / 5 · {{price}}",
+      "LONGEST_IN_CELLAR": "En cave depuis le {{date}}",
+      "BIGGEST_STOCK": "{count, plural, =0 {0 bouteille} =1 {1 bouteille} other {{{count}} bouteilles}}"
+    },
+    "FOOTNOTE": "En cas d’égalité, le prix unitaire départage. Le vin star est recalculé automatiquement quand votre cave change.",
+    "EMPTY": "Ajoutez des vins à votre cave pour voir votre vin star.",
+    "FALLBACK": "Aucun vin ne correspond encore à ce critère (note, date d’ajout… manquante) : en attendant, le vin le plus cher est affiché."
   }
 }

@@ -12,8 +12,6 @@ export interface RegionDistribution {
 export interface CaveStats {
   totalBottles: number;
   totalValue: number;
-  /** Vin au prix unitaire le plus élevé (« vin star »), ou `null` si aucun. */
-  starWine: UserWine | null;
   uniqueRegionsCount: number;
   ratedCount: number;
   /** Note moyenne sur 5, arrondie au dixième ; `0` si aucun vin noté. */
@@ -52,7 +50,6 @@ export function computeCaveStats(wines: readonly UserWine[]): CaveStats {
 
   let totalBottles = 0;
   let totalValue = 0;
-  let starWine: UserWine | null = null;
   let ratingSum = 0;
   let ratedCount = 0;
 
@@ -62,9 +59,6 @@ export function computeCaveStats(wines: readonly UserWine[]): CaveStats {
 
     if (isFiniteNumber(wine.unitPrice)) {
       totalValue += wine.unitPrice * bottles;
-      if (wine.unitPrice > 0 && (starWine === null || wine.unitPrice > starWine.unitPrice)) {
-        starWine = wine;
-      }
     }
 
     if (isFiniteNumber(wine.rating)) {
@@ -105,7 +99,6 @@ export function computeCaveStats(wines: readonly UserWine[]): CaveStats {
   return {
     totalBottles,
     totalValue,
-    starWine,
     uniqueRegionsCount: uniqueRegions.size,
     ratedCount,
     averageRating: ratedCount > 0 ? Math.round((ratingSum / ratedCount) * 10) / 10 : 0,

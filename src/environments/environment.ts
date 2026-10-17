@@ -14,7 +14,7 @@ export const environment = {
    * - maturityAlerts : alertes de maturité (notifications locales ; nécessite @capacitor/local-notifications).
    */
   features: {
-    catalogue: false,
+    catalogue: true,
     maturityAlerts: true,
   },
 };

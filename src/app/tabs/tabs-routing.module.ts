@@ -22,8 +22,7 @@ const routes: Routes = [
         ? [
             {
               path: 'catalogue',
-              // Page provisoire : à remplacer par la page catalogue.
-              loadChildren: () => import('../home/home.module').then((m) => m.HomePageModule),
+              loadChildren: () => import('../catalogue/catalogue.module').then((m) => m.CataloguePageModule),
             },
           ]
         : []),

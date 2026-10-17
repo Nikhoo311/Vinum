@@ -37,6 +37,12 @@ Choix du type de vin (rouge, blanc, rosé, champagne) avec bouteille illustrée.
 #### `app-add-wine-form` — `AddWineFormComponent`
 Formulaire complet d'ajout/modification d'un vin (aperçu en direct, type, nom, domaine, millésime, apogée, région, cépage, prix, note, notes de dégustation, accords, quantité). Entrées : `form` (obligatoire, construit par `createWineForm`), `formId`, `maxQuantity`, `showQuantity`. Sortie : `formSubmit`.
 
+#### `app-select` — `SelectComponent`
+Liste de sélection d'une valeur, au même style que les champs de saisie (libellé en capitales, bordure 1,5 px). Entrées : `label`, `value`, `options` (`SelectOption[]` : `{value, label}`), `placeholder`. Sortie : `valueChange`. Liste **maison** (déclencheur + liste insérée sous le champ, clavier ↑ ↓ Entrée Échap, fermeture au clic extérieur) : la popover d'`ion-select` était mal positionnée dans les modales à crans.
+
+#### `app-checkbox` — `CheckboxComponent`
+Case à cocher dont **toute la ligne** est cliquable. Entrées : `label`, `description`, `checked`, `disabled`. Sortie : `checkedChange`.
+
 ### Authentification
 
 | Sélecteur | Rôle |
@@ -64,6 +70,8 @@ Fiche détaillée d'un vin : informations, étoiles de notation (demi-points), m
 | `canRemoveBottle` *(obligatoire)* | Autorise « Retirer une bouteille » (faux depuis l'accueil) |
 | `isOpen` / `isOpenChange` | Liaison bidirectionnelle `[(isOpen)]` |
 | `coords` | Emplacement de la bouteille consultée (requis pour la retirer) |
+| `catalogueMode` | Mode catalogue : pas de notation ni de modification ; boutons « Liste de souhaits » et « Mettre en cave » |
+| `isWishlisted` / `wishlistToggle` / `addToCave` | État de l'étoile et événements des deux boutons du mode catalogue |
 
 #### `app-custom-modal` — `CustomModalComponent`
 Feuille modale Ionic à crans (*breakpoints*) avec projection de contenu : le contenu principal, et un pied de page via l'attribut `modal-footer`.
@@ -85,10 +93,12 @@ Feuille modale Ionic à crans (*breakpoints*) avec projection de contenu : le co
 | `AuthPage` | `auth/` | Bascule connexion/inscription, connexion Google (`loading` pour éviter les doubles appuis, annulation silencieuse) |
 | `PreferencePage` | `preference/` | Onboarding en 4 écrans : identité → vin préféré → taille de la cave (plafond `CAVE_MAX`) → confirmation. Écrit le profil avec `saveUserPreferences`, protège contre le double envoi, affiche un toast en cas d'échec |
 | `TabsPage` | `tabs/` | Barre d'onglets et balayage horizontal |
-| `HomePage` | `home/` | Tableau de bord : stock, valeur, vin star, taux de remplissage, note moyenne, répartition par type et par région. Montants et pourcentages formatés selon la langue (`Intl`). Carte « Liste de souhaits » derrière `features.catalogue` |
+| `HomePage` | `home/` | Tableau de bord : stock, valeur, vin star, taux de remplissage, note moyenne, répartition par type et par région. Montants et pourcentages formatés selon la langue (`Intl`). Le vin star suit le critère choisi (valeur affichée sous le nom, infobulle avec lien vers le réglage). Carte « Liste de souhaits » derrière `features.catalogue` |
 | `CavePage` | `cave/` | Grille de la cave, recherche, ajout de bouteille(s) : un appui sur une case vide ouvre le formulaire, les `quantity` bouteilles sont placées sur les cases libres à partir de la case touchée (parcours circulaire) |
+| `CataloguePage` | `catalogue/` | <a id="catalogue"></a>Catalogue (communauté / mes fiches) : recherche, filtres (type, statut en boutons radio, région, tri) dans une modale, liste de souhaits, fiche détaillée (`app-wine-sheet-modal` en `catalogueMode`), mise en cave (premier emplacement + quantité), création de fiche personnelle et proposition au catalogue commun. La liste affichée est **recalculée par `refresh()`** à chaque changement de critère ou de donnée (pas à chaque cycle de détection). Les trois formulaires partagent `createWineForm` ; les accords mets-vins se pré-remplissent selon le type choisi (`app-add-wine-form`). Texte entièrement traduit (`CATALOGUE.*`) |
 | `SettingsPage` | `settings/` | Compte, cave (disposition, affichage grille/liste, alertes de maturité*), apparence (thème, langue) |
 | `PersonalInformationPage` | `settings/personal-information/` | Nom, e-mail (avec ré-authentification), mot de passe (modale), déconnexion, suppression du compte |
+| `StarWinePage` | `settings/star-wine/` | Réglage « Calcul du vin star » : aperçu du vin désigné (avec la valeur qui l'a placé en tête), puis sept critères en trois groupes (Valeur, Caractère, Divers) au format boutons radio. Le choix s'applique immédiatement ; chaque critère sans vin éligible déclenche un message et le repli sur le prix. Ligne d'entrée dans Réglages → Cave, avec pastille « Nouveau » |
 | `FavoriteWinePage` | `settings/favorite-wine/` | Changement du type de vin préféré (présélection = valeur du profil) |
 | `LanguagePage` | `settings/language/` | Choix de la langue, appliqué immédiatement |
 

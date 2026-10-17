@@ -27,4 +27,5 @@
     <app-stepper [control]="form.controls['quantity']" [label]="'CAVE.ADD_WINE.QUANTITY' | transloco" [min]="1" [max]="maxQuantity"></app-stepper>
     <p class="add-wine-form__availability">{{ remainingSlots }} {{ (remainingSlots > 1 ? 'CAVE.ADD_WINE.AVAILABLE_SLOTS' : 'CAVE.ADD_WINE.AVAILABLE_SLOT') | transloco }}</p>
   }
+  <ng-content></ng-content>
 </form>

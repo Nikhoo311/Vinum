@@ -9,7 +9,9 @@ import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-she
 import { User } from '../core/models/user.model';
 import { UserWine } from '../core/models/wine.model';
 import { AuthService } from '../core/services/auth.service';
+import { CatalogueService } from '../core/services/catalogue.service';
 import { CaveService } from '../core/services/cave.service';
+import { StarWineService } from '../core/services/star-wine.service';
 import { WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
 import { CaveStats, RegionDistribution, fillPercentage, percentageOf } from '../core/utils/cave-stats.util';
 
@@ -26,12 +28,21 @@ export class HomePage {
 
   isSheetOpen = false;
 
+  /** Nombre de vins de la liste de souhaits (relu à chaque affichage de l'onglet). */
+  wishlistCount = 0;
+
   private readonly authService = inject(AuthService);
   private readonly caveService = inject(CaveService);
+  private readonly starWineService = inject(StarWineService);
+  private readonly catalogueService = inject(CatalogueService);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
 
   private readonly numberFormats = new Map<string, Intl.NumberFormat>();
+
+  ionViewWillEnter(): void {
+    if (this.features.catalogue) this.wishlistCount = this.catalogueService.loadWishlist().size;
+  }
 
   get user(): User | null {
     return this.authService.currentUser;
@@ -55,7 +66,22 @@ export class HomePage {
   }
 
   get starWine(): UserWine | null {
-    return this.stats.starWine;
+    return this.starWineService.star;
+  }
+
+  /** Valeur qui a désigné le vin star (« 32 € / bouteille », « ★ 4,8 / 5 »…). */
+  get starWineMetric(): string {
+    const { ranking, criterion } = this.starWineService.result;
+    return ranking.length ? this.starWineService.describe(ranking[0], criterion) : '';
+  }
+
+  /** Nom du critère appliqué, pour l'infobulle. */
+  get starWineCriterionLabel(): string {
+    return this.starWineService.criterionLabel(this.starWineService.result.criterion);
+  }
+
+  goToStarWineSettings(): void {
+    void this.router.navigate(['/settings/star-wine']);
   }
 
   get regionEntries(): RegionDistribution[] {

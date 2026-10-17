@@ -1,135 +1,149 @@
-.settings-section {
-  margin-bottom: 22px;
-
-  &__title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--mc-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-    padding-left: 4px;
-  }
+.settings-section {
+  margin-bottom: 22px;
+
+  &__title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--mc-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+}
+
+.settings-list {
+  background: var(--mc-bg-card);
+  border-radius: var(--mc-radius-card);
+  overflow: hidden;
+  padding: 0;
+
+  ion-item {
+    --background: var(--mc-bg-card);
+    --border-color: var(--mc-border);
+    --border-width: 0 0 1px 0;
+    --min-height: 52px;
+    --padding-start: 1rem;
+    --inner-padding-end: 1rem;
+    margin-bottom: 0;
+    --inner-border-width: 0;
+    --inner-padding-bottom: 0.7rem;
+    --inner-padding-top: 0.7rem;
+
+    &:last-of-type {
+      --border-width: 0;
+    }
+
+    ion-label {
+      h2 {
+        color: var(--mc-text-primary);
+        margin: 0;
+      }
+
+      p {
+        font-size: 0.75rem;
+        color: var(--mc-text-secondary);
+        margin: 2px 0 0 0;
+      }
+    }
+
+    ion-note {
+      font-size: 0.875rem;
+      color: var(--mc-text-secondary);
+      margin-right: 4px;
+      text-transform: capitalize;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    &::part(detail-icon) {
+      color: var(--mc-text-secondary);
+      opacity: 1;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Segment Grille/Liste — reproduit le .seg pilule de la maquette */
+ion-segment {
+  --background: var(--mc-bg-main);
+  border-radius: var(--mc-radius-pill);
+  padding: 2px;
+  width: 75px;
+  flex: 0 0 auto;
+}
+
+ion-segment-button {
+  --background: transparent;
+  --background-checked: var(--mc-accent);
+  --color: var(--mc-text-secondary);
+  --color-checked: #fff;
+  --indicator-color: transparent;
+  --border-radius: var(--mc-radius-pill);
+  min-width: 32px;
+  min-height: 28px;
+  margin: 0;
+
+  ion-icon {
+    font-size: 1rem;
+  }
+
+  &::part(native) {
+    border-radius: var(--mc-radius-pill);
+  }
+
+  &.segment-button-activated::part(native) {
+    border-radius: var(--mc-radius-pill);
+  }
+}
+
+ .modal {
+  &-title {
+    font-size: 1.125rem;
+    margin-top: 1.1rem;
+    margin-bottom: 4px;
+    color: var(--mc-text-primary);
+  }
+  &-hint {
+    font-size: 0.781rem;
+    color: var(--mc-text-secondary);
+    margin-bottom: 18px;
+  }
+  &-total-line {
+    text-align: center;
+    font-size: 0.781rem;
+    color: var(--mc-text-secondary);
+    margin: 14px 0 18px 0;
+
+    strong {
+      color: var(--mc-text-primary);
+    }
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.modal-actions {
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  ion-button {
+    margin: 0;
+  }
 }
 
-.settings-list {
-  background: var(--mc-bg-card);
-  border-radius: var(--mc-radius-card);
-  overflow: hidden;
-  padding: 0;
-
-  ion-item {
-    --background: var(--mc-bg-card);
-    --border-color: var(--mc-border);
-    --border-width: 0 0 1px 0;
-    --min-height: 52px;
-    --padding-start: 1rem;
-    --inner-padding-end: 1rem;
-    margin-bottom: 0;
-    --inner-border-width: 0;
-    --inner-padding-bottom: 0.7rem;
-    --inner-padding-top: 0.7rem;
-
-    &:last-of-type {
-      --border-width: 0;
-    }
-
-    ion-label {
-      h2 {
-        color: var(--mc-text-primary);
-        margin: 0;
-      }
-
-      p {
-        font-size: 0.75rem;
-        color: var(--mc-text-secondary);
-        margin: 2px 0 0 0;
-      }
-    }
-
-    ion-note {
-      font-size: 0.875rem;
-      color: var(--mc-text-secondary);
-      margin-right: 4px;
-      text-transform: capitalize;
-      padding-top: 10px;
-      padding-bottom: 10px;
-    }
-
-    &::part(detail-icon) {
-      color: var(--mc-text-secondary);
-      opacity: 1;
-      font-size: 0.875rem;
-    }
-  }
-}
-
-/* Segment Grille/Liste — reproduit le .seg pilule de la maquette */
-ion-segment {
-  --background: var(--mc-bg-main);
-  border-radius: var(--mc-radius-pill);
-  padding: 2px;
-  width: 75px;
-  flex: 0 0 auto;
-}
-
-ion-segment-button {
-  --background: transparent;
-  --background-checked: var(--mc-accent);
-  --color: var(--mc-text-secondary);
-  --color-checked: #fff;
-  --indicator-color: transparent;
-  --border-radius: var(--mc-radius-pill);
-  min-width: 32px;
-  min-height: 28px;
-  margin: 0;
-
-  ion-icon {
-    font-size: 1rem;
-  }
-
-  &::part(native) {
-    border-radius: var(--mc-radius-pill);
-  }
-
-  &.segment-button-activated::part(native) {
-    border-radius: var(--mc-radius-pill);
-  }
-}
-
- .modal {
-  &-title {
-    font-size: 1.125rem;
-    margin-top: 1.1rem;
-    margin-bottom: 4px;
-    color: var(--mc-text-primary);
-  }
-  &-hint {
-    font-size: 0.781rem;
-    color: var(--mc-text-secondary);
-    margin-bottom: 18px;
-  }
-  &-total-line {
-    text-align: center;
-    font-size: 0.781rem;
-    color: var(--mc-text-secondary);
-    margin: 14px 0 18px 0;
-
-    strong {
-      color: var(--mc-text-primary);
-    }
-  }
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.modal-actions {
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-  ion-button {
-    margin: 0;
-  }
+.new-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ion-color-primary) 22%, transparent);
+  color: var(--ion-color-primary);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }

@@ -70,9 +70,6 @@ export class CavePage implements OnInit {
 
   readonly wineForm = createWineForm(this.fb);
 
-  /** Accords proposés pour le type de vin courant, pour ne pas écraser une saisie personnalisée. */
-  private lastDefaultFoodPairing = '';
-
   ngOnInit(): void {
     this.gridRows$ = this.caveService.grid$.pipe(map((slots) => this.groupSlotsByRow(slots)));
 
@@ -82,10 +79,6 @@ export class CavePage implements OnInit {
         this.searchableItems = this.toSearchableItems(wines);
         this.refreshSearch();
       });
-
-    this.wineForm.controls.type.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((type) => type && this.applyDefaultFoodPairing(type));
 
     this.wineForm.controls.vintage.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -151,7 +144,6 @@ export class CavePage implements OnInit {
     const defaultFoodPairing = this.getDefaultFoodPairing(WineType.RED);
 
     this.newWineCoords = { row, col };
-    this.lastDefaultFoodPairing = defaultFoodPairing;
     this.wineForm.reset(emptyWineFormValue(defaultFoodPairing));
     this.wineForm.controls.quantity.setValidators(this.quantityValidators());
     this.wineForm.controls.quantity.updateValueAndValidity();
@@ -221,17 +213,6 @@ export class CavePage implements OnInit {
 
   private quantityValidators() {
     return [Validators.required, Validators.min(1), Validators.max(this.maxNewWineQuantity)];
-  }
-
-  private applyDefaultFoodPairing(type: WineType): void {
-    const control = this.wineForm.controls.foodPairing;
-    const current = (control.value ?? '').trim();
-
-    // On ne remplace les accords que s'ils sont vides ou n'ont pas été modifiés par l'utilisateur.
-    if (current === '' || current === this.lastDefaultFoodPairing) {
-      this.lastDefaultFoodPairing = this.getDefaultFoodPairing(type);
-      control.setValue(this.lastDefaultFoodPairing);
-    }
   }
 
   private getDefaultFoodPairing(type: WineType): string {

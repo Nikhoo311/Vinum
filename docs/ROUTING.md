@@ -9,11 +9,12 @@ Le routage est déclaré dans des `NgModule` de routage avec **chargement diffé
 | `/` | Onglets (redirige vers `/home`) | `setupGuard` | Parent de toutes les pages de l'application |
 | `/home` | `HomePage` — tableau de bord | via le parent | |
 | `/cave` | `CavePage` — grille de la cave | via le parent | |
-| `/catalogue` | Page d'accueil réutilisée en attendant le vrai catalogue | via le parent | **Uniquement si** `features.catalogue` est vrai |
+| `/catalogue` | `CataloguePage` : catalogue de vins, liste de souhaits, fiches personnelles ([Composants](COMPONENTS.md#catalogue)) | via le parent | **Uniquement si** `features.catalogue` est vrai |
 | `/settings` | `SettingsPage` | via le parent | |
 | `/settings/personal-information` | `PersonalInformationPage` | via le parent | |
 | `/settings/favorite-wine` | `FavoriteWinePage` | via le parent | |
 | `/settings/language` | `LanguagePage` | via le parent | |
+| `/settings/star-wine` | `StarWinePage` | via le parent | Choix du critère du vin star |
 | `/auth` | `AuthPage` — connexion / inscription | `guestGuard` | |
 | `/preference` | `PreferencePage` — onboarding | `authGuard` | |
 | `**` | — | — | Redirige vers `/` |

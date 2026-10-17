@@ -1,0 +1,15 @@
+<ion-checkbox
+  class="checkbox"
+  labelPlacement="end"
+  justify="start"
+  alignment="center"
+  [checked]="checked"
+  [disabled]="disabled"
+  (ionChange)="toggle($event.detail.checked)">
+  <span class="checkbox__text">
+    {{ label }}
+    @if (description) {
+      <small>{{ description }}</small>
+    }
+  </span>
+</ion-checkbox>

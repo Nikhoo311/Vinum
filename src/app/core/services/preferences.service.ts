@@ -5,6 +5,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
+import { StarWineCriterion } from '../utils/star-wine.util';
 import {
   AppPreferences,
   DEFAULT_PREFERENCES,
@@ -19,6 +20,7 @@ const KEYS = {
   darkMode: 'darkMode',
   language: 'language',
   notificationsEnabled: 'notificationsEnabled',
+  starWineCriterion: 'starWineCriterion',
 } as const;
 
 /**
@@ -52,15 +54,17 @@ export class PreferencesService {
 
     let preferences: AppPreferences = { ...DEFAULT_PREFERENCES };
     try {
-      const [darkMode, language, notificationsEnabled] = await Promise.all([
+      const [darkMode, language, notificationsEnabled, starWineCriterion] = await Promise.all([
         Preferences.get({ key: KEYS.darkMode }),
         Preferences.get({ key: KEYS.language }),
         Preferences.get({ key: KEYS.notificationsEnabled }),
+        Preferences.get({ key: KEYS.starWineCriterion }),
       ]);
       const raw: RawPreferences = {
         darkMode: darkMode.value,
         language: language.value,
         notificationsEnabled: notificationsEnabled.value,
+        starWineCriterion: starWineCriterion.value,
       };
       preferences = sanitizePreferences(raw, this.availableLangs);
     } catch (error) {
@@ -92,6 +96,11 @@ export class PreferencesService {
   async setNotificationsEnabled(value: boolean): Promise<void> {
     await Preferences.set({ key: KEYS.notificationsEnabled, value: String(value) });
     this.preferencesSubject.next({ ...this.current, notificationsEnabled: value });
+  }
+
+  async setStarWineCriterion(value: StarWineCriterion): Promise<void> {
+    await Preferences.set({ key: KEYS.starWineCriterion, value });
+    this.preferencesSubject.next({ ...this.current, starWineCriterion: value });
   }
 
   // ── Internes ──────────────────────────────────────────────

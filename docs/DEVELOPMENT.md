@@ -24,14 +24,14 @@ Les fins de ligne sont normalisées en LF (`.gitattributes`, `.editorconfig`). S
 
 ### Fonctionnalités désactivées
 
-Deux fonctionnalités sont pilotées par des drapeaux (`environment.features`). `catalogue` est à `false` (inachevé) ; `maturityAlerts` est à `true` :
+Deux fonctionnalités sont pilotées par des drapeaux (`environment.features`), tous deux à `true` :
 
 | Drapeau | Ce qu'il masque |
 |---|---|
-| `catalogue` | Onglet « Catalogue » (route `/catalogue`, balayage entre onglets) et carte « Liste de souhaits » de l'accueil |
+| `catalogue` | Onglet « Catalogue » (route `/catalogue`, balayage entre onglets) et carte « Liste de souhaits » de l'accueil (nombre de vins de la liste) |
 | `maturityAlerts` | Réglage « Alertes de maturité » et programmation des notifications ([Services](SERVICES.md#maturitynotificationservice)) |
 
-Pour travailler dessus, passer le drapeau à `true` dans `environment.ts` **uniquement**. Ne pas l'activer dans `environment.prod.ts` avant que la fonctionnalité soit terminée : un réglage qui ne fait rien est trompeur pour l'utilisateur.
+Pour masquer une fonctionnalité inachevée, passer son drapeau à `false` dans `environment.prod.ts` (et le laisser à `true` dans `environment.ts` pour y travailler) : un réglage qui ne fait rien est trompeur pour l'utilisateur.
 
 ## Conventions de code
 
@@ -64,4 +64,4 @@ Pour travailler dessus, passer le drapeau à `true` dans `environment.ts` **uniq
 
 ## Budgets de build
 
-`angular.json` définit des budgets pour la configuration de production : avertissement à 2 Mo pour le *bundle* initial (erreur à 5 Mo) et 4 Ko / 8 Ko par feuille de style de composant. Un dépassement doit être investigué (import accidentel d'une grosse bibliothèque, icônes) plutôt que « corrigé » en relevant le seuil.
+`angular.json` définit des budgets pour la configuration de production : avertissement à 2 Mo pour le *bundle* initial (erreur à 5 Mo) et 12 Ko / 16 Ko par feuille de style de composant (la page Catalogue, la plus riche, en occupe environ 11 Ko une fois compilée). Un dépassement doit être investigué (import accidentel d'une grosse bibliothèque, icônes) plutôt que « corrigé » en relevant le seuil.

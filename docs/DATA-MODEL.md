@@ -35,7 +35,7 @@ L'**onboarding est terminé** (`hasCompletedSetup`) lorsque `caveConfig.rows` et
 interface UserWine {
   id?: string;                // identifiant du document Firestore (absent avant l'écriture)
   ownerId: string;            // uid du propriétaire
-  wineCatalogueId?: string;   // réservé au futur catalogue commun
+  wineCatalogueId?: string;   // identifiant du vin du catalogue d'origine
   isCustom: boolean;          // true : saisi par l'utilisateur
   name: string;
   domain: string;
@@ -84,7 +84,16 @@ users/{uid}/wine/{wineId}            ← une fiche par vin (UserWine, sans `id` 
   ownerId, isCustom, name, domain, region, vintage, type,
   unitPrice, description, foodPairing[], placements[{row, col}],
   [appellation], [grapeVariety], [rating], [peakMaturityYear], [addedAt], [wineCatalogueId]
+
+users/{uid}/catalogue/{id}           ← fiche personnelle du catalogue (CatalogueWineData)
+  name, domain, region, vintage, type, grapeVariety, unitPrice, description, foodPairing[],
+  [rating], [peakMaturityYear]
+
+catalogueProposals/{id}              ← proposition au catalogue commun (création seule)
+  mêmes champs que ci-dessus + ownerId, status ('pending'), createdAt (horodatage serveur)
 ```
+
+La liste de souhaits n'est pas dans Firestore : elle est enregistrée sur l'appareil (voir [Services](SERVICES.md#catalogueservice)). Une fiche mise en cave depuis le catalogue garde le lien dans `wineCatalogueId`.
 
 Les champs entre crochets sont **facultatifs** et réellement absents du document quand ils n'ont pas de valeur (jamais `null` ni chaîne vide) : `updateWine` les supprime avec `deleteField()`.
 
@@ -111,7 +120,7 @@ Calculées en un seul passage par `computeCaveStats` :
 |---|---|
 | Bouteilles | Somme des `placements.length` |
 | Valeur de la cave | Σ `unitPrice` × bouteilles (prix d'achat, pas une estimation de marché) |
-| Vin star | Fiche au `unitPrice` le plus élevé (strictement positif) |
+| Vin star | Selon le critère choisi dans les réglages (par défaut : `unitPrice` le plus élevé, strictement positif). Voir [Services](SERVICES.md#starwineservice) |
 | Régions distinctes | Régions non vides, comparées après `trim` |
 | Note moyenne | Moyenne des `rating` des fiches notées, arrondie au dixième ; 0 si aucune |
 | Répartition par type | Bouteilles par `WineType` |

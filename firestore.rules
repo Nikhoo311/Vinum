@@ -5,6 +5,8 @@ rules_version = '2';
 // Modèle : chaque utilisateur ne peut lire et écrire QUE ses propres données :
 //   users/{uid}            profil
 //   users/{uid}/wine/{id}  fiches de vins de sa cave
+//   users/{uid}/catalogue/{id}  ses fiches personnelles du catalogue
+//   catalogueProposals/{id}     propositions au catalogue commun (création seule, lecture par l'auteur)
 // Tout le reste est refusé par défaut.
 //
 // Les validations de contenu sont volontairement tolérantes avec les anciens documents
@@ -63,6 +65,28 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid) && validWine(uid, request.resource.data);
       }
+
+      // Fiches personnelles du catalogue : mêmes champs et mêmes bornes qu'une fiche de cave.
+      match /catalogue/{wineId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validWine(uid, request.resource.data);
+      }
+    }
+
+    // Propositions au catalogue commun : on peut en créer (statut « pending », horodatage serveur)
+    // et relire les siennes ; la modération se fait côté serveur (console / Admin SDK).
+    match /catalogueProposals/{proposalId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'name', 'domain', 'region', 'vintage', 'type', 'grapeVariety', 'unitPrice', 'description',
+          'foodPairing', 'rating', 'peakMaturityYear', 'ownerId', 'status', 'createdAt'
+        ])
+        && validWine(request.auth.uid, request.resource.data);
+      allow update, delete: if false;
     }
 
     // Par défaut : tout est refusé.

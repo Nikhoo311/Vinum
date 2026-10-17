@@ -4,7 +4,7 @@ Revue complète du code, de la configuration, des fichiers Android et de la docu
 
 **Périmètre** : `src/` (≈ 230 fichiers du projet), `angular.json`, `package.json`, `tsconfig*.json`, `karma.conf.js`, `capacitor.config.ts`, `android/`, `firebase.json`, README.
 
-**Limite de la revue** : l'environnement n'avait pas accès au registre npm. Les dépendances n'ont pas pu être installées ; **Angular, ESLint, Karma et le build n'ont donc pas été exécutés**. La logique pure a été vérifiée (typage strict + 65 tests exécutés). Voir [Ce qui reste à vérifier](#ce-qui-reste-à-vérifier-sur-votre-poste).
+**Limite de la revue** : l'environnement n'avait pas accès au registre npm. Les dépendances n'ont pas pu être installées ; **Angular, ESLint, Karma et le build n'ont donc pas été exécutés**. La logique pure a été vérifiée (typage strict + 91 tests exécutés). Voir [Ce qui reste à vérifier](#ce-qui-reste-à-vérifier-sur-votre-poste).
 
 ## Synthèse
 
@@ -34,7 +34,7 @@ Revue complète du code, de la configuration, des fichiers Android et de la docu
 | I2 | Le service d'authentification **traduisait** les erreurs (mélange des couches) et exposait `err.message` brut | Les services lèvent des erreurs brutes ; `toErrorKey` traduit côté interface |
 | I3 | Page « vin préféré » : valeur courante lue dans `history.state` (perdue au rechargement ou en navigation directe) | Lecture depuis le profil |
 | I4 | Page de réglages : accès `LANGUAGE_CONFIG[…]` sans garde (plantage si la langue stockée est inconnue) | Accès sûr avec repli sur le code |
-| I5 | Réglage « Alertes de maturité » sans effet (fonction non implémentée) et onglet « Catalogue » pointant vers l'accueil | Masqués derrière `environment.features` ([Développement](DEVELOPMENT.md#fonctionnalités-désactivées)) |
+| I5 | Réglage « Alertes de maturité » sans effet (fonction non implémentée) et onglet « Catalogue » pointant vers l'accueil | Masqués derrière `environment.features` ([Développement](DEVELOPMENT.md#fonctionnalités-désactivées)). Depuis, l'alerte de maturité et le catalogue ont été implémentés et les deux drapeaux sont à `true` |
 | I6 | Gardes de route : fichiers mal nommés (`gest-guard`), garde répétée sur chaque onglet | Gardes fonctionnelles (qui attendent `waitUntilReady`), posées une seule fois sur le parent |
 | I7 | Profil : `createdAt` typé `Date` alors que Firestore renvoie un `Timestamp` ; lecture du profil dépendante du réseau | Chaîne ISO, normalisation à la lecture, repli sur le cache |
 | I8 | Écritures Firestore fragiles : champs `undefined` rejetés par le SDK, champs facultatifs impossibles à supprimer, `id`/`placements` pouvant être écrasés à la modification | `omitUndefined`, `deleteField`, exclusion explicite |

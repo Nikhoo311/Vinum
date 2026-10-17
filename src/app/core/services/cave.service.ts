@@ -107,10 +107,6 @@ export class CaveService {
     return this.stats.totalValue;
   }
 
-  get starWine(): UserWine | null {
-    return this.stats.starWine;
-  }
-
   get uniqueRegionsCount(): number {
     return this.stats.uniqueRegionsCount;
   }
