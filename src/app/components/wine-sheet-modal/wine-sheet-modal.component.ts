@@ -41,7 +41,11 @@ export class WineSheetModalComponent {
   @Input({ required: true }) wine: UserWine | null = null;
   @Input() isOpen = false;
   @Input() coords: { row: number; col: number } | null = null;
+  @Input() catalogueMode = false;
+  @Input() isWishlisted = false;
   @Output() isOpenChange = new EventEmitter<boolean>();
+  @Output() wishlistToggle = new EventEmitter<void>();
+  @Output() addToCave = new EventEmitter<void>();
 
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
   readonly ratingValues = [1, 2, 3, 4, 5];
@@ -93,7 +97,7 @@ export class WineSheetModalComponent {
   }
 
   openRatingModal(bottleToRemove: { row: number; col: number } | null = null): void {
-    if (!this.wine) return;
+    if (!this.wine || this.catalogueMode) return;
 
     this.selectedRating = this.wine.rating != null ? Math.round(this.wine.rating * 2) / 2 : null;
     this.pendingBottleRemoval = bottleToRemove;

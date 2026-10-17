@@ -34,6 +34,18 @@
       </div>
     </div>
 
+    @if (catalogueMode) {
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.GRAPE_VARIETY' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.grapeVariety || '—' }}</div></ion-card></ion-col>
+          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.REGION' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.region || '—' }}</div></ion-card></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.UNIT_PRICE' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.unitPrice | number }} €</div></ion-card></ion-col>
+          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'CATALOGUE.IN_CELLAR' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.placements.length || '—' }}</div></ion-card></ion-col>
+        </ion-row>
+      </ion-grid>
+    } @else {
     <ion-grid>
       <ion-row>
         <ion-col size="6">
@@ -114,7 +126,9 @@
               } @else {
                 {{ 'WINE_SHEET_MODAL.NOT_RATED' | transloco }}
               }
-              <ion-icon class="rating-card__edit" name="create-outline"></ion-icon>
+              @if (!catalogueMode) {
+                <ion-icon class="rating-card__edit" name="create-outline"></ion-icon>
+              }
             </div>
           </ion-card>
         </ion-col>
@@ -136,6 +150,7 @@
         </ion-row>
       }
     </ion-grid>
+    }
 
     <div class="sheet-section">
       <h4>{{ 'WINE_SHEET_MODAL.DESCRIPTION' | transloco }}</h4>
@@ -163,9 +178,20 @@
           {{ 'WINE_SHEET_MODAL.REMOVE_BOTTLE' | transloco }}
         </ion-button>
       }
-      <ion-button (click)="openEditWineModal()" expand="block" shape="round" color="primary">
-        {{ 'WINE_SHEET_MODAL.EDIT' | transloco }}
-      </ion-button>
+      @if (catalogueMode) {
+        <ion-button class="catalogue-wishlist-action" [class.catalogue-wishlist-action--active]="isWishlisted" (click)="wishlistToggle.emit()" expand="block" shape="round" color="secondary">
+          <ion-icon slot="start" [name]="isWishlisted ? 'star' : 'star-outline'"></ion-icon>
+          {{ (isWishlisted ? 'CATALOGUE.IN_WISHLIST' : 'CATALOGUE.WISHLIST') | transloco }}
+        </ion-button>
+        <ion-button (click)="addToCave.emit()" expand="block" shape="round" color="primary">
+          <ion-icon slot="start" name="add"></ion-icon>
+          {{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}
+        </ion-button>
+      } @else {
+        <ion-button (click)="openEditWineModal()" expand="block" shape="round" color="primary">
+          {{ 'WINE_SHEET_MODAL.EDIT' | transloco }}
+        </ion-button>
+      }
     </div>
   </app-custom-modal>
 }

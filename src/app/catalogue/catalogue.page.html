@@ -1,0 +1,169 @@
+<ion-content [fullscreen]="true" class="catalogue-content">
+  <section class="catalogue ion-padding">
+    <h1 class="visually-hidden">{{ 'CATALOGUE.COMMUNITY' | transloco }}</h1>
+    <ion-card class="wishlist-card ion-activatable ripple-parent" button (click)="wishlistOpen = true" [attr.aria-label]="'CATALOGUE.WISHLIST' | transloco">
+      <ion-ripple-effect></ion-ripple-effect>
+      <ion-icon class="wishlist-card__icon" name="star" aria-hidden="true"></ion-icon>
+      <div class="wishlist-card__content"><ion-chip class="wishlist-card__tag">{{ 'CATALOGUE.WISHLIST' | transloco }}</ion-chip><p>{{ wishlist.size ? (('CATALOGUE.TO_BUY' | transloco) + ' · ' + (wishlistTotal | number: '1.0-2') + ' €') : ('CATALOGUE.NOTHING_YET' | transloco) }}</p></div>
+      <div class="wishlist-card__end"><div class="wishlist-card__value">{{ 'CATALOGUE.WINE_COUNT' | transloco: {count: wishlist.size} }}</div><ion-icon class="wishlist-card__chevron" name="chevron-forward-outline"></ion-icon></div>
+    </ion-card>
+
+    <ion-segment class="scope-tabs" mode="ios" [value]="scope" (ionChange)="setScope($any($event.detail.value))" [attr.aria-label]="'CATALOGUE.CHOOSE_SCOPE' | transloco">
+      <ion-segment-button value="community"><ion-label>{{ 'CATALOGUE.COMMUNITY' | transloco }} {{ communityWines.length }}</ion-label></ion-segment-button>
+      <ion-segment-button value="personal"><ion-label>{{ 'CATALOGUE.PERSONAL' | transloco }} {{ personalWines.length }}</ion-label></ion-segment-button>
+    </ion-segment>
+
+    <div class="tools-sticky"><div class="catalogue-tools">
+      <ion-searchbar
+        [value]="query"
+        [placeholder]="(scope === 'community' ? 'CATALOGUE.SEARCH' : 'CATALOGUE.SEARCH_PERSONAL') | transloco"
+        (ionInput)="onSearch($event)"
+        showClearButton="focus"
+        mode="md">
+      </ion-searchbar>
+      <ion-button fill="outline" class="filter-toggle" (click)="filtersOpen = true" [class.active]="selectedTypes.size || selectedRegion !== 'all' || onlyWishlist || onlyInCave || sort !== 'name'" [attr.aria-label]="'CATALOGUE.FILTERS' | transloco">
+        <ion-icon slot="icon-only" name="options-outline"></ion-icon>
+        @if (activeFilterCount) { <span class="filter-count">{{ activeFilterCount }}</span> }
+      </ion-button>
+    </div>
+
+    @if (activeFilterCount) {
+      <div class="active-filters" [attr.aria-label]="'CATALOGUE.ACTIVE_FILTERS' | transloco">
+        @for (type of selectedTypes; track type) { <button type="button" (click)="toggleType(type)">{{ WINE_TYPE_CONFIG[type].label | transloco }} <span>×</span></button> }
+        @if (onlyWishlist || onlyInCave) { <button type="button" (click)="clearStatusFilter()">{{ (onlyWishlist ? 'CATALOGUE.WISHLIST' : 'CATALOGUE.IN_CELLAR') | transloco }} <span>×</span></button> }
+        @if (selectedRegion !== 'all') { <button type="button" (click)="updateRegion('all')">{{ selectedRegion }} <span>×</span></button> }
+        @if (sort !== 'name') { <button type="button" (click)="updateSort('name')">{{ 'CATALOGUE.SORT_ACTIVE' | transloco }} <span>×</span></button> }
+      </div>
+    }
+    </div>
+
+    <app-custom-modal [isOpen]="filtersOpen" [initialBreakpoint]="0.82" [breakpoints]="[0, 0.82]" (didDismiss)="filtersOpen = false">
+      <header class="modal-header"><h2>{{ 'CATALOGUE.FILTERS' | transloco }}</h2></header>
+      <section class="filters" [attr.aria-label]="'CATALOGUE.FILTERS' | transloco">
+        <div class="field-label">{{ 'CATALOGUE.TYPE' | transloco }}</div>
+        <div class="type-filters">
+          @for (type of [WineType.RED, WineType.WHITE, WineType.ROSE, WineType.CHAMPAGNE]; track type) {
+            <button type="button" class="type-chip" [class.active]="selectedTypes.has(type)" (click)="toggleType(type)">
+              <span [style.background]="wineTypeColor(type)"></span>{{ WINE_TYPE_CONFIG[type].label | transloco }}
+            </button>
+          }
+        </div>
+        <div class="field-label">{{ 'CATALOGUE.STATUS' | transloco }}</div>
+        <div class="filters__checkboxes">
+          <app-checkbox [label]="'CATALOGUE.WISHLIST' | transloco" [checked]="onlyWishlist" (checkedChange)="updateWishlistFilter($event)"></app-checkbox>
+          <app-checkbox [label]="'CATALOGUE.ALREADY_IN_CELLAR' | transloco" [checked]="onlyInCave" (checkedChange)="updateCaveFilter($event)"></app-checkbox>
+        </div>
+        <app-select [label]="'CATALOGUE.REGION' | transloco" [value]="selectedRegion" [options]="regions" (valueChange)="updateRegion($event)"></app-select>
+        <app-select [label]="'CATALOGUE.SORT' | transloco" [value]="sort" [options]="sortOptions" (valueChange)="updateSort($event)"></app-select>
+      </section>
+      <div modal-footer class="modal-footer filter-footer"><ion-button expand="block" shape="round" (click)="filtersOpen = false">{{ 'CATALOGUE.SHOW_WINES' | transloco: {count: filteredWines.length} }}</ion-button><button class="reset-button" type="button" (click)="resetFilters()">{{ 'CATALOGUE.RESET_FILTERS' | transloco }}</button></div>
+    </app-custom-modal>
+
+    <div class="result-line">
+      <span>{{ 'CATALOGUE.WINE_COUNT' | transloco: {count: filteredWines.length} }}</span>
+      @if (query || selectedTypes.size || selectedRegion !== 'all' || onlyWishlist || onlyInCave || sort !== 'name') {
+        <button type="button" (click)="resetFilters()">{{ 'CATALOGUE.RESET' | transloco }}</button>
+      }
+    </div>
+
+    <ul class="catalogue-grid" [attr.aria-label]="(scope === 'community' ? 'CATALOGUE.COMMUNITY' : 'CATALOGUE.PERSONAL') | transloco">
+      @for (wine of displayedWines; track wine.id) {
+        <li><article class="wine-card">
+          <button type="button" class="wine-card__details" (click)="openDetails(wine)" [attr.aria-label]="('CATALOGUE.VIEW_WINE' | transloco) + ' ' + wine.name">
+          <div
+            class="wine-card__visual"
+            [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent'
+              ? 'color-mix(in srgb, var(--wine-' + wine.type + '-accent) 30%, var(--mc-bg-card))'
+              : 'color-mix(in srgb, var(--wine-' + wine.type + ') 30%, var(--mc-bg-card))'">
+            <img [src]="WINE_TYPE_CONFIG[wine.type].icon" [alt]="wine.name">
+            @if (wine.inCave) {
+              <span class="in-cave">{{ 'CATALOGUE.IN_CELLAR' | transloco }} · {{ caveCount(wine) }}</span>
+            }
+          </div>
+          <div class="wine-card__content">
+            <span class="wine-card__name">{{ wine.name }}</span>
+            <p>{{ wine.vintage }} · {{ wine.region }}</p>
+            <strong>{{ wine.unitPrice | number: '1.0-2' }} € <small>/ {{ 'CATALOGUE.UNIT' | transloco }}</small></strong>
+          </div>
+          </button>
+          <button type="button" class="wish-button"
+            [class.active]="wishlist.has(wine.id)"
+            [attr.aria-pressed]="wishlist.has(wine.id)"
+            [attr.aria-label]="((wishlist.has(wine.id) ? 'CATALOGUE.REMOVE_WISH' : 'CATALOGUE.ADD_WISH') | transloco) + ' : ' + wine.name"
+            (click)="toggleWishlist(wine.id, $event)">
+            <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" [attr.fill]="wishlist.has(wine.id) ? 'currentColor' : 'none'" /></svg></span>
+          </button>
+          <ion-button shape="round" [fill]="wine.inCave ? 'outline' : 'solid'" (click)="openAdd(wine, $event)"><ion-icon slot="start" name="add"></ion-icon>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</ion-button>
+        </article></li>
+      } @empty {
+        <li class="empty-state">{{ 'CATALOGUE.NO_RESULTS' | transloco }}</li>
+      }
+
+      @if (scope === 'personal') {
+        <li><button type="button" class="create-card" (click)="openCreate()">
+          <ion-icon name="add"></ion-icon>
+          <span>{{ 'CATALOGUE.CREATE' | transloco }}<small>{{ 'CATALOGUE.CREATE_HINT' | transloco }}</small></span>
+        </button></li>
+      }
+    </ul>
+
+    @if (scope === 'community') {
+      <section class="missing">
+        <div class="missing-txt">{{ 'CATALOGUE.MISSING' | transloco }}<small>{{ 'CATALOGUE.MISSING_HINT' | transloco }}</small></div>
+        <ion-button type="button" shape="round" (click)="openProposal()"><ion-icon slot="start" name="paper-plane-outline"></ion-icon>{{ 'CATALOGUE.MAKE_PROPOSAL' | transloco }}</ion-button>
+        <button type="button" class="missing-link" (click)="goPersonal()">{{ 'CATALOGUE.GO_PERSONAL' | transloco }}</button>
+      </section>
+    }
+
+    <ion-infinite-scroll [disabled]="!hasMoreWines" threshold="120px" (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent" [loadingText]="'CATALOGUE.LOADING' | transloco"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </section>
+</ion-content>
+
+<app-custom-modal [isOpen]="wishlistOpen" [initialBreakpoint]="0.86" [breakpoints]="[0, 0.86]" (didDismiss)="wishlistOpen = false">
+  <header class="modal-header"><h2>{{ 'CATALOGUE.WISHLIST' | transloco }}</h2><p>{{ 'CATALOGUE.WINE_COUNT' | transloco: {count: wishlist.size} }} · {{ wishlistTotal | number:'1.0-2' }} €</p></header>
+  <div class="wishlist-list">
+    @for (wine of wishlistWines; track wine.id) {
+      <article class="wish-row">
+        <div class="wish-row__top"><div class="wish-row__visual" [style.background]="'color-mix(in srgb, ' + wineTypeColor(wine.type) + ' 25%, var(--mc-bg-card))'"><img [src]="WINE_TYPE_CONFIG[wine.type].icon" [alt]="wine.name"></div><div class="wish-row__info"><strong>{{ wine.name }}</strong><p>{{ wine.vintage }} · {{ wine.region }}</p><b>{{ wine.unitPrice | number:'1.0-2' }} € / {{ 'CATALOGUE.UNIT' | transloco }}</b></div><button type="button" class="wish-button active wish-inline" (click)="toggleWishlist(wine.id, $event)" [attr.aria-label]="('CATALOGUE.REMOVE_WISH' | transloco) + ' : ' + wine.name"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor" /></svg></span></button></div>
+        <ion-button shape="round" expand="block" (click)="openAdd(wine)"><ion-icon slot="start" name="add"></ion-icon>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</ion-button>
+      </article>
+    } @empty {
+      <div class="wishlist-empty">
+        <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+        <strong>{{ 'CATALOGUE.WISHLIST_EMPTY' | transloco }}</strong>
+        <p>{{ 'CATALOGUE.WISHLIST_EMPTY_HINT' | transloco }}</p>
+      </div>
+    }
+  </div>
+</app-custom-modal>
+
+<app-wine-sheet-modal [isOpen]="!!detailsWine" [wine]="detailsUserWine" [canRemoveBottle]="false" [catalogueMode]="true" [isWishlisted]="!!detailsWine && wishlist.has(detailsWine.id)" (wishlistToggle)="toggleDetailsWishlist()" (addToCave)="addDetailsToCave()" (isOpenChange)="detailsWine = null"></app-wine-sheet-modal>
+
+<app-custom-modal [isOpen]="!!addWine" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" (didDismiss)="addWine = null">
+  <header class="modal-header"><h2>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</h2></header>
+  @if (addWine) {
+    @if (freeSlots.length) {
+      <app-add-wine-form [form]="createWineForm" formId="catalogue-add-form" [maxQuantity]="freeSlots.length" (formSubmit)="submitAdd()">
+        <app-select [label]="'CATALOGUE.FIRST_SLOT' | transloco" [value]="selectedSlot" [options]="slotOptions" (valueChange)="selectedSlot = $event"></app-select>
+        <p class="slot-hint">{{ 'CATALOGUE.SLOT_HINT' | transloco }}</p>
+      </app-add-wine-form>
+    } @else { <p>{{ 'CATALOGUE.NO_SLOTS' | transloco }}</p> }
+  }
+  <div modal-footer class="modal-footer"><ion-button type="submit" form="catalogue-add-form" expand="block" shape="round" [disabled]="saving || !freeSlots.length || createWineForm.invalid"><ion-icon slot="start" name="add"></ion-icon>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</ion-button></div>
+</app-custom-modal>
+
+<app-custom-modal [isOpen]="createOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" (didDismiss)="createOpen = false">
+  <header class="modal-header"><h2>{{ 'CATALOGUE.CREATE' | transloco }}</h2><p>{{ 'CATALOGUE.CREATE_DESCRIPTION' | transloco }}</p></header>
+  <app-add-wine-form [form]="createWineForm" formId="create-catalogue-form" [showQuantity]="false" (formSubmit)="createWine()">
+    <app-checkbox [label]="'CATALOGUE.PROPOSE_CHECK' | transloco" [description]="'CATALOGUE.PROPOSE_CHECK_HINT' | transloco" [checked]="proposeToCommunity" (checkedChange)="proposeToCommunity = $event"></app-checkbox>
+  </app-add-wine-form>
+  <div modal-footer class="modal-footer"><ion-button type="submit" form="create-catalogue-form" expand="block" shape="round" [disabled]="createWineForm.invalid || saving">{{ 'CATALOGUE.SAVE_CARD' | transloco }}</ion-button></div>
+</app-custom-modal>
+
+<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" (didDismiss)="proposalOpen = false">
+  <header class="modal-header"><h2>{{ 'CATALOGUE.PROPOSE_TITLE' | transloco }}</h2><p>{{ 'CATALOGUE.PROPOSE_CHECK_HINT' | transloco }}</p></header>
+  <app-add-wine-form [form]="createWineForm" formId="proposal-wine-form" [showQuantity]="false" (formSubmit)="submitProposal()"></app-add-wine-form>
+  <div modal-footer class="modal-footer"><ion-button type="submit" form="proposal-wine-form" expand="block" shape="round" [disabled]="createWineForm.invalid || saving"><ion-icon slot="start" name="paper-plane-outline"></ion-icon>{{ 'CATALOGUE.SEND_PROPOSAL' | transloco }}</ion-button></div>
+</app-custom-modal>
