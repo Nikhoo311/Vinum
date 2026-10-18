@@ -4,6 +4,7 @@
   padding: 20px 4px 16px 4px;
 
   &__wine-icon {
+    flex: none;
     width: 65px;
     height: 90px;
     border-radius: var(--mc-radius-card);
@@ -12,6 +13,9 @@
   }
 
   .info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+
     h2 {
       font-size: 1.3rem;
       font-weight: bold;
@@ -73,6 +77,12 @@ ion-chip {
   }
 }
 
+@media (max-width: 360px) {
+  .sheet-actions {
+    flex-direction: column;
+  }
+}
+
 // Liste de souhaits : contour neutre et étoile bien visible ; remplie quand le vin y figure.
 .catalogue-wishlist-action {
   --background: transparent;
@@ -92,6 +102,11 @@ ion-chip {
 
     ion-icon { color: var(--mc-rating-star); }
   }
+}
+
+.sheet-actions .catalogue-wishlist-action > ion-icon[slot='start'],
+.sheet-actions .cellar-button > ion-icon[slot='start'] {
+  margin-inline-end: 0.5rem;
 }
 
 .rating-card {
@@ -133,34 +148,6 @@ ion-chip {
       font-weight: 700;
     }
 
-    &-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      margin-right: 2.25rem;
-    }
-
-    ion-button {
-      --padding-start: 0;
-      --padding-end: 0;
-      --padding-top: 0;
-      --padding-bottom: 0;
-      width: 2rem;
-      min-height: 2rem;
-      margin: 0;
-
-      ion-icon {
-        font-size: 1.45rem;
-      }
-    }
-  }
-
-  &__header &__skip {
-    --padding-start: 0.35rem;
-    --padding-end: 0.35rem;
-    width: auto;
-    min-height: 2rem;
-    font-size: 0.8rem;
   }
 
   &__content {

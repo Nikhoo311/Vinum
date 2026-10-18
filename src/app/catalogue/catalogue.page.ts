@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InfiniteScrollCustomEvent, IonContent, IonicModule } from '@ionic/angular';
+import { AlertController, InfiniteScrollCustomEvent, IonContent, IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { combineLatest } from 'rxjs';
 
@@ -37,7 +37,6 @@ import {
   wishlistTotal,
 } from '../core/utils/catalogue.util';
 import { formatFoodPairing } from '../core/utils/wine.util';
-import { COMMUNITY_WINES } from './community-wines';
 
 /** Nombre de vins ajoutés à chaque défilement. */
 const PAGE_SIZE = 6;
@@ -81,6 +80,7 @@ export class CataloguePage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly catalogueService = inject(CatalogueService);
   private readonly toast = inject(ToastService);
+  private readonly alertController = inject(AlertController);
   private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -88,7 +88,6 @@ export class CataloguePage implements OnInit {
 
   readonly WINE_TYPES = WINE_TYPES;
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
-  readonly communityCount = COMMUNITY_WINES.length;
 
   /** Formulaire partagé par la mise en cave, la création de fiche et la proposition. */
   readonly wineForm = createWineForm(inject(FormBuilder));
@@ -102,6 +101,7 @@ export class CataloguePage implements OnInit {
   sort: CatalogueSort = 'name';
 
   // Données et résultats calculés
+  communityWines: CatalogueWine[] = [];
   personalWines: CatalogueWine[] = [];
   wishlist = new Set<string>();
   filteredWines: CatalogueWine[] = [];
@@ -123,19 +123,21 @@ export class CataloguePage implements OnInit {
   selectedSlot = '';
   proposeToCommunity = false;
   saving = false;
+  deletingWineId: string | null = null;
 
   private userId = '';
   private caveWines: UserWine[] = [];
 
   ngOnInit(): void {
-    combineLatest([this.caveService.wines$, this.catalogueService.personalWines$, this.auth.currentUser$])
+    combineLatest([this.caveService.wines$, this.catalogueService.communityWines$, this.catalogueService.personalWines$, this.auth.currentUser$])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([cave, personal, user]) => {
+      .subscribe(([cave, community, personal, user]) => {
         if ((user?.id ?? '') !== this.userId) {
           this.userId = user?.id ?? '';
           this.wishlist = this.catalogueService.loadWishlist();
         }
         this.caveWines = cave;
+        this.communityWines = community;
         this.personalWines = personal;
         this.refresh();
       });
@@ -148,6 +150,10 @@ export class CataloguePage implements OnInit {
 
   get sortOptions(): SelectOption[] {
     return SORT_OPTIONS.map(({ value, labelKey }) => ({ value, label: this.transloco.translate(labelKey) }));
+  }
+
+  get communityCount(): number {
+    return this.communityWines.length;
   }
 
   get statusOptions(): SelectOption[] {
@@ -352,6 +358,42 @@ export class CataloguePage implements OnInit {
 
   // ── Fiches personnelles et propositions ───────────────────
 
+  async confirmDeleteWine(wine: CatalogueWine): Promise<void> {
+    if (this.deletingWineId || !this.userId) return;
+    const ownerId = this.userId;
+    this.deletingWineId = wine.id;
+
+    try {
+      const alert = await this.alertController.create({
+        cssClass: 'delete-alert',
+        mode: 'ios',
+        header: this.transloco.translate('CATALOGUE.DELETE_TITLE'),
+        message: this.transloco.translate('CATALOGUE.DELETE_CONFIRM'),
+        buttons: [
+          { text: this.transloco.translate('COMMON.CANCEL'), role: 'cancel' },
+          { text: this.transloco.translate('CATALOGUE.DELETE'), role: 'destructive' },
+        ],
+      });
+      await alert.present();
+      const { role } = await alert.onDidDismiss();
+      if (role !== 'destructive' || this.auth.currentUser?.id !== ownerId) return;
+
+      await this.catalogueService.deletePersonalWine(wine.id);
+      if (this.auth.currentUser?.id === ownerId) {
+        if (!this.communityWines.some((item) => item.id === wine.id) && this.wishlist.delete(wine.id)) {
+          this.persistWishlist();
+        }
+        this.refresh();
+        void this.toast.success(this.transloco.translate('CATALOGUE.DELETE_SUCCESS'));
+      }
+    } catch (error) {
+      console.error('Suppression de la fiche impossible :', error);
+      void this.toast.error(this.transloco.translate('CATALOGUE.DELETE_ERROR'));
+    } finally {
+      this.deletingWineId = null;
+    }
+  }
+
   openCreate(): void {
     this.resetForm();
     this.createOpen = true;
@@ -405,7 +447,7 @@ export class CataloguePage implements OnInit {
   // ── Internes ──────────────────────────────────────────────
 
   private get allWines(): CatalogueWine[] {
-    return [...COMMUNITY_WINES, ...this.personalWines];
+    return [...this.communityWines, ...this.personalWines];
   }
 
   private findWine(id: string | undefined): CatalogueWine | undefined {
@@ -418,7 +460,7 @@ export class CataloguePage implements OnInit {
 
   /** Recalcule tout ce que le gabarit affiche ; à appeler après chaque changement de critère ou de donnée. */
   private refresh(): void {
-    const source = this.scope === 'community' ? COMMUNITY_WINES : this.personalWines;
+    const source = this.scope === 'community' ? this.communityWines : this.personalWines;
 
     this.filteredWines = filterCatalogue(source, this.criteria, this.wishlist, this.caveWines);
     this.visibleCount = PAGE_SIZE;

@@ -41,7 +41,7 @@
     "PROPOSE_CHECK": "Proposer au catalogue commun",
     "PROPOSE_CHECK_HINT": "La proposition sera vérifiée avant d’être publiée.",
     "MISSING": "Vous ne trouvez pas votre vin ?",
-    "MISSING_HINT": "Proposez-le : il sera ajouté au catalogue après vérification.",
+    "MISSING_HINT": "Proposez-le, il sera ajouté au catalogue après vérification.",
     "MAKE_PROPOSAL": "Faire une proposition",
     "GO_PERSONAL": "ou créer une fiche personnelle",
     "PROPOSE_TITLE": "Proposer un vin",
@@ -56,6 +56,11 @@
     "ADD_ERROR": "Impossible d’ajouter ce vin à la cave.",
     "CREATE_SUCCESS": "Fiche enregistrée.",
     "CREATE_ERROR": "Impossible d’enregistrer la fiche.",
+    "DELETE": "Supprimer",
+    "DELETE_TITLE": "Supprimer cette fiche ?",
+    "DELETE_CONFIRM": "Cette action est définitive. Les bouteilles déjà ajoutées à votre cave ne seront pas supprimées.",
+    "DELETE_SUCCESS": "Fiche supprimée.",
+    "DELETE_ERROR": "Impossible de supprimer la fiche. Réessayez.",
     "PROPOSAL_SUCCESS": "Votre proposition a été envoyée.",
     "PROPOSAL_ERROR": "Impossible d’envoyer votre proposition.",
     "WISHLIST_SAVE_ERROR": "Impossible de sauvegarder la liste de souhaits sur cet appareil."
@@ -247,7 +252,7 @@
     "STAR_WINE_TAG": "Vin star",
     "STAR_WINE_INFO": {
       "LABEL": "Comment est défini le vin star ?",
-      "TEXT": "Le vin star est choisi selon le critère « {{criterion}} ».",
+      "TEXT": "Le vin star est choisi selon le critère « {{criterion}}.",
       "CHANGE": "Modifier le critère"
     },
     "TOTAL_STOCK_LABEL": "Stock total",

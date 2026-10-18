@@ -176,7 +176,7 @@
 
     <div modal-footer class="sheet-actions">
       @if (canRemoveBottle && coords) {
-        <ion-button (click)="removeBottle(coords!)" expand="block" shape="round" color="secondary">
+        <ion-button (click)="removeBottle(coords!)" [disabled]="isRemovingBottle" expand="block" shape="round" color="secondary">
           {{ 'WINE_SHEET_MODAL.REMOVE_BOTTLE' | transloco }}
         </ion-button>
       }
@@ -199,7 +199,7 @@
 }
 
 @if (wine) {
-  <app-custom-modal [isOpen]="isEditWineModalOpen" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" (didDismiss)="closeEditWineModal()">
+  <app-custom-modal [isOpen]="isEditWineModalOpen" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" [footerHasBackground]="true" (didDismiss)="closeEditWineModal()">
     <header class="edit-wine-header">
       <h2>{{ 'WINE_SHEET_MODAL.EDIT_MODAL.TITLE' | transloco }}</h2>
     </header>
@@ -222,13 +222,6 @@
     <div class="rating-modal">
       <div class="rating-modal__header">
         <h2>{{ 'WINE_SHEET_MODAL.RATING_MODAL.TITLE' | transloco }}</h2>
-        @if (isRemovingBottle) {
-          <div class="rating-modal__header-actions">
-            <ion-button class="rating-modal__skip" fill="clear" color="medium" size="small" (click)="skipRating()" [disabled]="isSavingRating">
-              {{ 'WINE_SHEET_MODAL.RATING_MODAL.SKIP' | transloco }}
-            </ion-button>
-          </div>
-        }
       </div>
 
       <section class="rating-modal__content">

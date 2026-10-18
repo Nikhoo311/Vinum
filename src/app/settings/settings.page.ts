@@ -217,15 +217,17 @@ export class SettingsPage {
 
   private async confirmResize(bottles: number, wines: number): Promise<boolean> {
     const alert = await this.alertController.create({
+      cssClass: 'delete-alert',
+      mode: 'ios',
       header: this.transloco.translate('SETTINGS.CAVE.DISPOSITION.CONFIRM.TITLE'),
       message: this.transloco.translate('SETTINGS.CAVE.DISPOSITION.CONFIRM.MESSAGE', { count: bottles, wines }),
       buttons: [
         { text: this.transloco.translate('COMMON.CANCEL'), role: 'cancel' },
-        { text: this.transloco.translate('SETTINGS.CAVE.DISPOSITION.CONFIRM.CONFIRM'), role: 'confirm' },
+        { text: this.transloco.translate('SETTINGS.CAVE.DISPOSITION.CONFIRM.CONFIRM'), role: 'destructive' },
       ],
     });
     await alert.present();
     const { role } = await alert.onDidDismiss();
-    return role === 'confirm';
+    return role === 'destructive';
   }
 }

@@ -6,6 +6,7 @@ rules_version = '2';
 //   users/{uid}            profil
 //   users/{uid}/wine/{id}  fiches de vins de sa cave
 //   users/{uid}/catalogue/{id}  ses fiches personnelles du catalogue
+//   catalogue/{id}              vins publiés du catalogue commun (lecture seule)
 //   catalogueProposals/{id}     propositions au catalogue commun (création seule, lecture par l'auteur)
 // Tout le reste est refusé par défaut.
 //
@@ -71,6 +72,12 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid) && validWine(uid, request.resource.data);
       }
+    }
+
+    // Les vins publiés sont administrés côté serveur.
+    match /catalogue/{wineId} {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
 
     // Propositions au catalogue commun : on peut en créer (statut « pending », horodatage serveur)

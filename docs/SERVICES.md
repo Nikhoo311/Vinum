@@ -152,10 +152,11 @@ Les sept critères (`price`, `cellar-value`, `oldest-vintage`, `best-rated`, `be
 
 ## CatalogueService
 
-Catalogue de vins : fiches personnelles, propositions, liste de souhaits et mise en cave. Les vins du catalogue commun sont embarqués (`catalogue/community-wines.ts`) en attendant un catalogue serveur.
+Catalogue de vins : catalogue commun Firestore, fiches personnelles, propositions, liste de souhaits et mise en cave. Les documents publiés dans `catalogue/{id}` sont lisibles par les utilisateurs connectés et administrés côté serveur. Ils utilisent les champs de `CatalogueWineData` ; l'identifiant du document sert de référence dans la cave et la liste de souhaits, et doit donc rester stable.
 
 | Membre | Description |
 |---|---|
+| `communityWines$` | Vins publiés dans `catalogue`, validés par `toCatalogueWine` ; vide si déconnecté ou en cas d'erreur de lecture |
 | `personalWines$` | Fiches personnelles (`users/{uid}/catalogue`), validées par `toCatalogueWine` (les documents sans nom ou de type inconnu sont ignorés) ; vide si déconnecté ou en cas d'erreur de lecture |
 | `loadWishlist()` / `saveWishlist(ids)` | Liste de souhaits, **stockée sur l'appareil** (`localStorage`, clé `catalogue-wishlist-<uid>`), non synchronisée entre appareils. `saveWishlist` retourne `false` si le stockage est indisponible |
 | `freeSlots` | Emplacements libres de la cave (`{row, col, label}`) |

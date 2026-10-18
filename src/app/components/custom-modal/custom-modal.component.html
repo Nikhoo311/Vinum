@@ -9,8 +9,8 @@
   <ng-template>
     <div
       class="sheet-layout"
-      [style.--sheet-visible]="maxBreakpoint"
-      [style.--sheet-footer-offset]="footerOffset">
+      [style.--sheet-footer-offset]="footerOffset"
+      [style.background]="background ?? 'var(--mc-bg-main, var(--bg))'">
       <div class="sheet-footer" [class.sheet-footer--transparent]="!footerHasBackground">
         <ng-content select="[modal-footer]"></ng-content>
       </div>
@@ -24,9 +24,7 @@
           <ion-icon slot="icon-only" name="close-outline"></ion-icon>
         </ion-button>
       }
-      <ion-content
-        class="ion-padding sheet-content"
-        [style.--background]="background ?? 'var(--mc-bg-main, var(--bg))'">
+      <ion-content class="ion-padding sheet-content">
         <ng-content></ng-content>
       </ion-content>
     </div>

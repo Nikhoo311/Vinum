@@ -5,6 +5,15 @@ $control-height: 3rem;
   padding-bottom: 2rem;
 }
 
+ion-button > ion-icon[slot='start'] {
+  margin-inline-end: 0.5rem;
+}
+
+.delete-card-button {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -120,7 +129,6 @@ $control-height: 3rem;
   height: $control-height;
   min-height: $control-height;
   padding: 0;
-  border: 1px solid var(--mc-border);
   border-radius: var(--mc-radius-input);
   box-sizing: border-box;
 
@@ -161,7 +169,6 @@ $control-height: 3rem;
   height: $control-height;
   padding: 0;
   place-items: center;
-  border: 1px solid var(--mc-border);
   border-radius: var(--mc-radius-input);
   background: var(--mc-bg-card);
   color: var(--mc-text-primary);
@@ -467,7 +474,6 @@ $control-height: 3rem;
 
 .modal-footer {
   padding: 0.75rem 1.25rem calc(0.9rem + env(safe-area-inset-bottom));
-  background: var(--mc-bg-main);
 
   ion-button {
     min-height: 52px;
@@ -521,6 +527,16 @@ $control-height: 3rem;
   flex-flow: row nowrap;
   gap: 0.5rem;
   width: 100%;
+}
+
+@media (max-width: 360px) {
+  .type-filters {
+    flex-wrap: wrap;
+  }
+
+  .type-option {
+    flex-basis: calc(50% - 0.25rem);
+  }
 }
 
 .type-option {

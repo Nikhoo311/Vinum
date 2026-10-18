@@ -3,6 +3,7 @@ import {
   Firestore,
   collection,
   collectionData,
+  deleteDoc,
   doc,
   serverTimestamp,
   setDoc,
@@ -20,7 +21,7 @@ import { omitUndefined } from '../utils/wine.util';
 const WISHLIST_KEY_PREFIX = 'catalogue-wishlist-';
 
 /**
- * Catalogue de vins : fiches personnelles (`users/{uid}/catalogue`), propositions au catalogue
+ * Catalogue de vins : catalogue commun (`catalogue`), fiches personnelles (`users/{uid}/catalogue`), propositions au catalogue
  * commun (`catalogueProposals`), liste de souhaits (stockée sur l'appareil) et passage en cave.
  */
 @Injectable({ providedIn: 'root' })
@@ -30,6 +31,17 @@ export class CatalogueService {
   private readonly caveService = inject(CaveService);
   private readonly injector = inject(Injector);
 
+  /** Catalogue commun publié, accessible aux utilisateurs connectés. */
+  readonly communityWines$: Observable<CatalogueWine[]> = this.authService.currentUser$.pipe(
+    map((user) => user?.id ?? ''),
+    distinctUntilChanged(),
+    switchMap((uid) => {
+      if (!uid) return of<CatalogueWine[]>([]);
+
+      return this.watchWines(['catalogue'], 'Lecture du catalogue commun impossible :');
+    })
+  );
+
   /** Fiches personnelles de l'utilisateur connecté (vide si déconnecté ou en cas d'erreur de lecture). */
   readonly personalWines$: Observable<CatalogueWine[]> = this.authService.currentUser$.pipe(
     map((user) => user?.id ?? ''),
@@ -37,24 +49,26 @@ export class CatalogueService {
     switchMap((uid) => {
       if (!uid) return of<CatalogueWine[]>([]);
 
-      return runInInjectionContext(this.injector, () =>
-        collectionData(collection(this.firestore, 'users', uid, 'catalogue'), { idField: 'id' })
-      ).pipe(
-        map((documents) =>
-          documents
-            .map((document) => toCatalogueWine(String(document['id']), document))
-            .filter((wine): wine is CatalogueWine => wine !== null)
-        ),
-        catchError((error) => {
-          console.error('Lecture des fiches personnelles impossible :', error);
-          return of<CatalogueWine[]>([]);
-        })
-      );
+      return this.watchWines(['users', uid, 'catalogue'], 'Lecture des fiches personnelles impossible :');
     })
   );
 
   private get userId(): string {
     return this.authService.currentUser?.id ?? '';
+  }
+
+  private watchWines(path: string[], errorMessage: string): Observable<CatalogueWine[]> {
+    return runInInjectionContext(this.injector, () =>
+      collectionData(collection(this.firestore, path.join('/')), { idField: 'id' })
+    ).pipe(
+      map((documents) => documents
+        .map((document) => toCatalogueWine(String(document['id']), document))
+        .filter((wine): wine is CatalogueWine => wine !== null)),
+      catchError((error) => {
+        console.error(errorMessage, error);
+        return of<CatalogueWine[]>([]);
+      })
+    );
   }
 
   // ── Liste de souhaits (locale à l'appareil) ───────────────
@@ -122,6 +136,13 @@ export class CatalogueService {
   }
 
   // ── Fiches et propositions ────────────────────────────────
+
+  /** Supprime uniquement la fiche personnelle, sans retirer les bouteilles en cave. */
+  async deletePersonalWine(wineId: string): Promise<void> {
+    const ownerId = this.userId;
+    if (!ownerId) throw new Error('Utilisateur non connecté.');
+    await deleteDoc(doc(this.firestore, 'users', ownerId, 'catalogue', wineId));
+  }
 
   /** Crée une fiche personnelle, et la propose au catalogue commun si `propose` est vrai. */
   async createPersonalWine(data: CatalogueWineData, propose: boolean): Promise<void> {

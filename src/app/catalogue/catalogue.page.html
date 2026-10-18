@@ -7,7 +7,7 @@
       <span class="wishlist-card__text">
         <strong>{{ 'CATALOGUE.WISHLIST' | transloco }}</strong>
         <span>
-          @if (wishlist.size) {
+          @if (wishlistWines.length) {
             {{ 'CATALOGUE.TO_BUY' | transloco }} · {{ wishlistSum | number: '1.0-2' }} €
           } @else {
             {{ 'CATALOGUE.NOTHING_YET' | transloco }}
@@ -15,7 +15,7 @@
         </span>
       </span>
       <span class="wishlist-card__end">
-        <span class="wishlist-card__count">{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlist.size } }}</span>
+        <span class="wishlist-card__count">{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlistWines.length } }}</span>
         <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
       </span>
     </button>
@@ -128,6 +128,12 @@
               <ion-icon slot="start" name="wine-outline"></ion-icon>
               {{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}
             </ion-button>
+            @if (scope === 'personal') {
+              <ion-button class="delete-card-button" fill="clear" color="danger" shape="round" expand="block" [disabled]="!!deletingWineId" [attr.aria-label]="('CATALOGUE.DELETE' | transloco) + ' : ' + wine.name" (click)="confirmDeleteWine(wine)">
+                <ion-icon slot="start" name="trash-outline" aria-hidden="true"></ion-icon>
+                {{ 'CATALOGUE.DELETE' | transloco }}
+              </ion-button>
+            }
           </article>
         </li>
       } @empty {
@@ -165,7 +171,7 @@
 </ion-content>
 
 <!-- Filtres -->
-<app-custom-modal [isOpen]="filtersOpen" [initialBreakpoint]="0.82" [breakpoints]="[0, 0.82]" (didDismiss)="filtersOpen = false">
+<app-custom-modal [isOpen]="filtersOpen" [initialBreakpoint]="0.82" [breakpoints]="[0, 0.82]" [footerHasBackground]="true" (didDismiss)="filtersOpen = false">
   <header class="modal-header"><h2>{{ 'CATALOGUE.FILTERS' | transloco }}</h2></header>
 
   <section class="filters" [attr.aria-label]="'CATALOGUE.FILTERS' | transloco">
@@ -212,7 +218,7 @@
 <app-custom-modal [isOpen]="wishlistOpen" [initialBreakpoint]="0.86" [breakpoints]="[0, 0.86]" (didDismiss)="wishlistOpen = false">
   <header class="modal-header">
     <h2>{{ 'CATALOGUE.WISHLIST' | transloco }}</h2>
-    <p>{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlist.size } }} · {{ wishlistSum | number: '1.0-2' }} €</p>
+    <p>{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlistWines.length } }} · {{ wishlistSum | number: '1.0-2' }} €</p>
   </header>
 
   <div class="wishlist-list">
@@ -266,7 +272,7 @@
 </app-wine-sheet-modal>
 
 <!-- Mise en cave -->
-<app-custom-modal [isOpen]="!!addWine" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" (didDismiss)="addWine = null">
+<app-custom-modal [isOpen]="!!addWine" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" [footerHasBackground]="true" (didDismiss)="addWine = null">
   <header class="modal-header"><h2>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</h2></header>
   @if (addWine) {
     @if (freeSlots.length) {
@@ -286,7 +292,7 @@
 </app-custom-modal>
 
 <!-- Création d'une fiche personnelle -->
-<app-custom-modal [isOpen]="createOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" (didDismiss)="createOpen = false">
+<app-custom-modal [isOpen]="createOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" [footerHasBackground]="true" (didDismiss)="createOpen = false">
   <header class="modal-header">
     <h2>{{ 'CATALOGUE.CREATE' | transloco }}</h2>
     <p>{{ 'CATALOGUE.CREATE_DESCRIPTION' | transloco }}</p>
@@ -306,7 +312,7 @@
 </app-custom-modal>
 
 <!-- Proposition au catalogue commun -->
-<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" (didDismiss)="proposalOpen = false">
+<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" [footerHasBackground]="true" (didDismiss)="proposalOpen = false">
   <header class="modal-header">
     <h2>{{ 'CATALOGUE.PROPOSE_TITLE' | transloco }}</h2>
     <p>{{ 'CATALOGUE.PROPOSE_CHECK_HINT' | transloco }}</p>
