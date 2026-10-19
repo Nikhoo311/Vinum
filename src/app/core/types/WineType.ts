@@ -80,3 +80,20 @@ export const CAVE_MAX = 24;
  * Cette valeur est aussi le plafond appliqué par les règles Firestore.
  */
 export const CAVE_MAX_PREMIUM = 240;
+
+/** Liste des régions viticoles de France. */
+export const FRENCH_WINE_REGIONS: readonly string[] = [
+  'Alsace',
+  'Beaujolais',
+  'Bordeaux',
+  'Bourgogne',
+  'Champagne',
+  'Corse',
+  'Jura',
+  'Languedoc',
+  'Loire',
+  'Provence',
+  'Rhône',
+  'Sud-Ouest',
+  'Savoie',
+];

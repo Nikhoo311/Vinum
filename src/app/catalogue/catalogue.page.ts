@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, InfiniteScrollCustomEvent, IonContent, IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -24,7 +24,7 @@ import { AuthService } from '../core/services/auth.service';
 import { CatalogueService } from '../core/services/catalogue.service';
 import { CaveService } from '../core/services/cave.service';
 import { ToastService } from '../core/services/toast.service';
-import { WINE_TYPES, WINE_TYPE_CONFIG, WineType } from '../core/types/WineType';
+import { WINE_TYPES, WINE_TYPE_CONFIG, WineType, FRENCH_WINE_REGIONS } from '../core/types/WineType';
 import {
   ALL_REGIONS,
   CatalogueCriteria,
@@ -68,6 +68,7 @@ const STATUS_OPTIONS: readonly { value: CatalogueStatus; labelKey: string }[] = 
     CommonModule,
     IonicModule,
     TranslocoModule,
+    ReactiveFormsModule,
     AddWineFormComponent,
     CheckboxComponent,
     CustomModalComponent,
@@ -88,6 +89,7 @@ export class CataloguePage implements OnInit {
 
   readonly WINE_TYPES = WINE_TYPES;
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
+  readonly FRENCH_WINE_REGIONS = FRENCH_WINE_REGIONS;
 
   /** Formulaire partagé par la mise en cave, la création de fiche et la proposition. */
   readonly wineForm = createWineForm(inject(FormBuilder));
@@ -96,9 +98,10 @@ export class CataloguePage implements OnInit {
   scope: CatalogueScope = 'community';
   query = '';
   readonly selectedTypes = new Set<WineType>();
-  region = ALL_REGIONS;
+  regionControl = new FormControl(ALL_REGIONS, { nonNullable: true });
   status: CatalogueStatus = 'all';
-  sort: CatalogueSort = 'name';
+  sortControl = new FormControl('name', { nonNullable: true });
+  slotControl = new FormControl('', { nonNullable: true });
 
   // Données et résultats calculés
   communityWines: CatalogueWine[] = [];
@@ -118,9 +121,9 @@ export class CataloguePage implements OnInit {
   createOpen = false;
   proposalOpen = false;
   detailsWine: UserWine | null = null;
+  detailsVintage: string | number | null = null;
   addWine: CatalogueWine | null = null;
   freeSlots: FreeSlot[] = [];
-  selectedSlot = '';
   proposeToCommunity = false;
   saving = false;
   deletingWineId: string | null = null;
@@ -144,12 +147,21 @@ export class CataloguePage implements OnInit {
 
     // Les libellés calculés (« Toutes les régions »…) dépendent de la langue.
     this.transloco.langChanges$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
+
+    // S'abonner aux changements des controls de filtre
+    this.regionControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
+    this.sortControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
   }
 
   // ── Libellés et listes pour le gabarit ────────────────────
 
   get sortOptions(): SelectOption[] {
     return SORT_OPTIONS.map(({ value, labelKey }) => ({ value, label: this.transloco.translate(labelKey) }));
+  }
+
+  get currentSortLabel(): string {
+    const sortOption = SORT_OPTIONS.find(({ value }) => value === this.sortControl.value);
+    return sortOption ? this.transloco.translate(sortOption.labelKey) : '';
   }
 
   get communityCount(): number {
@@ -162,6 +174,10 @@ export class CataloguePage implements OnInit {
 
   get slotOptions(): SelectOption[] {
     return this.freeSlots.map(({ label }) => ({ value: label, label }));
+  }
+
+  get selectedSlot(): string {
+    return this.slotControl.value;
   }
 
   get hasActiveCriteria(): boolean {
@@ -197,7 +213,6 @@ export class CataloguePage implements OnInit {
   setScope(scope: CatalogueScope): void {
     if (this.scope === scope) return;
     this.scope = scope;
-    this.region = ALL_REGIONS;
     this.refresh();
   }
 
@@ -221,23 +236,13 @@ export class CataloguePage implements OnInit {
     this.refresh();
   }
 
-  updateRegion(value: string): void {
-    this.region = value;
-    this.refresh();
-  }
-
-  updateSort(value: string): void {
-    this.sort = value as CatalogueSort;
-    this.refresh();
-  }
-
   /** Réinitialise les filtres, la recherche comprise. */
   resetFilters(): void {
     this.query = '';
     this.selectedTypes.clear();
-    this.region = ALL_REGIONS;
+    this.regionControl.setValue(ALL_REGIONS);
     this.status = 'all';
-    this.sort = 'name';
+    this.sortControl.setValue('name');
     this.refresh();
   }
 
@@ -259,6 +264,7 @@ export class CataloguePage implements OnInit {
   // ── Fiche détaillée ───────────────────────────────────────
 
   openDetails(wine: CatalogueWine): void {
+    this.detailsVintage = wine.vintage || null;
     const owned = this.caveWines.find((item) => item.wineCatalogueId === wine.id);
     this.detailsWine = {
       id: wine.id,
@@ -282,6 +288,7 @@ export class CataloguePage implements OnInit {
 
   closeDetails(): void {
     this.detailsWine = null;
+    this.detailsVintage = null;
   }
 
   toggleDetailsWishlist(): void {
@@ -301,7 +308,7 @@ export class CataloguePage implements OnInit {
     this.wishlistOpen = false;
 
     this.freeSlots = this.catalogueService.freeSlots;
-    this.selectedSlot = this.freeSlots[0]?.label ?? '';
+    this.slotControl.setValue(this.freeSlots[0]?.label ?? '');
 
     const foodPairing = wine.foodPairing?.length ? formatFoodPairing(wine.foodPairing) : this.defaultFoodPairing(wine.type);
     this.resetForm();
@@ -341,7 +348,7 @@ export class CataloguePage implements OnInit {
         wine,
         this.formData(),
         Number(this.wineForm.getRawValue().quantity),
-        this.selectedSlot,
+        this.slotControl.value || '',
         this.personalWines.some((item) => item.id === wine.id)
       );
       if (this.wishlist.delete(wine.id)) this.persistWishlist();
@@ -455,7 +462,7 @@ export class CataloguePage implements OnInit {
   }
 
   private get criteria(): CatalogueCriteria {
-    return { query: this.query, types: this.selectedTypes, region: this.region, status: this.status, sort: this.sort };
+    return { query: this.query, types: this.selectedTypes, region: this.regionControl.value, status: this.status, sort: this.sortControl.value as CatalogueSort };
   }
 
   /** Recalcule tout ce que le gabarit affiche ; à appeler après chaque changement de critère ou de donnée. */
@@ -472,7 +479,7 @@ export class CataloguePage implements OnInit {
 
     this.regionOptions = [
       { value: ALL_REGIONS, label: this.transloco.translate('CATALOGUE.ALL_REGIONS') },
-      ...listRegions(source).map((region) => ({ value: region, label: region })),
+      ...FRENCH_WINE_REGIONS.map((region) => ({ value: region, label: region })),
     ];
   }
 

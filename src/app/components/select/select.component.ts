@@ -1,4 +1,6 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, HostListener, Input, OnInit, inject } from '@angular/core';
+import { AbstractControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
 
 export interface SelectOption {
@@ -17,24 +19,36 @@ let nextSelectId = 0;
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [IonicModule],
+  imports: [IonicModule, ReactiveFormsModule],
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectComponent {
+export class SelectComponent implements OnInit {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
-  @Input() label = '';
-  @Input() value = '';
+  @Input({ required: true }) label!: string;
+  @Input({ required: true }) control!: AbstractControl | null;
   @Input() placeholder = '';
   @Input() options: SelectOption[] = [];
-  @Output() valueChange = new EventEmitter<string>();
 
   readonly id = `app-select-${nextSelectId++}`;
   readonly listId = `${this.id}-list`;
 
   isOpen = false;
   activeIndex = -1;
+  value = '';
+
+  ngOnInit(): void {
+    this.value = this.control?.value ?? '';
+
+    this.control?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.value = value ?? '';
+      this.cdr.markForCheck();
+    });
+  }
 
   get selectedLabel(): string {
     return this.options.find((option) => option.value === this.value)?.label ?? '';
@@ -59,7 +73,10 @@ export class SelectComponent {
 
   choose(option: SelectOption): void {
     this.close();
-    if (option.value !== this.value) this.valueChange.emit(option.value);
+    if (option.value !== this.value) {
+      this.control?.setValue(option.value);
+      this.control?.markAsDirty();
+    }
   }
 
   onKeydown(event: KeyboardEvent): void {

@@ -61,22 +61,28 @@
       @if (activeFilterCount) {
         <div class="active-filters" [attr.aria-label]="'CATALOGUE.ACTIVE_FILTERS' | transloco">
           @for (type of selectedTypes; track type) {
-            <button type="button" (click)="toggleType(type)">
-              {{ WINE_TYPE_CONFIG[type].label | transloco }} <span aria-hidden="true">×</span>
-            </button>
+            <ion-button (click)="toggleType(type)" fill="solid" color="secondary" size="small">
+              {{ WINE_TYPE_CONFIG[type].label | transloco }}
+              <ion-icon slot="end" name="close-outline" aria-hidden="true"></ion-icon>
+            </ion-button>
           }
           @if (status !== 'all') {
-            <button type="button" (click)="updateStatus('all')">
-              {{ statusFilterLabelKey | transloco }} <span aria-hidden="true">×</span>
-            </button>
+            <ion-button (click)="updateStatus('all')" fill="solid" color="secondary" size="small">
+              {{ statusFilterLabelKey | transloco }}
+              <ion-icon slot="end" name="close-outline" aria-hidden="true"></ion-icon>
+            </ion-button>
           }
-          @if (region !== 'all') {
-            <button type="button" (click)="updateRegion('all')">{{ region }} <span aria-hidden="true">×</span></button>
+          @if (regionControl.value !== 'all') {
+            <ion-button (click)="regionControl.setValue('all')" fill="solid" color="secondary" size="small">
+              {{ regionControl.value }}
+              <ion-icon slot="end" name="close-outline" aria-hidden="true"></ion-icon>
+            </ion-button>
           }
-          @if (sort !== 'name') {
-            <button type="button" (click)="updateSort('name')">
-              {{ 'CATALOGUE.SORT_ACTIVE' | transloco }} <span aria-hidden="true">×</span>
-            </button>
+          @if (sortControl.value !== 'name') {
+            <ion-button (click)="sortControl.setValue('name')" fill="solid" color="secondary" size="small">
+              {{ currentSortLabel }}
+              <ion-icon slot="end" name="close-outline" aria-hidden="true"></ion-icon>
+            </ion-button>
           }
         </div>
       }
@@ -201,8 +207,8 @@
     </div>
 
     <div class="filters__row">
-      <app-select [label]="'CATALOGUE.REGION' | transloco" [value]="region" [options]="regionOptions" (valueChange)="updateRegion($event)"></app-select>
-      <app-select [label]="'CATALOGUE.SORT' | transloco" [value]="sort" [options]="sortOptions" (valueChange)="updateSort($event)"></app-select>
+      <app-select [label]="'CATALOGUE.REGION' | transloco" [control]="regionControl" [options]="regionOptions"></app-select>
+      <app-select [label]="'CATALOGUE.SORT' | transloco" [control]="sortControl" [options]="sortOptions"></app-select>
     </div>
   </section>
 
@@ -265,6 +271,7 @@
   [wine]="detailsWine"
   [canRemoveBottle]="false"
   [catalogueMode]="true"
+  [vintageLabel]="detailsVintage"
   [isWishlisted]="isDetailsWishlisted"
   (wishlistToggle)="toggleDetailsWishlist()"
   (addToCave)="addDetailsToCave()"
@@ -277,7 +284,7 @@
   @if (addWine) {
     @if (freeSlots.length) {
       <app-add-wine-form [form]="wineForm" formId="catalogue-add-form" [maxQuantity]="freeSlots.length" (formSubmit)="submitAdd()">
-        <app-select [label]="'CATALOGUE.FIRST_SLOT' | transloco" [value]="selectedSlot" [options]="slotOptions" (valueChange)="selectedSlot = $event"></app-select>
+        <app-select [label]="'CATALOGUE.FIRST_SLOT' | transloco" [control]="slotControl" [options]="slotOptions"></app-select>
         <p class="slot-hint">{{ 'CATALOGUE.SLOT_HINT' | transloco }}</p>
       </app-add-wine-form>
     } @else {

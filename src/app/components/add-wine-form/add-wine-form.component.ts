@@ -9,6 +9,7 @@ import { InputComponent } from '../input/input.component';
 import { StepperComponent } from '../stepper/stepper.component';
 import { TextAreaInputComponent } from '../text-area-input/text-area-input.component';
 import { WinesRadioGroupComponent } from '../wines-radio-group/wines-radio-group.component';
+import { SelectComponent } from '../select/select.component';
 
 /**
  * Formulaire d'un vin, partagé par l'ajout et la modification.
@@ -17,7 +18,7 @@ import { WinesRadioGroupComponent } from '../wines-radio-group/wines-radio-group
 @Component({
   selector: 'app-add-wine-form',
   standalone: true,
-  imports: [IonicModule, ReactiveFormsModule, TranslocoModule, InputComponent, WinesRadioGroupComponent, StepperComponent, TextAreaInputComponent],
+  imports: [IonicModule, ReactiveFormsModule, TranslocoModule, InputComponent, WinesRadioGroupComponent, StepperComponent, TextAreaInputComponent, SelectComponent],
   templateUrl: './add-wine-form.component.html',
   styleUrls: ['./add-wine-form.component.scss'],
 })
