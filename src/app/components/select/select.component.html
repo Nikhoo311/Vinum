@@ -1,5 +1,10 @@
 @if (label) {
-  <label class="select__label" [id]="id + '-label'" (click)="toggle()">{{ label }}</label>
+  <label class="select__label" [id]="id + '-label'" (click)="toggle()">
+    {{ label }}
+    @if (showRequirement) {
+      <span class="select__label__required" aria-hidden="true">*</span>
+    }
+  </label>
 }
 <div class="select" [class.select--open]="isOpen">
   <button

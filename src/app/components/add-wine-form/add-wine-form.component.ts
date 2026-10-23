@@ -4,12 +4,12 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
-import { WINE_TYPES, WINE_TYPE_CONFIG, WineType, isWineType } from '../../core/types/WineType';
+import { FRENCH_WINE_REGIONS, WINE_TYPES, WINE_TYPE_CONFIG, WineType, isWineType } from '../../core/types/WineType';
 import { InputComponent } from '../input/input.component';
 import { StepperComponent } from '../stepper/stepper.component';
 import { TextAreaInputComponent } from '../text-area-input/text-area-input.component';
 import { WinesRadioGroupComponent } from '../wines-radio-group/wines-radio-group.component';
-import { SelectComponent } from '../select/select.component';
+import { SelectComponent, SelectOption } from '../select/select.component';
 
 /**
  * Formulaire d'un vin, partagé par l'ajout et la modification.
@@ -33,6 +33,7 @@ export class AddWineFormComponent implements OnInit {
   @Output() formSubmit = new EventEmitter<void>();
 
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
+  readonly FRENCH_WINE_REGIONS = FRENCH_WINE_REGIONS;
 
   ngOnInit(): void {
     // Choisir un type propose les accords mets-vins correspondants (voir applyDefaultFoodPairing).
@@ -64,6 +65,10 @@ export class AddWineFormComponent implements OnInit {
 
   get remainingSlots(): number {
     return Math.max(0, this.maxQuantity - this.quantity);
+  }
+
+  get regionOptions(): SelectOption[] {
+    return FRENCH_WINE_REGIONS.map((region) => ({ value: region, label: region }));
   }
 
   /**

@@ -15,7 +15,7 @@
     <app-input [label]="'CAVE.ADD_WINE.VINTAGE' | transloco" [control]="form.controls['vintage']" [showRequirement]="true" [required]="true" type="number" placeholder="2020"></app-input>
     <app-input [label]="'CAVE.ADD_WINE.PEAK_MATURITY_YEAR' | transloco" [control]="form.controls['peakMaturityYear']" type="number" placeholder="2030"></app-input>
   </div>
-  <app-input [label]="'CAVE.ADD_WINE.REGION' | transloco" [control]="form.controls['region']" [showRequirement]="true" [required]="true" [placeholder]="'CAVE.ADD_WINE.REGION_PLACEHOLDER' | transloco"></app-input>
+  <app-select [label]="'CAVE.ADD_WINE.REGION' | transloco" [control]="form.controls['region']" [options]="regionOptions" [showRequirement]="true" [placeholder]="'Sélectionner une région'"></app-select>
   <app-input [label]="'CAVE.ADD_WINE.GRAPE_VARIETY' | transloco" [control]="form.controls['grapeVariety']" [showRequirement]="true" [required]="true" [placeholder]="'CAVE.ADD_WINE.GRAPE_VARIETY_PLACEHOLDER' | transloco"></app-input>
   <div class="add-wine-form__row">
     <app-input [label]="'CAVE.ADD_WINE.UNIT_PRICE' | transloco" [control]="form.controls['unitPrice']" [showRequirement]="true" [required]="true" type="number" [min]="0" [step]="0.01" placeholder="0"></app-input>

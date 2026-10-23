@@ -30,9 +30,10 @@ export class SelectComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   @Input({ required: true }) label!: string;
-  @Input({ required: true }) control!: AbstractControl | null;
+  @Input({ required: true }) control!: AbstractControl;
   @Input() placeholder = '';
   @Input() options: SelectOption[] = [];
+  @Input() showRequirement = false;
 
   readonly id = `app-select-${nextSelectId++}`;
   readonly listId = `${this.id}-list`;
@@ -42,9 +43,9 @@ export class SelectComponent implements OnInit {
   value = '';
 
   ngOnInit(): void {
-    this.value = this.control?.value ?? '';
+    this.value = this.control.value ?? '';
 
-    this.control?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+    this.control.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.value = value ?? '';
       this.cdr.markForCheck();
     });
@@ -52,6 +53,10 @@ export class SelectComponent implements OnInit {
 
   get selectedLabel(): string {
     return this.options.find((option) => option.value === this.value)?.label ?? '';
+  }
+
+  get hasError(): boolean {
+    return this.control.invalid && (this.control.dirty || this.control.touched);
   }
 
   toggle(): void {
