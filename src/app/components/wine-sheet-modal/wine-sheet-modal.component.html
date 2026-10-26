@@ -31,23 +31,11 @@
         <p class="meta">
           {{ wine.domain }} ·
           {{ wine.region || ('WINE_SHEET_MODAL.REGION_NOT_SPECIFIED' | transloco) }}
-          · {{ wine.vintage }}
+          · {{ wine.vintage || '—' }}
         </p>
       </div>
     </div>
 
-    @if (catalogueMode) {
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.GRAPE_VARIETY' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.grapeVariety || '—' }}</div></ion-card></ion-col>
-          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.REGION' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.region || '—' }}</div></ion-card></ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'WINE_SHEET_MODAL.UNIT_PRICE' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.unitPrice | number }} €</div></ion-card></ion-col>
-          <ion-col size="6"><ion-card class="bento-card"><ion-card-title>{{ 'CATALOGUE.IN_CELLAR' | transloco }}</ion-card-title><div class="bento-kpi">{{ wine.placements.length || '—' }}</div></ion-card></ion-col>
-        </ion-row>
-      </ion-grid>
-    } @else {
     <ion-grid>
       <ion-row>
         <ion-col size="6">
@@ -57,7 +45,7 @@
             </ion-card-title>
 
             <div class="bento-kpi">
-              {{ formattedPlacements.join(', ') }}
+              {{ formattedPlacements.join(', ') || '—' }}
             </div>
           </ion-card>
         </ion-col>
@@ -116,7 +104,7 @@
         </ion-col>
 
         <ion-col size="6">
-          <ion-card class="bento-card rating-card" button (click)="openRatingModal()">
+          <ion-card class="bento-card rating-card" [button]="!catalogueMode" [class.rating-card--editable]="!catalogueMode" (click)="openRatingModal()">
             <ion-card-title>
               {{ 'WINE_SHEET_MODAL.RATING' | transloco }}
             </ion-card-title>
@@ -152,7 +140,6 @@
         </ion-row>
       }
     </ion-grid>
-    }
 
     <div class="sheet-section">
       <h4>{{ 'WINE_SHEET_MODAL.DESCRIPTION' | transloco }}</h4>
@@ -167,7 +154,7 @@
     <div class="sheet-section">
       <h4>{{ 'WINE_SHEET_MODAL.FOOD_PAIRING' | transloco }}</h4>
 
-      @if (wine.foodPairing) {
+      @if (wine.foodPairing.length) {
         <p>{{ wine.foodPairing.join(', ') }}</p>
       } @else {
         <p>{{ 'WINE_SHEET_MODAL.NO_FOOD_PAIRING' | transloco }}</p>

@@ -23,6 +23,10 @@
   </div>
   <app-text-area-input [label]="'CAVE.ADD_WINE.FLAVOR_NOTES' | transloco" [control]="form.controls['description']" [placeholder]="'CAVE.ADD_WINE.FLAVOR_NOTES_PLACEHOLDER' | transloco"></app-text-area-input>
   <app-input [label]="'CAVE.ADD_WINE.FOOD_PAIRING' | transloco" [control]="form.controls['foodPairing']" [showRequirement]="true" [placeholder]="'CAVE.ADD_WINE.FOOD_PAIRING_PLACEHOLDER' | transloco"></app-input>
+  @if (showsFirstSlot) {
+    <app-select [label]="'CATALOGUE.FIRST_SLOT' | transloco" [control]="firstSlotControl!" [options]="firstSlotOptions"></app-select>
+    <p class="add-wine-form__slot-hint">{{ 'CATALOGUE.SLOT_HINT' | transloco }}</p>
+  }
   @if (showQuantity) {
     <app-stepper [control]="form.controls['quantity']" [label]="'CAVE.ADD_WINE.QUANTITY' | transloco" [min]="1" [max]="maxQuantity"></app-stepper>
     <p class="add-wine-form__availability">{{ remainingSlots }} {{ (remainingSlots > 1 ? 'CAVE.ADD_WINE.AVAILABLE_SLOTS' : 'CAVE.ADD_WINE.AVAILABLE_SLOT') | transloco }}</p>

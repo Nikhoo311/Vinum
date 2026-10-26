@@ -121,8 +121,8 @@ export class CataloguePage implements OnInit {
   createOpen = false;
   proposalOpen = false;
   detailsWine: UserWine | null = null;
-  detailsVintage: string | number | null = null;
   addWine: CatalogueWine | null = null;
+  addModalOpen = false;
   freeSlots: FreeSlot[] = [];
   proposeToCommunity = false;
   saving = false;
@@ -174,10 +174,6 @@ export class CataloguePage implements OnInit {
 
   get slotOptions(): SelectOption[] {
     return this.freeSlots.map(({ label }) => ({ value: label, label }));
-  }
-
-  get selectedSlot(): string {
-    return this.slotControl.value;
   }
 
   get hasActiveCriteria(): boolean {
@@ -264,7 +260,6 @@ export class CataloguePage implements OnInit {
   // ── Fiche détaillée ───────────────────────────────────────
 
   openDetails(wine: CatalogueWine): void {
-    this.detailsVintage = wine.vintage || null;
     const owned = this.caveWines.find((item) => item.wineCatalogueId === wine.id);
     this.detailsWine = {
       id: wine.id,
@@ -288,7 +283,6 @@ export class CataloguePage implements OnInit {
 
   closeDetails(): void {
     this.detailsWine = null;
-    this.detailsVintage = null;
   }
 
   toggleDetailsWishlist(): void {
@@ -332,6 +326,7 @@ export class CataloguePage implements OnInit {
     ]);
     this.wineForm.controls.quantity.updateValueAndValidity();
     this.addWine = wine;
+    this.addModalOpen = true;
   }
 
   async submitAdd(): Promise<void> {
@@ -352,7 +347,7 @@ export class CataloguePage implements OnInit {
         this.personalWines.some((item) => item.id === wine.id)
       );
       if (this.wishlist.delete(wine.id)) this.persistWishlist();
-      this.addWine = null;
+      this.closeAddModal();
       this.refresh();
       void this.toast.success(this.transloco.translate('CATALOGUE.ADD_SUCCESS'));
     } catch (error) {
@@ -361,6 +356,11 @@ export class CataloguePage implements OnInit {
     } finally {
       this.saving = false;
     }
+  }
+
+  closeAddModal(): void {
+    this.addModalOpen = false;
+    this.addWine = null;
   }
 
   // ── Fiches personnelles et propositions ───────────────────

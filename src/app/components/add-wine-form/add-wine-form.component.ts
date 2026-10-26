@@ -1,6 +1,6 @@
 import { Component, DestroyRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
@@ -30,6 +30,9 @@ export class AddWineFormComponent implements OnInit {
   @Input() formId = 'add-wine-form';
   @Input() maxQuantity = 1;
   @Input() showQuantity = true;
+  /** Premier emplacement, utilisé lorsque le formulaire ajoute plusieurs bouteilles depuis le catalogue. */
+  @Input() firstSlotControl: FormControl<string> | null = null;
+  @Input() firstSlotOptions: SelectOption[] = [];
   @Output() formSubmit = new EventEmitter<void>();
 
   readonly WINE_TYPE_CONFIG = WINE_TYPE_CONFIG;
@@ -65,6 +68,10 @@ export class AddWineFormComponent implements OnInit {
 
   get remainingSlots(): number {
     return Math.max(0, this.maxQuantity - this.quantity);
+  }
+
+  get showsFirstSlot(): boolean {
+    return this.firstSlotControl !== null && this.firstSlotOptions.length > 0;
   }
 
   get regionOptions(): SelectOption[] {

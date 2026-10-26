@@ -271,7 +271,6 @@
   [wine]="detailsWine"
   [canRemoveBottle]="false"
   [catalogueMode]="true"
-  [vintageLabel]="detailsVintage"
   [isWishlisted]="isDetailsWishlisted"
   (wishlistToggle)="toggleDetailsWishlist()"
   (addToCave)="addDetailsToCave()"
@@ -279,20 +278,17 @@
 </app-wine-sheet-modal>
 
 <!-- Mise en cave -->
-<app-custom-modal [isOpen]="!!addWine" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" [footerHasBackground]="true" (didDismiss)="addWine = null">
+<app-custom-modal [isOpen]="addModalOpen" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" [footerHasBackground]="true" (didDismiss)="closeAddModal()">
   <header class="modal-header"><h2>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}</h2></header>
   @if (addWine) {
     @if (freeSlots.length) {
-      <app-add-wine-form [form]="wineForm" formId="catalogue-add-form" [maxQuantity]="freeSlots.length" (formSubmit)="submitAdd()">
-        <app-select [label]="'CATALOGUE.FIRST_SLOT' | transloco" [control]="slotControl" [options]="slotOptions"></app-select>
-        <p class="slot-hint">{{ 'CATALOGUE.SLOT_HINT' | transloco }}</p>
-      </app-add-wine-form>
+      <app-add-wine-form [form]="wineForm" formId="catalogue-add-form" [maxQuantity]="freeSlots.length" [firstSlotControl]="slotControl" [firstSlotOptions]="slotOptions" (formSubmit)="submitAdd()"></app-add-wine-form>
     } @else {
       <p class="slot-hint">{{ 'CATALOGUE.NO_SLOTS' | transloco }}</p>
     }
   }
   <div modal-footer class="modal-footer">
-    <ion-button type="submit" form="catalogue-add-form" class="cellar-button" expand="block" shape="round" [disabled]="saving || !freeSlots.length || wineForm.invalid">
+    <ion-button type="button" class="cellar-button" expand="block" shape="round" [disabled]="saving || !freeSlots.length || wineForm.invalid" (click)="submitAdd()">
       <ion-icon slot="start" name="wine-outline"></ion-icon>{{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}
     </ion-button>
   </div>
@@ -312,7 +308,7 @@
       (checkedChange)="proposeToCommunity = $event"></app-checkbox>
   </app-add-wine-form>
   <div modal-footer class="modal-footer">
-    <ion-button type="submit" form="create-catalogue-form" expand="block" shape="round" [disabled]="wineForm.invalid || saving">
+    <ion-button type="button" expand="block" shape="round" [disabled]="wineForm.invalid || saving" (click)="createWine()">
       {{ 'CATALOGUE.SAVE_CARD' | transloco }}
     </ion-button>
   </div>
@@ -326,7 +322,7 @@
   </header>
   <app-add-wine-form [form]="wineForm" formId="proposal-wine-form" [showQuantity]="false" (formSubmit)="submitProposal()"></app-add-wine-form>
   <div modal-footer class="modal-footer">
-    <ion-button type="submit" form="proposal-wine-form" expand="block" shape="round" [disabled]="wineForm.invalid || saving">
+    <ion-button type="button" expand="block" shape="round" [disabled]="wineForm.invalid || saving" (click)="submitProposal()">
       <ion-icon slot="start" name="paper-plane-outline"></ion-icon>{{ 'CATALOGUE.SEND_PROPOSAL' | transloco }}
     </ion-button>
   </div>
