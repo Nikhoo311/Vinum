@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Vinum</title>
+  <rect width="1024" height="1024" fill="#6E2E3A"/>
+  <g transform="translate(287 200.75) scale(7.5)">
+    <rect x="22" y="3" width="16" height="22" rx="3" fill="#C0392B"/>
+    <path d="M12 65 C12 38 22 36 22 25 L38 25 C38 36 48 38 48 65 L48 73 Q48 80 41 80 L19 80 Q12 80 12 73 Z" fill="#5A2430"/>
+    <rect x="18" y="45" width="24" height="20" rx="6" fill="#FFFFFF" fill-opacity="0.9"/>
+  </g>
+</svg>

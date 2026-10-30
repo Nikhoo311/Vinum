@@ -1,10 +1,14 @@
-<ion-content [fullscreen]="true" class="my-proposals-content">
-  <main class="my-proposals-page">
-    <header class="my-proposals-title topbar">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="topbar">
       <app-topbar-back-button [label]="'COMMON.BACK' | transloco"></app-topbar-back-button>
       <h1>{{ 'CATALOGUE.MY_PROPOSALS.TITLE' | transloco }}</h1>
-    </header>
+    </div>
+  </ion-toolbar>
+</ion-header>
 
+<ion-content class="my-proposals-content">
+  <main class="my-proposals-page">
     <ion-segment class="scope-tabs" mode="ios" [value]="tab" (ionChange)="setTab($any($event.detail.value))" [attr.aria-label]="'CATALOGUE.MY_PROPOSALS.TITLE' | transloco">
       <ion-segment-button value="pending">
         <ion-label>{{ 'CATALOGUE.MY_PROPOSALS.IN_PROGRESS' | transloco }} {{ pendingCount }}</ion-label>

@@ -1,9 +1,14 @@
-<ion-content [fullscreen]="true" class="review-content">
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <div class="topbar">
+      <app-topbar-back-button [label]="'COMMON.BACK' | transloco"></app-topbar-back-button>
+      <h1>{{ 'CATALOGUE.ADMIN.TITLE' | transloco }}</h1>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="review-content">
   <main class="review-page">
-      <header class="review-title topbar">
-        <app-topbar-back-button [label]="'COMMON.BACK' | transloco"></app-topbar-back-button>
-        <h1>{{ 'CATALOGUE.ADMIN.TITLE' | transloco }}</h1>
-      </header>
 
       <ion-segment class="scope-tabs" mode="ios" [value]="tab" (ionChange)="setTab($any($event.detail.value))" [attr.aria-label]="'CATALOGUE.ADMIN.TITLE' | transloco">
         <ion-segment-button value="pending">

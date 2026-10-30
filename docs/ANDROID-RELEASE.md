@@ -26,11 +26,11 @@ Pour déboguer la WebView : Chrome → `chrome://inspect` avec l'appareil connec
 ### 1. Créer la clé (une seule fois)
 
 ```bash
-keytool -genkeypair -v -keystore vinum-release.jks -alias vinum \
+keytool -genkeypair -v -keystore android/vinum-release.jks -alias vinum \
         -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-Placer `vinum-release.jks` dans `android/` (ou ailleurs ; le chemin est relatif à `android/`). **Sauvegarder le fichier et ses mots de passe dans un gestionnaire de secrets** : sans eux, aucune mise à jour future n'est possible (sauf Play App Signing, ci-dessous).
+La clé est créée dans `android/`. **Sauvegarder le fichier et ses mots de passe dans un gestionnaire de secrets** : sans eux, aucune mise à jour future n'est possible (sauf Play App Signing, ci-dessous).
 
 ### 2. Déclarer les identifiants
 
@@ -40,6 +40,8 @@ cp android/keystore.properties.example android/keystore.properties
 ```
 
 `keystore.properties`, `*.jks` et `*.keystore` sont ignorés par Git (racine et `android/`). `android/app/build.gradle` lit ce fichier ; **s'il est absent, le build release n'est simplement pas signé** (utile en CI de vérification).
+
+Un App Bundle construit sans cette configuration est **non signé et ne peut pas être envoyé à Google Play**.
 
 ### 3. Empreintes pour Firebase / Google
 
@@ -70,6 +72,8 @@ Deux numéros sont à incrémenter à chaque publication, dans `android/app/buil
 |---|---|
 | `versionCode` | Entier **strictement croissant** à chaque envoi au Play Store (actuellement `1`) |
 | `versionName` | Version affichée (`1.0.0`, suivre `package.json`) |
+
+Avant de publier, vérifier dans la Play Console le `versionCode` le plus récent, puis le remplacer par un entier supérieur dans `android/app/build.gradle`.
 
 ## Choix de configuration
 
