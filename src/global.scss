@@ -330,6 +330,14 @@ ion-header {
   }
 }
 
+.proposal-count-badge {
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0.375rem;
+  border-radius: var(--mc-radius-pill);
+  line-height: 0.75rem;
+}
+
 /* ==========
    UTILITAIRES
    ========== */
@@ -386,7 +394,7 @@ ion-header {
 .header__title-container {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
 }
 .radio-group-wrapper {
   background: var(--mc-bg-card);

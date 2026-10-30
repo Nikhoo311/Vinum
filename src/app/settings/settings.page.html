@@ -31,7 +31,7 @@
           </ion-label>
           @if ((unseenProposalCount$ | async); as unseenCount) {
             @if (unseenCount > 0) {
-              <ion-badge slot="end" color="danger" [style.border-radius]="'999px'">{{ unseenCount }}</ion-badge>
+              <ion-badge class="proposal-count-badge" slot="end" color="danger">{{ unseenCount }}</ion-badge>
             }
           }
         </ion-item>
