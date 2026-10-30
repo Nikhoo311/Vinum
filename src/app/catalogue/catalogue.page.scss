@@ -1,6 +1,3 @@
-// Hauteur commune de la recherche et du bouton de filtres.
-$control-height: 3rem;
-
 .catalogue {
   padding-bottom: 2rem;
 }
@@ -105,101 +102,6 @@ ion-button > ion-icon[slot='start'] {
     border-radius: 999px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   }
-}
-
-// ── Recherche et filtres ────────────────────────────────────
-.tools-sticky {
-  position: sticky;
-  top: -0.5rem;
-  z-index: 6;
-  margin: 0 -1rem;
-  padding: 1rem 1rem 0.15rem;
-  background: var(--mc-bg-main);
-}
-
-.catalogue-tools {
-  display: flex;
-  align-items: stretch;
-  gap: 0.6rem;
-}
-
-.catalogue-tools ion-searchbar {
-  flex: 1;
-  min-width: 0;
-  height: $control-height;
-  min-height: $control-height;
-  padding: 0;
-  border-radius: var(--mc-radius-input);
-  box-sizing: border-box;
-
-  --background: var(--mc-bg-card);
-  --border-radius: var(--mc-radius-input);
-  --box-shadow: none;
-  --color: var(--mc-text-primary);
-  --placeholder-color: var(--mc-text-secondary);
-  --placeholder-opacity: 1;
-  --icon-color: var(--mc-text-secondary);
-  --clear-button-color: var(--mc-text-secondary);
-
-  &::part(icon) {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  &::part(input) {
-    padding-inline-start: 0.5rem;
-    font-family: var(--ion-font-family);
-    font-size: 0.875rem;
-  }
-
-  &::part(clear-button) {
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 50%;
-    background: var(--mc-border);
-    opacity: 1;
-  }
-}
-
-.filter-toggle {
-  position: relative;
-  display: grid;
-  flex: none;
-  width: $control-height;
-  height: $control-height;
-  padding: 0;
-  place-items: center;
-  border-radius: var(--mc-radius-input);
-  background: var(--mc-bg-card);
-  color: var(--mc-text-primary);
-  cursor: pointer;
-
-  ion-icon {
-    font-size: 1.625rem;
-  }
-
-  &.active {
-    border-color: var(--mc-text-primary);
-    background: var(--mc-text-primary);
-    color: var(--mc-bg-main);
-  }
-}
-
-.filter-count {
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  display: grid;
-  min-width: 21px;
-  height: 21px;
-  padding: 0 5px;
-  place-items: center;
-  border: 2px solid var(--mc-bg-main);
-  border-radius: 11px;
-  background: var(--ion-color-danger);
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 700;
 }
 
 .active-filters {
@@ -517,8 +419,6 @@ ion-button > ion-icon[slot='start'] {
   text-transform: uppercase;
 }
 
-// Types : mêmes tuiles, sur une seule ligne, que le choix du type dans le formulaire d'un vin
-// (voir `app-wines-radio-group`), mais à sélection multiple.
 .type-filters {
   display: flex;
   flex-flow: row nowrap;
@@ -588,7 +488,6 @@ ion-button > ion-icon[slot='start'] {
   }
 }
 
-// Statut : toute la ligne est cliquable, pas seulement le rond.
 .status-group {
   display: flex;
   flex-direction: column;
@@ -782,3 +681,10 @@ ion-button > ion-icon[slot='start'] {
   text-decoration: underline;
   cursor: pointer;
 }
+
+// ── Accès aux propositions ──────────────────────────────────
+.catalogue-tiles{padding:0;margin-bottom:.75rem}
+.catalogue-tiles ion-col{padding:.3rem}
+.catalogue-tile{display:flex;align-items:center;gap:.6rem;padding:.7rem;border:0;border-radius:var(--mc-radius-card);background:var(--mc-bg-card);color:var(--mc-text-primary);font:inherit}
+.catalogue-tile{position:relative;width:100%;min-height:6.25rem;align-items:flex-start;flex-direction:column}
+.proposal-updates-badge{position:absolute;top:.35rem;right:.35rem;display:grid;min-width:1.4rem;height:1.4rem;padding:0 .35rem;place-items:center;border-radius:999px;font-size:.7rem;font-weight:700}

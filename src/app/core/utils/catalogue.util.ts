@@ -1,4 +1,5 @@
 import {
+  CatalogueProposal,
   CatalogueSort,
   CatalogueStatus,
   CatalogueWine,
@@ -23,6 +24,27 @@ export interface CatalogueCriteria {
 /** Emplacement libre de la cave, avec son libellé (`A3`). */
 export interface FreeSlot extends CellPlacement {
   label: string;
+}
+
+/** Adapte une proposition pour l'afficher dans la fiche de vin réutilisable. */
+export function proposalToUserWine(proposal: CatalogueProposal): UserWine {
+  return {
+    id: proposal.id,
+    ownerId: proposal.ownerId,
+    isCustom: true,
+    name: proposal.name,
+    domain: proposal.domain,
+    region: proposal.region,
+    vintage: Number(proposal.vintage) || 0,
+    type: proposal.type,
+    grapeVariety: proposal.grapeVariety,
+    unitPrice: proposal.unitPrice,
+    description: proposal.description ?? '',
+    foodPairing: proposal.foodPairing ?? [],
+    placements: [],
+    ...(proposal.rating === undefined ? {} : { rating: proposal.rating }),
+    ...(proposal.peakMaturityYear === undefined ? {} : { peakMaturityYear: proposal.peakMaturityYear }),
+  };
 }
 
 /** Indique si au moins un critère restreint ou réordonne la liste. */

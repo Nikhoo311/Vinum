@@ -6,6 +6,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les
 
 ### Ajouté
 
+- **Modération du catalogue** : accès Admin depuis les Réglages, protégé par `admins/{uid}` gérés dans la console Firebase ; vue des propositions à traiter/traitées, recherche, filtres, édition avant publication, acceptation ou refus avec motif facultatif. Dans le Catalogue, chaque utilisateur suit ses propositions, retire celles encore en attente et peut soumettre une nouvelle proposition après un refus. Les décisions et publications sont transactionnelles.
 - **Alertes de maturité** : notification locale le jour d'ajout d'un vin, dans son année d'apogée (`MaturityNotificationService`, `maturity.util`). Nouveau champ `addedAt` sur les fiches. Nécessite `npm install @capacitor/local-notifications` puis `npx cap sync android`.
 
 - **Catalogue** (fusion de la branche `main`, reprise dans l'architecture revue) : `CatalogueService` (`inject()`, observable des fiches personnelles validées, enregistrement des propositions avec horodatage serveur), `core/utils/catalogue.util.ts` (+ 13 tests), vins communs dans `catalogue/community-wines.ts`.

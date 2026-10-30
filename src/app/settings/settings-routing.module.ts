@@ -6,6 +6,8 @@ import { FavoriteWinePage } from './favorite-wine/favorite-wine.page';
 import { PersonalInformationPage } from './personal-information/personal-information.page';
 import { LanguagePage } from './language/language.page';
 import { StarWinePage } from './star-wine/star-wine.page';
+import { CatalogueProposalsPage } from './catalogue-proposals/catalogue-proposals.page';
+import { catalogueAdminGuard } from '../guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -27,8 +29,12 @@ const routes: Routes = [
   {
     path: 'star-wine',
     component: StarWinePage
-  }
-
+  },
+  {
+    path: 'catalogue-proposals',
+    component: CatalogueProposalsPage,
+    canActivate: [catalogueAdminGuard],
+  },
 
 ];
 

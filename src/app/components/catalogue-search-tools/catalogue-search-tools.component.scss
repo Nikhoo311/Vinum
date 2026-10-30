@@ -1,0 +1,95 @@
+$control-height: 3rem;
+
+.tools-sticky {
+  position: sticky;
+  top: -0.5rem;
+  z-index: 6;
+  margin: 0 -1rem;
+  padding: 1rem 1rem 0.15rem;
+  background: var(--mc-bg-main);
+}
+
+.catalogue-tools {
+  display: flex;
+  align-items: stretch;
+  gap: 0.6rem;
+}
+
+.catalogue-tools ion-searchbar {
+  flex: 1;
+  min-width: 0;
+  height: $control-height;
+  min-height: $control-height;
+  padding: 0;
+  border-radius: var(--mc-radius-input);
+  box-sizing: border-box;
+
+  --background: var(--mc-bg-card);
+  --border-radius: var(--mc-radius-input);
+  --box-shadow: none;
+  --color: var(--mc-text-primary);
+  --placeholder-color: var(--mc-text-secondary);
+  --placeholder-opacity: 1;
+  --icon-color: var(--mc-text-secondary);
+  --clear-button-color: var(--mc-text-secondary);
+
+  &::part(icon) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &::part(input) {
+    padding-inline-start: 0.5rem;
+    font-family: var(--ion-font-family);
+    font-size: 0.875rem;
+  }
+
+  &::part(clear-button) {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--mc-border);
+    opacity: 1;
+  }
+}
+
+.filter-toggle {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: $control-height;
+  height: $control-height;
+  padding: 0;
+  place-items: center;
+  border-radius: var(--mc-radius-input);
+  background: var(--mc-bg-card);
+  color: var(--mc-text-primary);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.625rem;
+  }
+
+  &.active {
+    border-color: var(--mc-text-primary);
+    background: var(--mc-text-primary);
+    color: var(--mc-bg-main);
+  }
+}
+
+.filter-count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  place-items: center;
+  border: 2px solid var(--mc-bg-main);
+  border-radius: 11px;
+  background: var(--ion-color-danger);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+}

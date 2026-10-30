@@ -7,6 +7,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { CustomModalComponent } from '../../components/custom-modal/custom-modal.component';
 import { InputComponent } from '../../components/input/input.component';
+import { TopbarBackButtonComponent } from '../../components/topbar-back-button/topbar-back-button.component';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -17,7 +18,7 @@ import { ERRORS_CODES } from '../../core/types/ErrorsCode';
 @Component({
   selector: 'app-personal-information',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, IonicModule, TranslocoModule, InputComponent, CustomModalComponent],
+  imports: [ReactiveFormsModule, CommonModule, IonicModule, TranslocoModule, InputComponent, CustomModalComponent, TopbarBackButtonComponent],
   templateUrl: './personal-information.page.html',
   styleUrls: ['./personal-information.page.scss'],
 })

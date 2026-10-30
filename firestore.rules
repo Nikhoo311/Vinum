@@ -7,7 +7,7 @@ rules_version = '2';
 //   users/{uid}/wine/{id}  fiches de vins de sa cave
 //   users/{uid}/catalogue/{id}  ses fiches personnelles du catalogue
 //   catalogue/{id}              vins publiés du catalogue commun (lecture seule)
-//   catalogueProposals/{id}     propositions au catalogue commun (création seule, lecture par l'auteur)
+//   catalogueProposals/{id}     propositions au catalogue commun (auteur, modération Admin)
 // Tout le reste est refusé par défaut.
 //
 // Les validations de contenu sont volontairement tolérantes avec les anciens documents
@@ -18,6 +18,11 @@ service cloud.firestore {
 
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;
     }
 
     function isShortString(value, maxLength) {
@@ -40,10 +45,9 @@ service cloud.firestore {
         && (!('caveConfig' in data) || validCaveConfig(data.caveConfig));
     }
 
-    function validWine(uid, data) {
+    function validWineFields(data) {
       return isShortString(data.name, 200) && data.name.size() > 0
         && data.type in ['red', 'white', 'rose', 'champagne']
-        && (!('ownerId' in data) || data.ownerId == uid)
         && (!('domain' in data) || isShortString(data.domain, 200))
         && (!('region' in data) || isShortString(data.region, 200))
         && (!('appellation' in data) || isShortString(data.appellation, 200))
@@ -58,8 +62,27 @@ service cloud.firestore {
         && (!('placements' in data) || (data.placements is list && data.placements.size() <= 240));
     }
 
+    function validWine(uid, data) {
+      return validWineFields(data)
+        && (!('ownerId' in data) || data.ownerId == uid);
+    }
+
+    function validCatalogueWine(data) {
+      return data.keys().hasOnly([
+          'name', 'domain', 'region', 'vintage', 'type', 'grapeVariety', 'unitPrice',
+          'description', 'foodPairing', 'rating', 'peakMaturityYear'
+        ])
+        && validWineFields(data);
+    }
+
+    match /admins/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
     match /users/{uid} {
-      allow read, delete: if isOwner(uid);
+      allow read: if isOwner(uid) || isAdmin();
+      allow delete: if isOwner(uid);
       allow create, update: if isOwner(uid) && validUser(request.resource.data);
 
       match /wine/{wineId} {
@@ -77,13 +100,17 @@ service cloud.firestore {
     // Les vins publiés sont administrés côté serveur.
     match /catalogue/{wineId} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow create: if isAdmin() && validCatalogueWine(request.resource.data);
+      allow update: if false;
+      allow delete: if isAdmin()
+        && get(/databases/$(database)/documents/catalogueProposals/$(wineId)).data.status == 'approved'
+        && getAfter(/databases/$(database)/documents/catalogueProposals/$(wineId)).data.status == 'pending';
     }
 
-    // Propositions au catalogue commun : on peut en créer (statut « pending », horodatage serveur)
-    // et relire les siennes ; la modération se fait côté serveur (console / Admin SDK).
+    // Propositions : l'auteur les crée et les relit ; un administrateur peut les modérer.
     match /catalogueProposals/{proposalId} {
-      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow read: if isAdmin()
+        || (request.auth != null && resource.data.ownerId == request.auth.uid);
       allow create: if request.auth != null
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.status == 'pending'
@@ -93,7 +120,57 @@ service cloud.firestore {
           'foodPairing', 'rating', 'peakMaturityYear', 'ownerId', 'status', 'createdAt'
         ])
         && validWine(request.auth.uid, request.resource.data);
-      allow update, delete: if false;
+      allow update: if isAdmin()
+        && (
+          (
+            resource.data.status == 'pending'
+            && request.resource.data.status in ['approved', 'rejected']
+            && request.resource.data.moderatedBy == request.auth.uid
+            && request.resource.data.moderatedAt == request.time
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'moderatedBy', 'moderatedAt', 'rejectionReason',
+              'name', 'domain', 'region', 'vintage', 'type', 'grapeVariety', 'unitPrice',
+              'description', 'foodPairing', 'rating', 'peakMaturityYear'
+            ])
+            && request.resource.data.diff(resource.data).affectedKeys().hasAll([
+              'status', 'moderatedBy', 'moderatedAt'
+            ])
+            && (
+              (request.resource.data.status == 'approved'
+                && !('rejectionReason' in request.resource.data)
+                && validWineFields(request.resource.data))
+              || (request.resource.data.status == 'rejected'
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                  'status', 'moderatedBy', 'moderatedAt', 'rejectionReason'
+                ])
+                && (!('rejectionReason' in request.resource.data)
+                  || isShortString(request.resource.data.rejectionReason, 1000)))
+            )
+          )
+          || (
+            resource.data.status in ['approved', 'rejected']
+            && request.resource.data.status == 'pending'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'moderatedBy', 'moderatedAt', 'rejectionReason'
+            ])
+            && request.resource.data.diff(resource.data).affectedKeys().hasAll(['status'])
+            && !('moderatedBy' in request.resource.data)
+            && !('moderatedAt' in request.resource.data)
+            && !('rejectionReason' in request.resource.data)
+            && (
+              resource.data.status == 'rejected'
+              || !existsAfter(/databases/$(database)/documents/catalogue/$(proposalId))
+            )
+          )
+        )
+        && request.resource.data.keys().hasOnly([
+          'name', 'domain', 'region', 'vintage', 'type', 'grapeVariety', 'unitPrice',
+          'description', 'foodPairing', 'rating', 'peakMaturityYear', 'ownerId', 'status',
+          'createdAt', 'moderatedBy', 'moderatedAt', 'rejectionReason'
+        ]);
+      allow delete: if request.auth != null
+        && resource.data.ownerId == request.auth.uid
+        && resource.data.status == 'pending';
     }
 
     // Par défaut : tout est refusé.

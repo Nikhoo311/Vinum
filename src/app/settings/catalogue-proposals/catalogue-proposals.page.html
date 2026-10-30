@@ -1,0 +1,180 @@
+<ion-content [fullscreen]="true" class="review-content">
+  <main class="review-page">
+      <header class="review-title topbar">
+        <app-topbar-back-button [label]="'COMMON.BACK' | transloco"></app-topbar-back-button>
+        <h1>{{ 'CATALOGUE.ADMIN.TITLE' | transloco }}</h1>
+      </header>
+
+      <ion-segment class="scope-tabs" mode="ios" [value]="tab" (ionChange)="setTab($any($event.detail.value))" [attr.aria-label]="'CATALOGUE.ADMIN.TITLE' | transloco">
+        <ion-segment-button value="pending">
+          <ion-label>{{ 'CATALOGUE.ADMIN.TO_REVIEW' | transloco }} {{ pendingCount }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="processed">
+          <ion-label>{{ 'CATALOGUE.ADMIN.PROCESSED' | transloco }} {{ processedCount }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <app-catalogue-search-tools
+        [value]="query"
+        [placeholder]="'CATALOGUE.ADMIN.SEARCH' | transloco"
+        [filterCount]="activeFilterCount"
+        [filterLabel]="'CATALOGUE.FILTERS' | transloco"
+        (searchInput)="onSearch($event)"
+        (filterClick)="filtersOpen = true">
+      </app-catalogue-search-tools>
+
+      <div class="review-results">
+        <span role="status">{{ 'CATALOGUE.ADMIN.RESULT_COUNT' | transloco: { count: visibleProposals.length } }}</span>
+        @if (hasActiveCriteria) {
+          <button class="filter-reset" type="button" (click)="resetFilters()">{{ 'CATALOGUE.RESET' | transloco }}</button>
+        }
+      </div>
+      <ion-list class="proposal-list" lines="none">
+        @for (item of visibleProposals; track item.id) {
+          <ion-item class="proposal-row" [button]="true" [detail]="true" (click)="openProposal(item)">
+            <ion-thumbnail slot="start" class="proposal-row__thumb">
+              <img [src]="WINE_TYPE_CONFIG[item.type].icon" alt="" aria-hidden="true" />
+            </ion-thumbnail>
+            <ion-label class="proposal-row__main">
+              <h2>{{ item.name }}</h2>
+              <p>{{ item.vintage }} · {{ item.region }}</p>
+              @if (tab === 'pending') {
+                <p>{{ 'CATALOGUE.ADMIN.SUBMITTED_BY' | transloco }} {{ proposalAuthorName(item) }} · {{ formatDate(item.createdAt) }}</p>
+              }
+              @if (tab === 'pending' && findDuplicate(item)) {
+                <span class="proposal-row__flags">
+                  @if (findDuplicate(item)) { <small>{{ 'CATALOGUE.ADMIN.POSSIBLE_DUPLICATE' | transloco }}</small> }
+                </span>
+              }
+            </ion-label>
+            @if (tab === 'processed') {
+              <ion-chip slot="end" class="proposal-row__status" [class.proposal-row__status--approved]="item.status === 'approved'" [class.proposal-row__status--rejected]="item.status === 'rejected'" [color]="item.status === 'approved' ? 'success' : 'danger'">
+                {{ ('CATALOGUE.MY_PROPOSALS.STATUS.' + item.status.toUpperCase()) | transloco }}
+              </ion-chip>
+            }
+          </ion-item>
+        } @empty {
+          <div class="review-empty">
+            <strong>{{ tab === 'pending' ? ('CATALOGUE.ADMIN.EMPTY' | transloco) : ('CATALOGUE.ADMIN.NO_PROCESSED' | transloco) }}</strong>
+            @if (query || activeFilterCount) {
+              <p>{{ 'CATALOGUE.ADMIN.CHANGE_FILTERS' | transloco }}</p>
+            }
+          </div>
+        }
+      </ion-list>
+  </main>
+</ion-content>
+
+@if (selectedProposal; as proposal) {
+  @if (editing) {
+    <app-custom-modal [isOpen]="true" [initialBreakpoint]="0.95" [breakpoints]="[0, 0.95]" [footerHasBackground]="true" (didDismiss)="editing = false">
+      <header class="filter-header">
+        <h2>{{ 'CATALOGUE.ADMIN.EDIT' | transloco }}</h2>
+      </header>
+      <div class="edit-note">{{ 'CATALOGUE.ADMIN.EDIT_HINT' | transloco }}</div>
+      <app-add-wine-form [form]="editForm" formId="edit-proposal-form" [showQuantity]="false" (formSubmit)="publishCorrections(proposal)"></app-add-wine-form>
+      <div modal-footer class="filter-footer">
+        <ion-button type="button" expand="block" shape="round" [disabled]="!!moderatingProposalId" (click)="publishCorrections(proposal)">
+          {{ 'CATALOGUE.ADMIN.PUBLISH_CORRECTIONS' | transloco }}
+        </ion-button>
+        <ion-button expand="block" fill="outline" shape="round" [disabled]="!!moderatingProposalId" (click)="editing = false">
+          {{ 'COMMON.CANCEL' | transloco }}
+        </ion-button>
+      </div>
+    </app-custom-modal>
+  } @else {
+  <app-wine-sheet-modal
+    [isOpen]="true"
+    [initialBreakpoint]="0.86"
+    [breakpoints]="[0, 0.86]"
+    [wine]="selectedProposalWine"
+    [canRemoveBottle]="false"
+    [catalogueMode]="true"
+    [readOnlyMode]="true"
+    (isOpenChange)="closeProposal()">
+    <ion-row wine-sheet-grid-status>
+      <ion-col size="12">
+        <app-proposal-status-card
+          [status]="proposal.status"
+          [author]="proposalAuthorName(proposal)"
+          [createdAt]="proposal.createdAt"
+          [rejectionReason]="proposal.rejectionReason">
+        </app-proposal-status-card>
+      </ion-col>
+    </ion-row>
+    @if (proposal.status === 'pending' && findDuplicate(proposal); as duplicate) {
+      <ion-card wine-sheet-status class="duplicate-warning" color="warning">
+        <ion-card-content>{{ 'CATALOGUE.ADMIN.POSSIBLE_DUPLICATE' | transloco }}: {{ duplicate.name }} · {{ duplicate.vintage }}</ion-card-content>
+      </ion-card>
+    }
+    <div wine-sheet-actions class="proposal-review-actions">
+      @if (proposal.status === 'pending') {
+        <ion-button expand="block" shape="round" color="secondary" [disabled]="!!moderatingProposalId" (click)="startEditing(proposal)">
+          {{ 'CATALOGUE.ADMIN.EDIT' | transloco }}
+        </ion-button>
+        <div class="review-footer__secondary">
+          <ion-button expand="block" fill="solid" shape="round" color="success" [disabled]="!!moderatingProposalId" (click)="acceptProposal(proposal)">
+            {{ 'CATALOGUE.ADMIN.ACCEPT_PUBLISH' | transloco }}
+          </ion-button>
+          <ion-button expand="block" fill="solid" shape="round" color="danger" [disabled]="!!moderatingProposalId" (click)="rejectProposal(proposal)">
+            {{ 'CATALOGUE.ADMIN.REJECT' | transloco }}
+          </ion-button>
+        </div>
+      } @else {
+        <ion-button
+          expand="block"
+          fill="solid"
+          shape="round"
+          [disabled]="!!moderatingProposalId"
+          (click)="requeueProposal(proposal)">
+          {{ 'CATALOGUE.ADMIN.REQUEUE' | transloco }}
+        </ion-button>
+      }
+    </div>
+  </app-wine-sheet-modal>
+  }
+}
+
+<app-custom-modal [isOpen]="filtersOpen" [initialBreakpoint]="0.82" [breakpoints]="[0, 0.82]" [footerHasBackground]="true" (didDismiss)="filtersOpen = false">
+  <header class="review-filter-modal-header"><h2>{{ 'CATALOGUE.FILTERS' | transloco }}</h2></header>
+  <section class="review-filters">
+    <div>
+      <span class="filter-label">{{ 'CATALOGUE.TYPE' | transloco }}</span>
+      <div class="review-type-filters" role="group" [attr.aria-label]="'CATALOGUE.TYPE' | transloco">
+        @for (type of WINE_TYPES; track type) {
+          <button type="button" class="review-type-option" [class.selected]="selectedTypes.has(type)" [attr.aria-pressed]="selectedTypes.has(type)" (click)="toggleType(type)">
+            <span class="review-type-option__swatch" [style.background]="'color-mix(in srgb, var(--wine-' + type + ') 60%, transparent)'">
+              <img [src]="WINE_TYPE_CONFIG[type].icon" alt="" aria-hidden="true" />
+            </span>
+            <span class="review-type-option__label">{{ WINE_TYPE_CONFIG[type].label | transloco }}</span>
+          </button>
+        }
+      </div>
+    </div>
+    @if (tab === 'processed') {
+      <div>
+        <span class="filter-label">{{ 'CATALOGUE.ADMIN.DECISION' | transloco }}</span>
+        <div class="filter-chips" role="group" [attr.aria-label]="'CATALOGUE.ADMIN.DECISION' | transloco">
+          <button type="button" [class.selected]="decisionFilter === 'all'" (click)="decisionFilter = 'all'">{{ 'CATALOGUE.ADMIN.ALL_DECISIONS' | transloco }}</button>
+          <button type="button" [class.selected]="decisionFilter === 'approved'" (click)="decisionFilter = 'approved'">{{ 'CATALOGUE.MY_PROPOSALS.STATUS.APPROVED' | transloco }}</button>
+          <button type="button" [class.selected]="decisionFilter === 'rejected'" (click)="decisionFilter = 'rejected'">{{ 'CATALOGUE.MY_PROPOSALS.STATUS.REJECTED' | transloco }}</button>
+        </div>
+      </div>
+    }
+    @if (tab === 'pending') {
+      <div>
+        <span class="filter-label">{{ 'CATALOGUE.ADMIN.CHECK' | transloco }}</span>
+        <div class="filter-chips" role="group" [attr.aria-label]="'CATALOGUE.ADMIN.CHECK' | transloco">
+          <button type="button" [class.selected]="duplicateOnly" [attr.aria-pressed]="duplicateOnly" (click)="duplicateOnly = !duplicateOnly">{{ 'CATALOGUE.ADMIN.POSSIBLE_DUPLICATE' | transloco }}</button>
+        </div>
+      </div>
+    }
+    <app-select [label]="'CATALOGUE.SORT' | transloco" [control]="sortControl" [options]="sortOptions"></app-select>
+  </section>
+  <div modal-footer class="review-filter-modal-footer">
+    <ion-button expand="block" shape="round" (click)="filtersOpen = false">
+      {{ 'CATALOGUE.ADMIN.SHOW_PROPOSALS' | transloco: { count: visibleProposals.length } }}
+    </ion-button>
+    <button class="filter-reset" type="button" (click)="resetFilters()">{{ 'CATALOGUE.RESET_FILTERS' | transloco }}</button>
+  </div>
+</app-custom-modal>

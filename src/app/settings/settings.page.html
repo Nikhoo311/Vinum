@@ -20,6 +20,25 @@
     </ion-list>
   </div>
 
+  @if (isCatalogueAdmin$ | async) {
+    <div class="settings-section">
+      <h3 class="settings-section__title">{{ 'CATALOGUE.ADMIN.SECTION' | transloco }}</h3>
+      <ion-list class="settings-list">
+        <ion-item [button]="true" [detail]="true" (click)="goToCatalogueProposals()">
+          <ion-label>
+            <h2>{{ 'CATALOGUE.ADMIN.OPEN_REVIEW' | transloco }}</h2>
+            <p>{{ 'CATALOGUE.ADMIN.PENDING_SUBTITLE' | transloco }}</p>
+          </ion-label>
+          @if ((unseenProposalCount$ | async); as unseenCount) {
+            @if (unseenCount > 0) {
+              <ion-badge slot="end" color="danger" [style.border-radius]="'999px'">{{ unseenCount }}</ion-badge>
+            }
+          }
+        </ion-item>
+      </ion-list>
+    </div>
+  }
+
   <!-- Section Cave -->
   <div class="settings-section">
     <h3 class="settings-section__title">{{ 'SETTINGS.SECTIONS.CAVE' | transloco }}</h3>

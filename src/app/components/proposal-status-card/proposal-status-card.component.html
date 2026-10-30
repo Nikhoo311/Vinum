@@ -1,0 +1,32 @@
+<ion-card class="proposal-status-card" [class.proposal-status-card--compact]="compact">
+  <ion-card-header>
+    <div class="proposal-status-card__heading">
+      <ion-chip
+        [class.proposal-status-card__status--pending]="status === 'pending'"
+        [class.proposal-status-card__status--approved]="status === 'approved'"
+        [class.proposal-status-card__status--rejected]="status === 'rejected'"
+        [color]="status === 'pending' ? 'warning' : status === 'approved' ? 'success' : 'danger'">
+        {{ statusLabelKey | transloco }}
+      </ion-chip>
+      @if (createdAt) {
+        <ion-note>{{ createdAt | date: 'mediumDate' }}</ion-note>
+      }
+    </div>
+  </ion-card-header>
+  @if ((status === 'rejected' || author) && !compact) {
+    <ion-card-content>
+      @if (author) {
+        <p class="proposal-status-card__author">
+          {{ 'CATALOGUE.ADMIN.SUBMITTED_BY' | transloco }} {{ author }}
+        </p>
+      }
+      @if (status === 'rejected') {
+        @if (rejectionReason?.trim()) {
+          <p><strong>{{ 'CATALOGUE.MY_PROPOSALS.REJECTION_REASON' | transloco }} :</strong><br>{{ rejectionReason }}</p>
+        } @else {
+          <p>{{ 'CATALOGUE.MY_PROPOSALS.NO_REASON' | transloco }}</p>
+        }
+      }
+    </ion-card-content>
+  }
+</ion-card>

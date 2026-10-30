@@ -11,6 +11,7 @@ import { StepperComponent } from '../components/stepper/stepper.component';
 import { CaveView } from '../core/models/user.model';
 import { AuthService } from '../core/services/auth.service';
 import { CaveService } from '../core/services/cave.service';
+import { CatalogueService } from '../core/services/catalogue.service';
 import { MaturityNotificationService } from '../core/services/maturity-notification.service';
 import { DarkModeSetting, PreferencesService } from '../core/services/preferences.service';
 import { StarWineService } from '../core/services/star-wine.service';
@@ -30,12 +31,15 @@ import { environment } from '../../environments/environment';
 export class SettingsPage {
   private readonly authService = inject(AuthService);
   private readonly starWine = inject(StarWineService);
+  private readonly catalogueService = inject(CatalogueService);
 
   readonly maxEmplacements = CAVE_MAX;
   readonly features = environment.features;
 
   readonly isDarkMode$: Observable<boolean>;
   readonly notificationsEnabled$: Observable<boolean>;
+  readonly isCatalogueAdmin$ = this.catalogueService.isAdmin$;
+  readonly unseenProposalCount$ = this.catalogueService.unseenAdminProposalCount$;
 
   selectedView: CaveView = this.authService.currentUser?.caveConfig?.viewMode ?? 'grid';
   isDispositionModalOpen = false;
@@ -199,6 +203,10 @@ export class SettingsPage {
 
   goToStarWine(): void {
     void this.router.navigate(['/settings/star-wine']);
+  }
+
+  goToCatalogueProposals(): void {
+    void this.router.navigate(['/settings/catalogue-proposals']);
   }
 
   /** Nom du critère de vin star actuellement choisi. */

@@ -10,11 +10,13 @@ Le routage est déclaré dans des `NgModule` de routage avec **chargement diffé
 | `/home` | `HomePage` — tableau de bord | via le parent | |
 | `/cave` | `CavePage` — grille de la cave | via le parent | |
 | `/catalogue` | `CataloguePage` : catalogue de vins, liste de souhaits, fiches personnelles ([Composants](COMPONENTS.md#catalogue)) | via le parent | **Uniquement si** `features.catalogue` est vrai |
+| `/catalogue/my-proposals` | `MyProposalsPage` — suivi et gestion des propositions personnelles | via le parent | Route enfant du catalogue |
 | `/settings` | `SettingsPage` | via le parent | |
 | `/settings/personal-information` | `PersonalInformationPage` | via le parent | |
 | `/settings/favorite-wine` | `FavoriteWinePage` | via le parent | |
 | `/settings/language` | `LanguagePage` | via le parent | |
 | `/settings/star-wine` | `StarWinePage` | via le parent | Choix du critère du vin star |
+| `/settings/catalogue-proposals` | `CatalogueProposalsPage` — modération du catalogue | `catalogueAdminGuard` + garde du parent | Accessible aux comptes `admins/{uid}` avec `enabled: true` |
 | `/auth` | `AuthPage` — connexion / inscription | `guestGuard` | |
 | `/preference` | `PreferencePage` — onboarding | `authGuard` | |
 | `**` | — | — | Redirige vers `/` |
@@ -30,6 +32,7 @@ Gardes **fonctionnelles** (`CanActivateFn`). Toutes attendent d'abord `AuthServi
 | `authGuard` | Utilisateur connecté, onboarding terminé ou non | `/auth` |
 | `setupGuard` | Utilisateur connecté **et** onboarding terminé | `/auth` (non connecté) ou `/preference` (onboarding à faire) |
 | `guestGuard` | Visiteur non connecté | `/home` (connecté, onboarding terminé) ou `/preference` |
+| `catalogueAdminGuard` | Utilisateur connecté avec `admins/{uid}.enabled == true` | `/auth` (non connecté) ou `/settings` (non administrateur) |
 
 ## Parcours types
 

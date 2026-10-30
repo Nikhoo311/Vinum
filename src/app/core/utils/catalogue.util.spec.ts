@@ -1,4 +1,4 @@
-import { CatalogueWine } from '../models/catalogue-wine.model';
+import { CatalogueProposal, CatalogueWine } from '../models/catalogue-wine.model';
 import { WineType } from '../types/WineType';
 import {
   ALL_REGIONS,
@@ -8,6 +8,7 @@ import {
   filterCatalogue,
   listFreeSlots,
   listRegions,
+  proposalToUserWine,
   toCatalogueWine,
   wishlistTotal,
 } from './catalogue.util';
@@ -36,6 +37,32 @@ const NO_FILTER: CatalogueCriteria = {
 };
 
 describe('catalogue.util', () => {
+  it('adapte une proposition pour la fiche détaillée de vin', () => {
+    const proposal: CatalogueProposal = {
+      id: 'proposal-1',
+      ownerId: 'user-1',
+      status: 'rejected',
+      name: 'Château Lacave',
+      domain: 'Château Lacave',
+      region: 'Bordeaux',
+      vintage: 2018,
+      type: WineType.RED,
+      grapeVariety: 'Merlot',
+      unitPrice: 28,
+      rejectionReason: 'À vérifier',
+    };
+
+    expect(proposalToUserWine(proposal)).toEqual(jasmine.objectContaining({
+      id: 'proposal-1',
+      ownerId: 'user-1',
+      name: 'Château Lacave',
+      vintage: 2018,
+      placements: [],
+      description: '',
+      foodPairing: [],
+    }));
+  });
+
   const catalogue = [
     wine({ id: 'a', name: 'Sancerre', region: 'Loire', type: WineType.WHITE, unitPrice: 18, vintage: 2021 }),
     wine({ id: 'b', name: 'Bourgogne', region: 'Bourgogne', unitPrice: 24, vintage: 2019 }),

@@ -4,6 +4,7 @@ import { Gesture, GestureController, IonTabs, IonicModule } from '@ionic/angular
 import type { GestureDetail } from '@ionic/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
+import { CatalogueService } from '../core/services/catalogue.service';
 import { environment } from '../../environments/environment';
 
 /** Ordre des onglets, utilisé pour le balayage horizontal. */
@@ -25,7 +26,10 @@ export class TabsPage implements AfterViewInit, OnDestroy {
 
   readonly features = environment.features;
 
+  private readonly catalogueService = inject(CatalogueService);
   private readonly gestureCtrl = inject(GestureController);
+  readonly isCatalogueAdmin$ = this.catalogueService.isAdmin$;
+  readonly unseenProposalCount$ = this.catalogueService.unseenAdminProposalCount$;
   private gesture?: Gesture;
 
   ngAfterViewInit(): void {

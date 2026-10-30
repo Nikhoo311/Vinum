@@ -71,7 +71,17 @@ Fiche détaillée d'un vin : informations, étoiles de notation (demi-points), m
 | `isOpen` / `isOpenChange` | Liaison bidirectionnelle `[(isOpen)]` |
 | `coords` | Emplacement de la bouteille consultée (requis pour la retirer) |
 | `catalogueMode` | Mode catalogue : pas de notation ni de modification ; boutons « Liste de souhaits » et « Mettre en cave » |
+| `readOnlyMode` | Fiche en lecture seule ; les actions personnalisées peuvent être projetées via `[wine-sheet-actions]`, un statut via `[wine-sheet-status]` ou `[wine-sheet-type-status]` pour l'afficher à côté du type |
 | `isWishlisted` / `wishlistToggle` / `addToCave` | État de l'étoile et événements des deux boutons du mode catalogue |
+
+#### `app-proposal-status-card` — `ProposalStatusCardComponent`
+Carte de statut réutilisable des propositions : état traduit, date éventuelle et motif de refus. Entrées : `status` (obligatoire), `createdAt`, `rejectionReason`, `compact`, `inline` (affiche uniquement le chip).
+
+#### `app-catalogue-search-tools` — `CatalogueSearchToolsComponent`
+Barre de recherche et bouton de filtres partagés par le Catalogue et la modération Admin. Entrées : `value`, `placeholder`, `filterCount`, `filterLabel`. Événements : `searchInput`, `filterClick`.
+
+#### `app-topbar-back-button` — `TopbarBackButtonComponent`
+Bouton retour rond partagé dans les barres de navigation des pages de réglages et de propositions. Entrée : `label`. Événement : `back`.
 
 #### `app-custom-modal` — `CustomModalComponent`
 Feuille modale Ionic à crans (*breakpoints*) avec projection de contenu : le contenu principal, et un pied de page via l'attribut `modal-footer`.
@@ -95,8 +105,9 @@ Feuille modale Ionic à crans (*breakpoints*) avec projection de contenu : le co
 | `TabsPage` | `tabs/` | Barre d'onglets et balayage horizontal |
 | `HomePage` | `home/` | Tableau de bord : stock, valeur, vin star, taux de remplissage, note moyenne, répartition par type et par région. Montants et pourcentages formatés selon la langue (`Intl`). Le vin star suit le critère choisi (valeur affichée sous le nom, infobulle avec lien vers le réglage). Carte « Liste de souhaits » derrière `features.catalogue` |
 | `CavePage` | `cave/` | Grille de la cave, recherche, ajout de bouteille(s) : un appui sur une case vide ouvre le formulaire, les `quantity` bouteilles sont placées sur les cases libres à partir de la case touchée (parcours circulaire) |
-| `CataloguePage` | `catalogue/` | <a id="catalogue"></a>Catalogue (communauté / mes fiches) : recherche, filtres (type, statut en boutons radio, région, tri) dans une modale, liste de souhaits, fiche détaillée (`app-wine-sheet-modal` en `catalogueMode`), mise en cave (premier emplacement + quantité), création de fiche personnelle et proposition au catalogue commun. La liste affichée est **recalculée par `refresh()`** à chaque changement de critère ou de donnée (pas à chaque cycle de détection). Les trois formulaires partagent `createWineForm` ; les accords mets-vins se pré-remplissent selon le type choisi (`app-add-wine-form`). Texte entièrement traduit (`CATALOGUE.*`) |
-| `SettingsPage` | `settings/` | Compte, cave (disposition, affichage grille/liste, alertes de maturité*), apparence (thème, langue) |
+| `CataloguePage` | `catalogue/` | <a id="catalogue"></a>Catalogue (communauté / mes fiches) : recherche, filtres (type, statut en boutons radio, région, tri) dans une modale, tuiles d'accès à la liste de souhaits et à « Mes propositions », suivi des propositions personnelles par statut (détail, motif de refus facultatif, retrait en attente, nouvel envoi après refus), fiche détaillée (`app-wine-sheet-modal` en `catalogueMode`), mise en cave, création de fiche personnelle et proposition au catalogue commun. La liste de vins est **recalculée par `refresh()`** à chaque changement de critère ou de donnée (pas à chaque cycle de détection). Les formulaires partagent `createWineForm`. Texte entièrement traduit (`CATALOGUE.*`) |
+| `SettingsPage` | `settings/` | Compte, cave (disposition, affichage grille/liste, alertes de maturité*), apparence (thème, langue) ; affiche l'entrée de modération du catalogue si l'utilisateur est Admin |
+| `CatalogueProposalsPage` | `settings/catalogue-proposals/` | Interface Admin : propositions à traiter / traitées, recherche et filtres, détail et navigation, correction avant publication, acceptation ou refus avec motif facultatif. Protégée par `catalogueAdminGuard` ; les règles Firestore font autorité |
 | `PersonalInformationPage` | `settings/personal-information/` | Nom, e-mail (avec ré-authentification), mot de passe (modale), déconnexion, suppression du compte |
 | `StarWinePage` | `settings/star-wine/` | Réglage « Calcul du vin star » : aperçu du vin désigné (avec la valeur qui l'a placé en tête), puis sept critères en trois groupes (Valeur, Caractère, Divers) au format boutons radio. Le choix s'applique immédiatement ; chaque critère sans vin éligible déclenche un message et le repli sur le prix. Ligne d'entrée dans Réglages → Cave, avec pastille « Nouveau » |
 | `FavoriteWinePage` | `settings/favorite-wine/` | Changement du type de vin préféré (présélection = valeur du profil) |

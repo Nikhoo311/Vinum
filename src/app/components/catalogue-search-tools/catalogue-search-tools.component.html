@@ -1,0 +1,24 @@
+<div class="tools-sticky">
+  <div class="catalogue-tools">
+    <ion-searchbar
+      [value]="value"
+      [placeholder]="placeholder"
+      (ionInput)="searchInput.emit($event)"
+      showClearButton="focus"
+      animated="false"
+      mode="md">
+    </ion-searchbar>
+    <button
+      type="button"
+      class="filter-toggle"
+      [class.active]="filterCount > 0"
+      (click)="filterClick.emit()"
+      [attr.aria-label]="filterLabel">
+      <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
+      @if (filterCount) {
+        <span class="filter-count">{{ filterCount }}</span>
+      }
+    </button>
+  </div>
+  <ng-content></ng-content>
+</div>

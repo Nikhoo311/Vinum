@@ -1,6 +1,8 @@
 @if (wine) {
   <app-custom-modal
     [isOpen]="isOpen"
+    [initialBreakpoint]="initialBreakpoint"
+    [breakpoints]="breakpoints"
     [background]="'linear-gradient(to top, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 55%, transparent) 0%, color-mix(in srgb, ' + (WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent' ? 'var(--wine-' + wine.type + '-accent)' : 'var(--wine-' + wine.type + ')') + ' 18%, transparent) 35%, transparent 75%), var(--mc-bg-main, var(--bg))'"
     [footerHasBackground]="false"
     (didDismiss)="closeModal()">
@@ -16,15 +18,18 @@
       />
 
       <div class="info">
-        <ion-chip
-          [outline]="true"
-          [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent'
-            ? 'color-mix(in srgb, var(--wine-' + wine.type + '-accent) 30%, transparent)'
-            : 'color-mix(in srgb, var(--wine-' + wine.type + ') 30%, transparent)'"
-          [style.color]="'var(--wine-' + wine.type + '-accent)'"
-        >
-          {{ WINE_TYPE_CONFIG[wine.type].label | transloco }}
-        </ion-chip>
+        <div class="sheet-hero__chips">
+          <ion-chip
+            [outline]="true"
+            [style.background]="WINE_TYPE_CONFIG[wine.type].gradientColor === 'accent'
+              ? 'color-mix(in srgb, var(--wine-' + wine.type + '-accent) 30%, transparent)'
+              : 'color-mix(in srgb, var(--wine-' + wine.type + ') 30%, transparent)'"
+            [style.color]="'var(--wine-' + wine.type + '-accent)'"
+          >
+            {{ WINE_TYPE_CONFIG[wine.type].label | transloco }}
+          </ion-chip>
+          <ng-content select="[wine-sheet-type-status]"></ng-content>
+        </div>
 
         <h2>{{ wine.name }}</h2>
 
@@ -36,7 +41,10 @@
       </div>
     </div>
 
+    <ng-content select="[wine-sheet-status]"></ng-content>
+
     <ion-grid>
+      <ng-content select="[wine-sheet-grid-status]"></ng-content>
       <ion-row>
         <ion-col size="6">
           <ion-card class="bento-card">
@@ -104,7 +112,7 @@
         </ion-col>
 
         <ion-col size="6">
-          <ion-card class="bento-card rating-card" [button]="!catalogueMode" [class.rating-card--editable]="!catalogueMode" (click)="openRatingModal()">
+          <ion-card class="bento-card rating-card" [button]="!catalogueMode && !readOnlyMode" [class.rating-card--editable]="!catalogueMode && !readOnlyMode" (click)="openRatingModal()">
             <ion-card-title>
               {{ 'WINE_SHEET_MODAL.RATING' | transloco }}
             </ion-card-title>
@@ -116,7 +124,7 @@
               } @else {
                 {{ 'WINE_SHEET_MODAL.NOT_RATED' | transloco }}
               }
-              @if (!catalogueMode) {
+              @if (!catalogueMode && !readOnlyMode) {
                 <ion-icon class="rating-card__edit" name="create-outline"></ion-icon>
               }
             </div>
@@ -141,7 +149,7 @@
       }
     </ion-grid>
 
-    <div class="sheet-section">
+    <div class="sheet-section sheet-section--description">
       <h4>{{ 'WINE_SHEET_MODAL.DESCRIPTION' | transloco }}</h4>
 
       @if (wine.description) {
@@ -162,12 +170,14 @@
     </div>
 
     <div modal-footer class="sheet-actions">
-      @if (canRemoveBottle && coords) {
+      @if (readOnlyMode) {
+        <ng-content select="[wine-sheet-actions]"></ng-content>
+      } @else if (canRemoveBottle && coords) {
         <ion-button (click)="removeBottle(coords!)" [disabled]="isRemovingBottle" expand="block" shape="round" color="secondary">
           {{ 'WINE_SHEET_MODAL.REMOVE_BOTTLE' | transloco }}
         </ion-button>
       }
-      @if (catalogueMode) {
+      @if (!readOnlyMode && catalogueMode) {
         <ion-button class="catalogue-wishlist-action" [class.catalogue-wishlist-action--active]="isWishlisted" (click)="wishlistToggle.emit()" expand="block" shape="round" fill="outline" [attr.aria-pressed]="isWishlisted">
           <ion-icon slot="start" [name]="isWishlisted ? 'star' : 'star-outline'" aria-hidden="true"></ion-icon>
           {{ (isWishlisted ? 'CATALOGUE.IN_WISHLIST' : 'CATALOGUE.WISHLIST') | transloco }}
@@ -176,7 +186,7 @@
           <ion-icon slot="start" name="wine-outline" aria-hidden="true"></ion-icon>
           {{ 'CATALOGUE.ADD_TO_CELLAR' | transloco }}
         </ion-button>
-      } @else {
+      } @else if (!readOnlyMode) {
         <ion-button (click)="openEditWineModal()" expand="block" shape="round" color="primary">
           {{ 'WINE_SHEET_MODAL.EDIT' | transloco }}
         </ion-button>

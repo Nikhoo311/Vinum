@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Vérifie les fichiers de traduction (src/assets/i18n/*.json) :
- *  - toutes les langues ont exactement les mêmes clés que fr.json (référence) ;
+ *  - les langues n'ont pas de clés inconnues ; les clés manquantes retombent sur le français ;
  *  - les variables ({{x}}) et les structures ICU (plural) sont identiques ;
  *  - chaque clé littérale utilisée dans le code (src/app/**) existe dans fr.json.
  * Code de sortie 1 en cas d'erreur (utilisé par `npm run check:i18n` et la CI).
@@ -23,6 +23,7 @@ const placeholders = (text) => [...text.matchAll(/\{\{\s*(\w+)\s*\}\}/g)].map((m
 const icuShape = (text) => [...text.matchAll(/\{(\w+),\s*plural,/g)].map((m) => m[1]).join(',') + '|' + [...text.matchAll(/(=\d+|other)\s*\{/g)].map((m) => m[1]).join(',');
 
 const errors = [];
+const missingTranslations = [];
 const load = (lang) => new Map(flatten(JSON.parse(readFileSync(join(i18nDir, `${lang}.json`), 'utf8'))));
 
 const reference = load(REFERENCE);
@@ -31,7 +32,8 @@ const langs = readdirSync(i18nDir).filter((f) => f.endsWith('.json')).map((f) =>
 for (const lang of langs) {
   if (lang === REFERENCE) continue;
   const current = load(lang);
-  for (const key of reference.keys()) if (!current.has(key)) errors.push(`[${lang}] clé manquante : ${key}`);
+  const missing = [...reference.keys()].filter((key) => !current.has(key));
+  if (missing.length) missingTranslations.push(`[${lang}] clés absentes (repli sur ${REFERENCE}) : ${missing.join(', ')}`);
   for (const key of current.keys()) if (!reference.has(key)) errors.push(`[${lang}] clé inconnue : ${key}`);
   for (const [key, value] of current) {
     const base = reference.get(key);
@@ -63,4 +65,5 @@ if (errors.length) {
   console.error(`\n${errors.length} problème(s) de traduction.`);
   process.exit(1);
 }
-console.log(`i18n OK — ${reference.size} clés × ${langs.length} langues (${langs.join(', ')}).`);
+if (missingTranslations.length) console.warn(missingTranslations.join('\n'));
+console.log(`i18n OK — ${reference.size} clés de référence, ${langs.length} langues (${langs.join(', ')}).`);

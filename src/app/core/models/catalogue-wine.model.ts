@@ -24,6 +24,20 @@ export interface CatalogueWine {
 /** Contenu d'une fiche telle qu'elle est enregistrée (sans identifiant ni état calculé). */
 export type CatalogueWineData = Omit<CatalogueWine, 'id' | 'inCave'>;
 
+export type CatalogueProposalStatus = 'pending' | 'approved' | 'rejected';
+
+export interface CatalogueProposal extends CatalogueWineData {
+  id: string;
+  ownerId: string;
+  status: CatalogueProposalStatus;
+  createdAt?: string;
+  moderatedBy?: string;
+  moderatedAt?: string;
+  rejectionReason?: string;
+}
+
+export type CatalogueProposalDecision = Exclude<CatalogueProposalStatus, 'pending'>;
+
 export type CatalogueSort = 'name' | 'price-asc' | 'price-desc' | 'vintage-desc';
 
 /** Filtre de statut : tous les vins, ceux de la liste de souhaits, ou ceux déjà en cave. */

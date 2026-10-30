@@ -89,11 +89,19 @@ users/{uid}/catalogue/{id}           ← fiche personnelle du catalogue (Catalog
   name, domain, region, vintage, type, grapeVariety, unitPrice, description, foodPairing[],
   [rating], [peakMaturityYear]
 
-catalogueProposals/{id}              ← proposition au catalogue commun (création seule)
-  mêmes champs que ci-dessus + ownerId, status ('pending'), createdAt (horodatage serveur)
+catalogueProposals/{id}              ← proposition au catalogue commun
+  mêmes champs que ci-dessus + ownerId, status ('pending' | 'approved' | 'rejected'),
+  createdAt (horodatage serveur), [moderatedBy], [moderatedAt], [rejectionReason]
+
+admins/{uid}                          ← autorisation d'administration (créée depuis la console Firebase)
+  enabled: true
 ```
 
 La liste de souhaits n'est pas dans Firestore : elle est enregistrée sur l'appareil (voir [Services](SERVICES.md#catalogueservice)). Une fiche mise en cave depuis le catalogue garde le lien dans `wineCatalogueId`.
+
+Une proposition refusée est conservée avec son statut, l'identifiant de l'administrateur, l'horodatage et un motif facultatif. Une proposition acceptée est publiée dans `catalogue/{id}` en conservant le même identifiant ; le document publié ne contient pas les métadonnées privées de la proposition.
+
+L'auteur peut retirer une proposition tant qu'elle est `pending`. Après un refus, la nouvelle soumission crée un nouveau document ; l'historique du refus reste donc intact. Un administrateur peut remettre une proposition traitée en `pending`, ce qui efface les métadonnées de modération ; si elle était publiée, le document `catalogue/{id}` correspondant est supprimé dans la même transaction.
 
 Les champs entre crochets sont **facultatifs** et réellement absents du document quand ils n'ont pas de valeur (jamais `null` ni chaîne vide) : `updateWine` les supprime avec `deleteField()`.
 

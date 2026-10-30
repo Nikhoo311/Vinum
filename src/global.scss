@@ -77,6 +77,7 @@ ion-content {
    ========== */
 
 ion-card {
+  box-shadow: none;
   background: var(--mc-bg-card);
   border-radius: var(--mc-radius-card);
   border: 1px solid var(--mc-border);
@@ -204,6 +205,21 @@ ion-alert {
   .alert-button.alert-button-role-destructive.ion-activated {
     background-color: rgba(var(--ion-color-danger-rgb), 0.3) !important;
   } 
+}
+
+ion-alert.requeue-proposal-alert::part(button):first-of-type {
+  border: 1px solid var(--mc-border);
+  border-radius: var(--mc-radius-pill);
+}
+
+ion-alert.requeue-proposal-alert {
+  --ion-color-danger: var(--ion-color-success);
+  --ion-color-danger-rgb: var(--ion-color-success-rgb);
+}
+
+ion-alert.accept-proposal-alert {
+  --ion-color-danger: var(--ion-color-success);
+  --ion-color-danger-rgb: var(--ion-color-success-rgb);
 }
 /* ==========
    BOUTONS

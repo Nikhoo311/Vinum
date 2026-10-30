@@ -1,0 +1,78 @@
+:host { display: block; }
+.proposal-status-card {
+  margin: 0;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-card);
+
+  ion-card-header {
+    padding: 0.35rem 0.6rem;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: transparent;
+  }
+
+  ion-chip {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 999px;
+
+    &.proposal-status-card__status--pending {
+      --background: var(--ion-color-warning);
+      --color: var(--ion-color-warning-contrast);
+    }
+
+    &.proposal-status-card__status--approved {
+      --background: var(--ion-color-success);
+      --color: #fff;
+    }
+
+    &.proposal-status-card__status--rejected {
+      --background: var(--ion-color-danger);
+      --color: #fff;
+    }
+  }
+
+  ion-note {
+    color: var(--mc-text-secondary);
+    font-size: 0.7rem;
+  }
+
+  ion-card-content {
+    padding: 0 0.75rem 0.75rem;
+    color: var(--mc-text-secondary);
+    font-size: 0.78rem;
+  }
+
+  strong {
+    color: var(--mc-text-primary);
+  }
+
+  p {
+    margin: 0.2rem 0 0;
+    white-space: pre-wrap;
+  }
+
+  &__author {
+    color: var(--mc-text-secondary);
+  }
+
+  &--compact {
+    padding: 0.15rem 0.4rem;
+    border: 0;
+    background: var(--mc-bg-main);
+
+    ion-card-header {
+      padding: 0;
+    }
+
+    ion-chip {
+      height: 1.55rem;
+    }
+  }
+}

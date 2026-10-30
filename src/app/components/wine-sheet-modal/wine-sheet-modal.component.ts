@@ -26,9 +26,13 @@ export class WineSheetModalComponent {
   @Input({ required: true }) canRemoveBottle = false;
   @Input({ required: true }) wine: UserWine | null = null;
   @Input() isOpen = false;
+  @Input() initialBreakpoint = 0.95;
+  @Input() breakpoints: number[] = [0, 0.5, 0.7, 0.95];
   @Input() coords: CellPlacement | null = null;
   /** Fiche du catalogue commun : pas de notation ni de retrait, boutons « liste de souhaits » / « mettre en cave ». */
   @Input() catalogueMode = false;
+  /** Affiche uniquement les informations de la fiche, sans actions ni notation. */
+  @Input() readOnlyMode = false;
   @Input() isWishlisted = false;
   @Output() isOpenChange = new EventEmitter<boolean>();
   @Output() wishlistToggle = new EventEmitter<void>();
@@ -115,7 +119,7 @@ export class WineSheetModalComponent {
   // ── Notation ──────────────────────────────────────────────
 
   openRatingModal(): void {
-    if (!this.wine || this.catalogueMode) return;
+    if (!this.wine || this.catalogueMode || this.readOnlyMode) return;
 
     this.selectedRating = this.wine.rating != null ? Math.round(this.wine.rating * 2) / 2 : null;
     this.isRatingModalOpen = true;

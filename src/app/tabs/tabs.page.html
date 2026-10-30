@@ -20,6 +20,13 @@
     <ion-tab-button tab="settings">
       <ion-icon name="settings-outline"></ion-icon>
       <ion-label>{{ 'TABS.SETTINGS' | transloco }}</ion-label>
+      @if (isCatalogueAdmin$ | async) {
+        @if ((unseenProposalCount$ | async); as unseenCount) {
+          @if (unseenCount > 0) {
+            <span class="tab-proposal-badge" aria-hidden="true">{{ unseenCount }}</span>
+          }
+        }
+      }
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>

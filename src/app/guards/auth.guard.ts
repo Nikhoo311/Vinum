@@ -1,7 +1,9 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../core/services/auth.service';
+import { CatalogueService } from '../core/services/catalogue.service';
 import { hasCompletedSetup } from '../core/utils/user.util';
 
 /**
@@ -34,4 +36,16 @@ export const guestGuard: CanActivateFn = async () => {
 
   if (!user) return true;
   return router.createUrlTree([hasCompletedSetup(user) ? '/home' : '/preference']);
+};
+
+/** Réserve l'interface de modération aux administrateurs de la collection `admins`. */
+export const catalogueAdminGuard: CanActivateFn = async () => {
+  const router = inject(Router);
+  const auth = inject(AuthService);
+  const catalogue = inject(CatalogueService);
+  const user = await auth.waitUntilReady();
+  if (!user) return router.createUrlTree(['/auth']);
+
+  const isAdmin = await firstValueFrom(catalogue.isAdmin$);
+  return isAdmin ? true : router.createUrlTree(['/settings']);
 };

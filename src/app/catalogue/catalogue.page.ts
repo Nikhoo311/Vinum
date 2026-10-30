@@ -4,15 +4,18 @@ import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angu
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, InfiniteScrollCustomEvent, IonContent, IonicModule } from '@ionic/angular';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
 
 import { AddWineFormComponent } from '../components/add-wine-form/add-wine-form.component';
+import { CatalogueSearchToolsComponent } from '../components/catalogue-search-tools/catalogue-search-tools.component';
 import { CheckboxComponent } from '../components/checkbox/checkbox.component';
 import { CustomModalComponent } from '../components/custom-modal/custom-modal.component';
 import { SelectComponent, SelectOption } from '../components/select/select.component';
 import { WineSheetModalComponent } from '../components/wine-sheet-modal/wine-sheet-modal.component';
 import { createWineForm, emptyWineFormValue, wineDetailsFromForm } from '../core/forms/wine-form';
 import {
+  CatalogueProposal,
   CatalogueScope,
   CatalogueSort,
   CatalogueStatus,
@@ -70,6 +73,7 @@ const STATUS_OPTIONS: readonly { value: CatalogueStatus; labelKey: string }[] = 
     TranslocoModule,
     ReactiveFormsModule,
     AddWineFormComponent,
+    CatalogueSearchToolsComponent,
     CheckboxComponent,
     CustomModalComponent,
     SelectComponent,
@@ -83,6 +87,7 @@ export class CataloguePage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly alertController = inject(AlertController);
   private readonly transloco = inject(TranslocoService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild(IonContent) private content?: IonContent;
@@ -106,6 +111,7 @@ export class CataloguePage implements OnInit {
   // Données et résultats calculés
   communityWines: CatalogueWine[] = [];
   personalWines: CatalogueWine[] = [];
+  userProposals: CatalogueProposal[] = [];
   wishlist = new Set<string>();
   filteredWines: CatalogueWine[] = [];
   displayedWines: CatalogueWine[] = [];
@@ -130,18 +136,28 @@ export class CataloguePage implements OnInit {
 
   private userId = '';
   private caveWines: UserWine[] = [];
+  private seenProposalUpdates = new Set<string>();
 
   ngOnInit(): void {
-    combineLatest([this.caveService.wines$, this.catalogueService.communityWines$, this.catalogueService.personalWines$, this.auth.currentUser$])
+    combineLatest([
+      this.caveService.wines$,
+      this.catalogueService.communityWines$,
+      this.catalogueService.personalWines$,
+      this.auth.currentUser$,
+      this.catalogueService.userProposals$,
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([cave, community, personal, user]) => {
+      .subscribe(([cave, community, personal, user, userProposals]) => {
         if ((user?.id ?? '') !== this.userId) {
           this.userId = user?.id ?? '';
           this.wishlist = this.catalogueService.loadWishlist();
+          this.loadSeenProposalUpdates();
         }
+
         this.caveWines = cave;
         this.communityWines = community;
         this.personalWines = personal;
+        this.userProposals = userProposals;
         this.refresh();
       });
 
@@ -151,6 +167,10 @@ export class CataloguePage implements OnInit {
     // S'abonner aux changements des controls de filtre
     this.regionControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
     this.sortControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
+  }
+
+  ionViewWillEnter(): void {
+    this.loadSeenProposalUpdates();
   }
 
   // ── Libellés et listes pour le gabarit ────────────────────
@@ -194,6 +214,16 @@ export class CataloguePage implements OnInit {
 
   get isDetailsWishlisted(): boolean {
     return !!this.detailsWine?.id && this.wishlist.has(this.detailsWine.id);
+  }
+
+  get pendingUserProposalCount(): number {
+    return this.userProposals.filter((proposal) => proposal.status === 'pending').length;
+  }
+
+  get unseenProposalUpdateCount(): number {
+    return this.userProposals.filter((proposal) =>
+      proposal.status !== 'pending' && !this.seenProposalUpdates.has(proposal.id)
+    ).length;
   }
 
   isWishlisted(wineId: string): boolean {
@@ -452,6 +482,27 @@ export class CataloguePage implements OnInit {
   }
 
   // ── Internes ──────────────────────────────────────────────
+
+  openMyProposals(): void {
+    void this.router.navigate(['/catalogue/my-proposals']);
+  }
+
+  closeProposalForm(): void {
+    this.proposalOpen = false;
+  }
+
+  private loadSeenProposalUpdates(): void {
+    this.seenProposalUpdates = new Set();
+    if (!this.userId) return;
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem(`catalogue-proposal-seen-${this.userId}`) ?? '[]');
+      if (Array.isArray(saved)) {
+        this.seenProposalUpdates = new Set(saved.filter((id): id is string => typeof id === 'string'));
+      }
+    } catch {
+      this.seenProposalUpdates = new Set();
+    }
+  }
 
   private get allWines(): CatalogueWine[] {
     return [...this.communityWines, ...this.personalWines];

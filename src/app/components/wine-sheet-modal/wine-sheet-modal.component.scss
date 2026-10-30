@@ -29,6 +29,13 @@
       color: var(--text-soft, #8B8680);
       margin: 0;
     }
+
+    &__chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
   }
 }
 
@@ -61,6 +68,10 @@ ion-chip {
     margin: 0;
     overflow-wrap: anywhere;
   }
+}
+
+.sheet-section--description p {
+  white-space: pre-line;
 }
 
 ion-col,

@@ -29,14 +29,16 @@ Les règles sont dans [`firestore.rules`](../firestore.rules). **Tester dans l'�
 
 ## Règles Firestore
 
-Principe : *chacun ne voit et ne modifie que ses propres données ; tout le reste est refusé.*
+Principe : *chacun ne voit et ne modifie que ses propres données ; les administrateurs peuvent lire les profils pour identifier les auteurs de propositions, et tout le reste est refusé.*
 
 | Chemin | Lecture / suppression | Création / modification |
 |---|---|---|
-| `users/{uid}` | propriétaire (`request.auth.uid == uid`) | propriétaire **et** contenu valide |
+| `users/{uid}` | propriétaire ; administrateur en lecture pour afficher le nom de l'auteur d'une proposition | propriétaire **et** contenu valide |
 | `users/{uid}/wine/{wineId}` | propriétaire | propriétaire **et** contenu valide |
 | `users/{uid}/catalogue/{id}` | propriétaire | propriétaire **et** contenu valide (mêmes règles qu'un vin) |
-| `catalogueProposals/{id}` | l'auteur (`ownerId`) | **création seule** : `ownerId` = uid, `status == 'pending'`, `createdAt` = horodatage serveur, liste de champs fermée ; ni modification ni suppression |
+| `admins/{uid}` | propriétaire du document | aucune écriture depuis l'application ; la console Firebase gère l'accès |
+| `catalogueProposals/{id}` | auteur (`ownerId`) ou administrateur | auteur : création en `pending` et suppression de ses seules propositions en attente ; administrateur : modération et remise en attente, avec retrait atomique du vin publié si nécessaire |
+| `catalogue/{id}` | utilisateur connecté | création par un administrateur lors de l'acceptation ; suppression réservée à la remise en attente de sa proposition publiée |
 | tout autre chemin | refusé | refusé |
 
 ### Validations de contenu
@@ -50,7 +52,9 @@ Ces validations sont **volontairement tolérantes** avec les champs facultatifs,
 
 ### Limites des règles
 
-- Les propositions s'accumulent dans `catalogueProposals` : leur **modération** (lecture de toutes les propositions, publication) se fait hors de l'application (console Firebase ou Admin SDK, qui ignorent les règles). Aucune limite de débit n'est appliquée côté règles.
+- **Administrateurs du catalogue** : créer dans la console Firebase `admins/{uid}` avec `enabled: true` pour accorder l'accès à la modération. L'UID est celui du compte Firebase Auth. Supprimer le document ou passer `enabled` à `false` pour révoquer l'accès. Les clients ne peuvent ni lire les documents d'autres administrateurs ni créer/modifier ces documents ; les règles protègent aussi les opérations de modération et de publication.
+- Le motif de refus est facultatif (maximum 1 000 caractères). Les propositions acceptées ou refusées sont conservées ; une acceptation publie la fiche dans `catalogue/{id}` et, si l'administrateur a corrigé des champs, synchronise ces corrections dans la proposition, le tout dans une transaction atomique. Un administrateur peut remettre une proposition traitée en attente ; si elle était publiée, sa fiche est supprimée du catalogue dans la même transaction.
+- Aucune limite de débit n'est appliquée aux propositions côté règles.
 - Elles ne peuvent pas garantir l'**unicité d'un emplacement** dans la cave (deux fiches pourraient revendiquer la même case) : la cohérence est assurée par le client. Voir [Limites connues](REVIEW.md#limites-connues).
 - Elles ne vérifient pas que `rows × cols` correspond au nombre de bouteilles ; le redimensionnement passe par `resizeCave` (lot atomique).
 - `CAVE_MAX` (24) est une règle de **produit** appliquée par l'interface ; le plafond technique des règles est 240 (`CAVE_MAX_PREMIUM`).

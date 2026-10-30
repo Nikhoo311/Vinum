@@ -1,17 +1,28 @@
-import { Injector, Injectable, inject, runInInjectionContext } from '@angular/core';
+import { Injector, Injectable, NgZone, inject, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
   collectionData,
+  deleteField,
   deleteDoc,
   doc,
+  docSnapshots,
+  getDoc,
+  query,
+  runTransaction,
   serverTimestamp,
   setDoc,
+  where,
   writeBatch,
 } from '@angular/fire/firestore';
-import { Observable, catchError, distinctUntilChanged, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, combineLatest, distinctUntilChanged, map, of, shareReplay, switchMap } from 'rxjs';
 
-import { CatalogueWine, CatalogueWineData } from '../models/catalogue-wine.model';
+import {
+  CatalogueProposal,
+  CatalogueProposalDecision,
+  CatalogueWine,
+  CatalogueWineData,
+} from '../models/catalogue-wine.model';
 import { AuthService } from './auth.service';
 import { CaveService } from './cave.service';
 import { findFreePlacements } from '../utils/placement.util';
@@ -19,6 +30,7 @@ import { listFreeSlots, toCatalogueWine, FreeSlot } from '../utils/catalogue.uti
 import { omitUndefined } from '../utils/wine.util';
 
 const WISHLIST_KEY_PREFIX = 'catalogue-wishlist-';
+const VIEWED_PROPOSALS_KEY_PREFIX = 'catalogue-viewed-proposals-';
 
 /**
  * Catalogue de vins : catalogue commun (`catalogue`), fiches personnelles (`users/{uid}/catalogue`), propositions au catalogue
@@ -30,6 +42,8 @@ export class CatalogueService {
   private readonly authService = inject(AuthService);
   private readonly caveService = inject(CaveService);
   private readonly injector = inject(Injector);
+  private readonly ngZone = inject(NgZone);
+  private readonly viewedProposalsChanged$ = new BehaviorSubject<void>(undefined);
 
   /** Catalogue commun publié, accessible aux utilisateurs connectés. */
   readonly communityWines$: Observable<CatalogueWine[]> = this.authService.currentUser$.pipe(
@@ -53,8 +67,173 @@ export class CatalogueService {
     })
   );
 
+  /** Indique si l'utilisateur courant possède une entrée d'administration créée côté console. */
+  readonly isAdmin$: Observable<boolean> = this.authService.currentUser$.pipe(
+    map((user) => user?.id ?? ''),
+    distinctUntilChanged(),
+    switchMap((uid) => uid ? this.watchAdmin(uid) : of(false)),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  /** Toutes les propositions de l'administrateur, y compris les décisions déjà prises. */
+  readonly allProposals$: Observable<CatalogueProposal[]> = this.isAdmin$.pipe(
+    distinctUntilChanged(),
+    switchMap((isAdmin) => isAdmin ? this.watchProposals() : of<CatalogueProposal[]>([])),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  /** Propositions en attente, visibles uniquement par les administrateurs. */
+  readonly pendingProposals$: Observable<CatalogueProposal[]> = this.allProposals$.pipe(
+    map((proposals) => proposals.filter((proposal) => proposal.status === 'pending'))
+  );
+
+  /** Nombre de propositions en attente que l'administrateur n'a pas encore consultées. */
+  readonly unseenAdminProposalCount$ = combineLatest([
+    this.allProposals$,
+    this.authService.currentUser$,
+    this.viewedProposalsChanged$,
+  ]).pipe(
+    map(([proposals, user]) => {
+      if (!user) return 0;
+      const viewedIds = this.loadViewedProposalIds(user.id);
+      return proposals.filter((proposal) => proposal.status === 'pending' && !viewedIds.has(proposal.id)).length;
+    }),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  /** Historique des propositions de l'utilisateur connecté. */
+  readonly userProposals$: Observable<CatalogueProposal[]> = this.authService.currentUser$.pipe(
+    map((user) => user?.id ?? ''),
+    distinctUntilChanged(),
+    switchMap((uid) => uid ? this.watchProposals(uid) : of<CatalogueProposal[]>([]))
+  );
+
   private get userId(): string {
     return this.authService.currentUser?.id ?? '';
+  }
+
+  /** Marque une proposition comme consultée pour l'administrateur courant. */
+  markProposalAsViewed(proposalId: string): void {
+    const uid = this.userId;
+    if (!uid || !proposalId) return;
+
+    const viewedIds = this.loadViewedProposalIds(uid);
+    if (viewedIds.has(proposalId)) return;
+    viewedIds.add(proposalId);
+
+    try {
+      localStorage.setItem(VIEWED_PROPOSALS_KEY_PREFIX + uid, JSON.stringify([...viewedIds]));
+    } catch (error) {
+      console.error('Enregistrement de la consultation de la proposition impossible :', error);
+      throw error;
+    }
+    this.ngZone.run(() => this.viewedProposalsChanged$.next());
+  }
+
+  /** Lit les noms des auteurs ciblés, uniquement pour les propositions affichées à l'admin. */
+  async loadProposalAuthorNames(ownerIds: readonly string[]): Promise<Map<string, string>> {
+    const uniqueIds = [...new Set(ownerIds.filter(Boolean))];
+    const profiles = await Promise.all(uniqueIds.map((uid) => getDoc(doc(this.firestore, 'users', uid))));
+    return new Map(profiles.flatMap((profile, index) => {
+      if (!profile.exists()) return [];
+      const data = profile.data();
+      const name = [data['firstName'], data['lastName']]
+        .filter((part): part is string => typeof part === 'string')
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .join(' ');
+      return name ? [[uniqueIds[index], name] as const] : [];
+    }));
+  }
+
+  private loadViewedProposalIds(uid: string): Set<string> {
+    try {
+      const stored = localStorage.getItem(VIEWED_PROPOSALS_KEY_PREFIX + uid);
+      if (!stored) return new Set();
+      const parsed: unknown = JSON.parse(stored);
+      if (!Array.isArray(parsed) || !parsed.every((id) => typeof id === 'string')) {
+        console.error('Liste des propositions consultées invalide dans le stockage local.');
+        return new Set();
+      }
+      return new Set(parsed);
+    } catch (error) {
+      console.error('Lecture des propositions consultées impossible :', error);
+      return new Set();
+    }
+  }
+
+  private watchAdmin(uid: string): Observable<boolean> {
+    return runInInjectionContext(this.injector, () => docSnapshots(doc(this.firestore, 'admins', uid))).pipe(
+      map((snapshot) => snapshot.data()?.['enabled'] === true),
+      catchError((error) => {
+        console.error('Vérification des permissions administrateur impossible :', error);
+        return of(false);
+      })
+    );
+  }
+
+  private watchProposals(ownerId?: string): Observable<CatalogueProposal[]> {
+    return runInInjectionContext(this.injector, () =>
+      collectionData(
+        ownerId
+          ? query(collection(this.firestore, 'catalogueProposals'), where('ownerId', '==', ownerId))
+          : collection(this.firestore, 'catalogueProposals'),
+        { idField: 'id' }
+      )
+    ).pipe(
+      map((documents) =>
+        documents
+          .map((document) => this.toProposal(document))
+          .filter((proposal): proposal is CatalogueProposal => proposal !== null)
+          .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+      ),
+      catchError((error) => {
+        console.error('Lecture des propositions impossible :', error);
+        return of<CatalogueProposal[]>([]);
+      })
+    );
+  }
+
+  private toProposal(document: Record<string, unknown>): CatalogueProposal | null {
+    const id = typeof document['id'] === 'string' ? document['id'] : '';
+    const ownerId = typeof document['ownerId'] === 'string' ? document['ownerId'] : '';
+    const status = document['status'];
+    const wine = toCatalogueWine(id, document);
+
+    if (!id || !ownerId || !wine || !['pending', 'approved', 'rejected'].includes(String(status))) return null;
+    const createdAt = this.timestampToIso(document['createdAt']);
+    const moderatedAt = this.timestampToIso(document['moderatedAt']);
+
+    return {
+      id,
+      ownerId,
+      status: status as CatalogueProposal['status'],
+      name: wine.name,
+      domain: wine.domain,
+      region: wine.region,
+      vintage: wine.vintage,
+      type: wine.type,
+      grapeVariety: wine.grapeVariety,
+      unitPrice: wine.unitPrice,
+      ...(wine.description === undefined ? {} : { description: wine.description }),
+      ...(wine.foodPairing === undefined ? {} : { foodPairing: wine.foodPairing }),
+      ...(wine.rating === undefined ? {} : { rating: wine.rating }),
+      ...(wine.peakMaturityYear === undefined ? {} : { peakMaturityYear: wine.peakMaturityYear }),
+      ...(createdAt ? { createdAt } : {}),
+      ...(typeof document['moderatedBy'] === 'string' ? { moderatedBy: document['moderatedBy'] } : {}),
+      ...(moderatedAt ? { moderatedAt } : {}),
+      ...(typeof document['rejectionReason'] === 'string' ? { rejectionReason: document['rejectionReason'] } : {}),
+    };
+  }
+
+  private timestampToIso(value: unknown): string | undefined {
+    if (typeof value === 'string') return value;
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value === 'object' && value !== null && 'toDate' in value && typeof value.toDate === 'function') {
+      return value.toDate().toISOString();
+    }
+    return undefined;
   }
 
   private watchWines(path: string[], errorMessage: string): Observable<CatalogueWine[]> {
@@ -159,14 +338,119 @@ export class CatalogueService {
   }
 
   /** Propose un vin au catalogue commun ; il sera vérifié avant publication. */
-  async submitProposal(data: CatalogueWineData): Promise<void> {
+  async submitProposal(data: CatalogueWineData): Promise<string> {
     const ownerId = this.userId;
     if (!ownerId) throw new Error('Utilisateur non connecté.');
 
-    await setDoc(
-      doc(collection(this.firestore, 'catalogueProposals')),
-      this.proposalOf(omitUndefined({ ...data }), ownerId)
-    );
+    const proposalRef = doc(collection(this.firestore, 'catalogueProposals'));
+    await setDoc(proposalRef, this.proposalOf(omitUndefined({ ...data }), ownerId));
+    return proposalRef.id;
+  }
+
+  /** Retire une proposition encore en attente, uniquement pour son auteur. */
+  async cancelProposal(proposalId: string): Promise<void> {
+    if (!this.userId) throw new Error('Utilisateur non connecté.');
+    await deleteDoc(doc(this.firestore, 'catalogueProposals', proposalId));
+  }
+
+  /** Publie ou refuse atomiquement une proposition encore en attente avec un lot Firestore. */
+  async moderateProposal(
+    proposalId: string,
+    decision: CatalogueProposalDecision,
+    rejectionReason?: string,
+    correctedWine?: CatalogueWineData
+  ): Promise<void> {
+    const adminId = this.userId;
+    if (!adminId) throw new Error('Utilisateur non connecté.');
+
+    const proposalRef = doc(this.firestore, 'catalogueProposals', proposalId);
+    const catalogueRef = doc(this.firestore, 'catalogue', proposalId);
+
+    const proposalSnapshot = await getDoc(proposalRef);
+    if (!proposalSnapshot.exists() || proposalSnapshot.data()['status'] !== 'pending') {
+      throw new Error('Cette proposition a déjà été modérée ou n’existe plus.');
+    }
+
+    const batch = writeBatch(this.firestore);
+    if (decision === 'approved') {
+      const publishedSnapshot = await getDoc(catalogueRef);
+      if (publishedSnapshot.exists()) throw new Error('Un vin du catalogue utilise déjà cet identifiant.');
+
+      const wine = toCatalogueWine(proposalId, proposalSnapshot.data());
+      if (!wine) throw new Error('Les données de la proposition sont invalides.');
+
+      const publishedWine: CatalogueWineData = correctedWine
+        ? omitUndefined({ ...correctedWine })
+        : {
+            name: wine.name,
+            domain: wine.domain,
+            region: wine.region,
+            vintage: wine.vintage,
+            type: wine.type,
+            grapeVariety: wine.grapeVariety,
+            unitPrice: wine.unitPrice,
+            ...(wine.description === undefined ? {} : { description: wine.description }),
+            ...(wine.foodPairing === undefined ? {} : { foodPairing: wine.foodPairing }),
+            ...(wine.rating === undefined ? {} : { rating: wine.rating }),
+            ...(wine.peakMaturityYear === undefined ? {} : { peakMaturityYear: wine.peakMaturityYear }),
+          };
+      batch.set(catalogueRef, publishedWine);
+    }
+
+    const reason = rejectionReason?.trim();
+    batch.update(proposalRef, {
+      ...(decision === 'approved' && correctedWine ? {
+        name: correctedWine.name,
+        domain: correctedWine.domain,
+        region: correctedWine.region,
+        vintage: correctedWine.vintage,
+        type: correctedWine.type,
+        grapeVariety: correctedWine.grapeVariety,
+        unitPrice: correctedWine.unitPrice,
+        description: correctedWine.description ?? '',
+        foodPairing: correctedWine.foodPairing ?? [],
+        rating: correctedWine.rating ?? deleteField(),
+        peakMaturityYear: correctedWine.peakMaturityYear ?? deleteField(),
+      } : {}),
+      status: decision,
+      moderatedBy: adminId,
+      moderatedAt: serverTimestamp(),
+      ...(decision === 'rejected' && reason ? { rejectionReason: reason } : {}),
+    });
+    await batch.commit();
+  }
+
+  /** Remet en attente une proposition traitée ; une fiche publiée est retirée atomiquement du catalogue. */
+  async requeueProposal(proposalId: string): Promise<void> {
+    if (!this.userId) throw new Error('Utilisateur non connecté.');
+
+    const proposalRef = doc(this.firestore, 'catalogueProposals', proposalId);
+    const catalogueRef = doc(this.firestore, 'catalogue', proposalId);
+
+    await runTransaction(this.firestore, async (transaction) => {
+      const proposalSnapshot = await transaction.get(proposalRef);
+      if (!proposalSnapshot.exists()) throw new Error('Cette proposition n’existe plus.');
+
+      const status = proposalSnapshot.data()['status'];
+      if (status !== 'approved' && status !== 'rejected') {
+        throw new Error('Cette proposition n’est pas traitée.');
+      }
+
+      if (status === 'approved') {
+        const publishedSnapshot = await transaction.get(catalogueRef);
+        if (!publishedSnapshot.exists()) {
+          throw new Error('La fiche publiée est introuvable dans le catalogue.');
+        }
+        transaction.delete(catalogueRef);
+      }
+
+      transaction.update(proposalRef, {
+        status: 'pending',
+        moderatedBy: deleteField(),
+        moderatedAt: deleteField(),
+        rejectionReason: deleteField(),
+      });
+    });
   }
 
   private proposalOf(data: object, ownerId: string) {

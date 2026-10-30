@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { of } from 'rxjs';
 
 import { AuthService } from '../core/services/auth.service';
+import { CatalogueService } from '../core/services/catalogue.service';
 import { User } from '../core/models/user.model';
-import { authGuard, guestGuard, setupGuard } from './auth.guard';
+import { authGuard, catalogueAdminGuard, guestGuard, setupGuard } from './auth.guard';
 
 const READY_USER: User = {
   id: 'uid-1',
@@ -23,16 +25,17 @@ describe('guards d\'authentification', () => {
   const state = {} as RouterStateSnapshot;
 
   /** Les guards redirigent via `createUrlTree` : on le remplace par une simple trace de l'URL demandée. */
-  function configure(user: User | null): void {
+  function configure(user: User | null, isAdmin = false): void {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: { waitUntilReady: () => Promise.resolve(user) } },
+        { provide: CatalogueService, useValue: { isAdmin$: of(isAdmin) } },
         { provide: Router, useValue: { createUrlTree: (commands: string[]) => ({ redirect: commands[0] }) } },
       ],
     });
   }
 
-  async function run(guard: typeof authGuard): Promise<boolean | string> {
+  async function run(guard: typeof authGuard | typeof catalogueAdminGuard): Promise<boolean | string> {
     const result = await TestBed.runInInjectionContext(() => guard(route, state));
     return typeof result === 'boolean' ? result : (result as unknown as { redirect: string }).redirect;
   }
@@ -70,5 +73,18 @@ describe('guards d\'authentification', () => {
     TestBed.resetTestingModule();
     configure(NEW_USER);
     expect(await run(guestGuard)).toBe('/preference');
+  });
+
+  it('catalogueAdminGuard vérifie les permissions dans le contexte d’injection', async () => {
+    configure(READY_USER, true);
+    expect(await run(catalogueAdminGuard)).toBeTrue();
+
+    TestBed.resetTestingModule();
+    configure(READY_USER, false);
+    expect(await run(catalogueAdminGuard)).toBe('/settings');
+
+    TestBed.resetTestingModule();
+    configure(null);
+    expect(await run(catalogueAdminGuard)).toBe('/auth');
   });
 });

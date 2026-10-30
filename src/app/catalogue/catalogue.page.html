@@ -2,23 +2,29 @@
   <section class="catalogue ion-padding">
     <h1 class="visually-hidden">{{ 'TABS.CATALOGUE' | transloco }}</h1>
 
-    <!-- Liste de souhaits -->
-    <button type="button" class="wishlist-card" (click)="wishlistOpen = true">
-      <span class="wishlist-card__text">
-        <strong>{{ 'CATALOGUE.WISHLIST' | transloco }}</strong>
-        <span>
-          @if (wishlistWines.length) {
-            {{ 'CATALOGUE.TO_BUY' | transloco }} · {{ wishlistSum | number: '1.0-2' }} €
-          } @else {
-            {{ 'CATALOGUE.NOTHING_YET' | transloco }}
-          }
-        </span>
-      </span>
-      <span class="wishlist-card__end">
-        <span class="wishlist-card__count">{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlistWines.length } }}</span>
-        <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
-      </span>
-    </button>
+    <ion-grid class="catalogue-tiles">
+      <ion-row>
+        <ion-col size="6">
+          <button type="button" class="catalogue-tile" (click)="wishlistOpen = true">
+            <span>{{ 'CATALOGUE.WISHLIST' | transloco }}</span>
+            <strong>{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: wishlistWines.length } }}</strong>
+            <small>{{ wishlistSum | number: '1.0-2' }} € · {{ 'CATALOGUE.TO_BUY' | transloco }}</small>
+          </button>
+        </ion-col>
+        <ion-col size="6">
+          <button type="button" class="catalogue-tile catalogue-tile--proposals" (click)="openMyProposals()" [attr.aria-label]="'CATALOGUE.MY_PROPOSALS.TITLE' | transloco">
+            <span>{{ 'CATALOGUE.MY_PROPOSALS.TITLE' | transloco }}</span>
+            <strong>{{ 'CATALOGUE.MY_PROPOSALS.CARD_COUNT' | transloco: { count: userProposals.length } }}</strong>
+            @if (pendingUserProposalCount > 0) {
+              <small>{{ 'CATALOGUE.MY_PROPOSALS.PENDING_COUNT' | transloco: { count: pendingUserProposalCount } }}</small>
+            }
+            @if (unseenProposalUpdateCount) {
+              <ion-badge class="proposal-updates-badge" color="danger">{{ unseenProposalUpdateCount }}</ion-badge>
+            }
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
 
     <ion-segment
       class="scope-tabs"
@@ -35,29 +41,13 @@
     </ion-segment>
 
     <!-- Recherche et filtres -->
-    <div class="tools-sticky">
-      <div class="catalogue-tools">
-        <ion-searchbar
-          [value]="query"
-          [placeholder]="(scope === 'community' ? 'CATALOGUE.SEARCH' : 'CATALOGUE.SEARCH_PERSONAL') | transloco"
-          (ionInput)="onSearch($event)"
-          showClearButton="focus"
-          animated="false"
-          mode="md">
-        </ion-searchbar>
-        <button
-          type="button"
-          class="filter-toggle"
-          [class.active]="activeFilterCount > 0"
-          (click)="filtersOpen = true"
-          [attr.aria-label]="'CATALOGUE.FILTERS' | transloco">
-          <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
-          @if (activeFilterCount) {
-            <span class="filter-count">{{ activeFilterCount }}</span>
-          }
-        </button>
-      </div>
-
+    <app-catalogue-search-tools
+      [value]="query"
+      [placeholder]="(scope === 'community' ? 'CATALOGUE.SEARCH' : 'CATALOGUE.SEARCH_PERSONAL') | transloco"
+      [filterCount]="activeFilterCount"
+      [filterLabel]="'CATALOGUE.FILTERS' | transloco"
+      (searchInput)="onSearch($event)"
+      (filterClick)="filtersOpen = true">
       @if (activeFilterCount) {
         <div class="active-filters" [attr.aria-label]="'CATALOGUE.ACTIVE_FILTERS' | transloco">
           @for (type of selectedTypes; track type) {
@@ -86,7 +76,7 @@
           }
         </div>
       }
-    </div>
+    </app-catalogue-search-tools>
 
     <div class="result-line">
       <span>{{ 'CATALOGUE.WINE_COUNT' | transloco: { count: filteredWines.length } }}</span>
@@ -315,7 +305,7 @@
 </app-custom-modal>
 
 <!-- Proposition au catalogue commun -->
-<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" [footerHasBackground]="true" (didDismiss)="proposalOpen = false">
+<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" [footerHasBackground]="true" (didDismiss)="closeProposalForm()">
   <header class="modal-header">
     <h2>{{ 'CATALOGUE.PROPOSE_TITLE' | transloco }}</h2>
     <p>{{ 'CATALOGUE.PROPOSE_CHECK_HINT' | transloco }}</p>

@@ -119,6 +119,10 @@ Alertes de maturité par **notifications locales** (`@capacitor/local-notificati
 - `requestPermission()` : demande l'autorisation système ; refusée, le réglage reste désactivé et un message l'explique.
 - Calcul dans `core/utils/maturity.util.ts` (`maturityDate`, `planMaturityNotifications`, `notificationIdFor`), testé.
 
+## ProposalNotificationService
+
+Notifications locales sur appareil natif lorsque le statut d'une proposition personnelle change (`pending`, `approved`, `rejected`), avec le même réglage et l'autorisation système que les alertes de maturité. Les statuts précédents sont conservés par utilisateur sur l'appareil pour éviter les doublons et les notifications rétroactives au premier chargement. Les changements survenus pendant que l'application est fermée sont détectés à sa prochaine ouverture ; une notification distante immédiate nécessiterait un service push serveur.
+
 ## Utilitaires purs (`core/utils`)
 
 Fonctions exportées principales — toutes sans effet de bord :
@@ -158,10 +162,18 @@ Catalogue de vins : catalogue commun Firestore, fiches personnelles, proposition
 |---|---|
 | `communityWines$` | Vins publiés dans `catalogue`, validés par `toCatalogueWine` ; vide si déconnecté ou en cas d'erreur de lecture |
 | `personalWines$` | Fiches personnelles (`users/{uid}/catalogue`), validées par `toCatalogueWine` (les documents sans nom ou de type inconnu sont ignorés) ; vide si déconnecté ou en cas d'erreur de lecture |
+| `isAdmin$` | Écoute `admins/{uid}` ; l'autorisation existe uniquement si le document porte `enabled: true` |
+| `allProposals$` / `pendingProposals$` | Historique complet / propositions en attente, écoutés seulement pour un administrateur |
+| `userProposals$` | Historique des propositions de l'utilisateur connecté |
 | `loadWishlist()` / `saveWishlist(ids)` | Liste de souhaits, **stockée sur l'appareil** (`localStorage`, clé `catalogue-wishlist-<uid>`), non synchronisée entre appareils. `saveWishlist` retourne `false` si le stockage est indisponible |
 | `freeSlots` | Emplacements libres de la cave (`{row, col, label}`) |
 | `addToCave(wine, data, quantity, firstSlot, isCustom)` | Place `quantity` bouteilles à partir de l'emplacement `firstSlot` (`A3`), puis dans les suivants (`findFreePlacements`) ; passe par `CaveService.addWine`, qui fusionne avec une fiche identique existante |
 | `createPersonalWine(data, propose)` | Crée la fiche personnelle ; si `propose`, crée **dans le même lot** la proposition correspondante |
 | `submitProposal(data)` | Crée un document `catalogueProposals/{id}` (`status: 'pending'`, `createdAt` : horodatage serveur) |
+| `cancelProposal(id)` | Retire une proposition personnelle encore en attente |
+| `moderateProposal(id, decision, rejectionReason?, correctedWine?)` | Refuse une proposition en conservant éventuellement un motif, ou publie la fiche (éventuellement corrigée) dans `catalogue/{id}` ; un lot Firestore atomique publie la fiche et met à jour la proposition corrigée. Seules les règles Firestore autorisent l'opération à un administrateur |
+| `requeueProposal(id)` | Remet une proposition traitée en attente et efface ses métadonnées de modération ; retire également le document publié du catalogue dans la même transaction si la proposition était acceptée |
 
 Filtrage, tri, comptage des bouteilles en cave, régions et emplacements libres sont des fonctions pures dans `core/utils/catalogue.util.ts` (testées).
+
+La page Réglages expose le lien Admin uniquement lorsque `isAdmin$` est vrai ; `/settings/catalogue-proposals` est également protégé par `catalogueAdminGuard`. Le Catalogue affiche à chaque utilisateur son propre historique et permet de retirer une proposition en attente. Un renvoi après refus crée une nouvelle proposition afin de préserver l'historique. Les documents `admins/{uid}` sont gérés depuis la console Firebase, jamais par le client.

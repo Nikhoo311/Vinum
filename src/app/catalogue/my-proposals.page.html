@@ -1,0 +1,102 @@
+<ion-content [fullscreen]="true" class="my-proposals-content">
+  <main class="my-proposals-page">
+    <header class="my-proposals-title topbar">
+      <app-topbar-back-button [label]="'COMMON.BACK' | transloco"></app-topbar-back-button>
+      <h1>{{ 'CATALOGUE.MY_PROPOSALS.TITLE' | transloco }}</h1>
+    </header>
+
+    <ion-segment class="scope-tabs" mode="ios" [value]="tab" (ionChange)="setTab($any($event.detail.value))" [attr.aria-label]="'CATALOGUE.MY_PROPOSALS.TITLE' | transloco">
+      <ion-segment-button value="pending">
+        <ion-label>{{ 'CATALOGUE.MY_PROPOSALS.IN_PROGRESS' | transloco }} {{ pendingCount }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="processed">
+        <ion-label class="processed-tab-label">
+          {{ 'CATALOGUE.MY_PROPOSALS.COMPLETED' | transloco }} {{ processedCount }}
+          @if (unseenProposalUpdateCount; as updateCount) {
+            <ion-badge class="processed-tab-badge" color="danger">{{ updateCount }}</ion-badge>
+          }
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-list class="proposal-list" lines="none">
+      @for (proposal of visibleProposals; track proposal.id) {
+        <ion-item class="proposal-row" [class.proposal-row--updated]="isProposalHighlighted(proposal.id)" [button]="true" [detail]="true" (click)="openProposal(proposal)">
+          <ion-thumbnail slot="start" class="proposal-row__thumb">
+            <img [src]="WINE_TYPE_CONFIG[proposal.type].icon" alt="" aria-hidden="true" />
+          </ion-thumbnail>
+          <ion-label class="proposal-row__main">
+            <h2>{{ proposal.name }}</h2>
+            <p>{{ proposal.vintage }} · {{ proposal.region }}</p>
+            @if (proposal.createdAt) {
+              <p>{{ formatDate(proposal.createdAt) }}</p>
+            }
+          </ion-label>
+          @if (tab === 'processed') {
+            <ion-chip slot="end" class="proposal-row__status" [class.proposal-row__status--approved]="proposal.status === 'approved'" [class.proposal-row__status--rejected]="proposal.status === 'rejected'" [color]="proposal.status === 'approved' ? 'success' : 'danger'">
+              {{ ('CATALOGUE.MY_PROPOSALS.STATUS.' + proposal.status.toUpperCase()) | transloco }}
+            </ion-chip>
+          }
+        </ion-item>
+      } @empty {
+        @if (proposals.length > 0) {
+          <div class="review-empty">
+            <strong>{{ tab === 'pending' ? ('CATALOGUE.MY_PROPOSALS.EMPTY_PENDING' | transloco) : ('CATALOGUE.MY_PROPOSALS.EMPTY_PROCESSED' | transloco) }}</strong>
+            <p>{{ 'CATALOGUE.MY_PROPOSALS.EMPTY_HINT' | transloco }}</p>
+          </div>
+        }
+      }
+    </ion-list>
+
+    <ion-button expand="block" shape="round" class="new-proposal-button" (click)="startProposal()">
+      <ion-icon slot="start" name="paper-plane-outline" aria-hidden="true"></ion-icon>
+      {{ 'CATALOGUE.MAKE_PROPOSAL' | transloco }}
+    </ion-button>
+  </main>
+</ion-content>
+
+@if (selectedProposal; as proposal) {
+  <app-wine-sheet-modal
+    [isOpen]="true"
+    [initialBreakpoint]="0.86"
+    [breakpoints]="[0, 0.86]"
+    [wine]="selectedProposalWine"
+    [canRemoveBottle]="false"
+    [catalogueMode]="true"
+    [readOnlyMode]="true"
+    (isOpenChange)="closeProposal()">
+    <ion-row wine-sheet-grid-status>
+      <ion-col size="12">
+        <app-proposal-status-card
+          [status]="proposal.status"
+          [createdAt]="proposal.moderatedAt || proposal.createdAt"
+          [rejectionReason]="proposal.rejectionReason">
+        </app-proposal-status-card>
+      </ion-col>
+    </ion-row>
+    <div wine-sheet-actions class="user-proposal-actions">
+      @if (proposal.status === 'pending') {
+        <ion-button expand="block" fill="solid" shape="round" color="danger" (click)="cancelProposal(proposal)">
+          {{ 'CATALOGUE.MY_PROPOSALS.CANCEL' | transloco }}
+        </ion-button>
+      } @else if (proposal.status === 'rejected') {
+        <ion-button expand="block" shape="round" color="secondary" (click)="resendProposal(proposal)">
+          {{ 'CATALOGUE.MY_PROPOSALS.RESEND' | transloco }}
+        </ion-button>
+      }
+    </div>
+  </app-wine-sheet-modal>
+}
+
+<app-custom-modal [isOpen]="proposalOpen" [initialBreakpoint]="0.92" [breakpoints]="[0, 0.92]" [footerHasBackground]="true" (didDismiss)="closeProposalForm()">
+  <header class="modal-header">
+    <h2>{{ 'CATALOGUE.PROPOSE_TITLE' | transloco }}</h2>
+    <p>{{ 'CATALOGUE.PROPOSE_CHECK_HINT' | transloco }}</p>
+  </header>
+  <app-add-wine-form [form]="wineForm" formId="my-proposal-wine-form" [showQuantity]="false" (formSubmit)="submitProposal()"></app-add-wine-form>
+  <div modal-footer class="modal-footer">
+    <ion-button type="button" expand="block" shape="round" [disabled]="wineForm.invalid || saving" (click)="submitProposal()">
+      <ion-icon slot="start" name="paper-plane-outline"></ion-icon>{{ 'CATALOGUE.SEND_PROPOSAL' | transloco }}
+    </ion-button>
+  </div>
+</app-custom-modal>
